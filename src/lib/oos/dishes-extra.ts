@@ -439,7 +439,7 @@ export const EXTRA_DISHES: Dish[] = [
 
   // ---- Sides -----------------------------------------------------------
   {
-    id: "roast-roots",
+    id: "roast-roots-extra",
     name: "Roast roots with honey & thyme",
     course: "side",
     note: "Cut the day before; one shelf, one temperature.",
@@ -517,7 +517,7 @@ export const EXTRA_DISHES: Dish[] = [
     ],
   },
   {
-    id: "potato-gratin",
+    id: "potato-gratin-extra",
     name: "Potato gratin",
     course: "side",
     note: "Assembled a day ahead; holds hot for an hour without harm.",
