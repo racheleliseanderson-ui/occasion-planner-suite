@@ -149,8 +149,8 @@ function pick(
 }
 
 
-function buildMenu(c: Conditions): Dish[] {
-  const pool = LIBRARY.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
+function buildMenu(c: Conditions, library: Dish[]): Dish[] {
+  const pool = library.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
   const taken = new Set<string>();
   const out: Dish[] = [];
   const big = c.guests >= 10;
@@ -185,7 +185,7 @@ function buildMenu(c: Conditions): Dish[] {
     const wine = pool.find((d) => d.id === "drink-wine");
     if (wine) out.push(wine);
   }
-  const kit = LIBRARY.find((d) => d.id === "non-food-service");
+  const kit = library.find((d) => d.id === "non-food-service");
   if (kit) out.push(kit);
 
   return out;
@@ -195,10 +195,10 @@ function courseOrder(d: Dish): number {
   return ["board", "starter", "anchor", "side", "bread", "sweet", "drink"].indexOf(d.course);
 }
 
-export function buildPlan(c: Conditions): Plan {
+export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
   const stops: Stop[] = [];
   const advisories: string[] = [];
-  const dishes = buildMenu(c).sort((a, b) => courseOrder(a) - courseOrder(b));
+  const dishes = buildMenu(c, library).sort((a, b) => courseOrder(a) - courseOrder(b));
 
   // Leftovers are a stated goal, not an accident: deliberate leftovers buy volume,
   // "none" trims to the tightest honest batch count.
@@ -433,6 +433,19 @@ export function buildPlan(c: Conditions): Plan {
     });
 
   timeline.sort((a, b) => a.offsetMin - b.offsetMin);
+
+  // Hands-on work is dealt out across the declared crew so nobody arrives to a
+  // list that only one person can physically carry.
+  const crew = ["Host", ...Array.from({ length: c.helpers }, (_, i) => `Helper ${i + 1}`)];
+  let handIdx = 0;
+  timeline.forEach((t) => {
+    if (t.resource === "hands") {
+      t.owner = crew[handIdx % crew.length] ?? "Host";
+      handIdx += 1;
+    } else {
+      t.owner = "Host";
+    }
+  });
 
   // ---- Service sequence -------------------------------------------------
   const service: TimelineEntry[] = [];
