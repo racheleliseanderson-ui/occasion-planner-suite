@@ -228,17 +228,27 @@ export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
   const fridgeUsed =
     menu.reduce((s, m) => s + m.dish.fridgeUnits * Math.min(m.batches, 2), 0) +
     Math.ceil(c.guests / 8);
-  const fridgeCap = FRIDGE_CAP[c.kitchen.fridge];
+  const fridgeCap = FRIDGE_CAP[c.kitchen.fridge] + coldBonus(ops);
   const counterUsed = dayOf.reduce((s, m) => s + m.dish.counter, 0);
   const counterCap = COUNTER_CAP[c.kitchen.counter];
-  const handsUsed =
-    menu.reduce((s, m) => s + m.dish.activeMin * Math.min(m.batches, 3), 0) +
-    dayOf.length * 6 +
-    Math.round(c.guests * 1.5);
+  // Plated service asks more of the host at the pass; family style asks less.
+  const modeLoad = { plated: 2.6, family: 1.5, passed: 3.2 }[ops.table.serviceMode];
+  const handsUsed = Math.round(
+    (menu.reduce((s, m) => s + m.dish.activeMin * Math.min(m.batches, 3), 0) +
+      dayOf.length * 6 +
+      c.guests * modeLoad +
+      (ops.table.tablesideFinishing ? c.guests * 1.2 : 0) +
+      (c.style !== "seated" ? Math.max(0, ops.crowd.arrivalSpreadMin / ops.crowd.refillCadenceMin) * 8 : 0)) *
+      SKILL_FACTOR[ops.general.skill],
+  );
   const handsCap = windowMin * (1 + c.helpers * 0.85) + (c.prepWindowH > 6 ? 60 : 0);
   const styleWash = { seated: 4.2, buffet: 2.8, grazing: 2.1, cocktail: 1.6 }[c.style];
-  const washUsed = Math.round(c.guests * styleWash + dayOf.length * 3);
-  const washCap = (c.kitchen.dishwasher ? 90 : 45) + c.helpers * 25;
+  const washUsed = Math.round(
+    c.guests * styleWash * (1 + (ops.table.courses - 3) * 0.12) + dayOf.length * 3,
+  );
+  const washCap = Math.round(
+    ((c.kitchen.dishwasher ? 90 : 45) + c.helpers * 25) * SINK_FACTOR[ops.constraint.sink],
+  );
 
   const gauge = (
     key: string,
@@ -255,17 +265,25 @@ export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
   const gauges: LoadGauge[] = [
     gauge("oven", "Oven", ovenUsed, ovenCap, "min", `${c.kitchen.ovens} oven${c.kitchen.ovens === 1 ? "" : "s"} across a ${c.prepWindowH}h day-of window.`),
     gauge("burner", "Stovetop", burnerUsed, burnerCap, "burner-min", `${c.kitchen.burners} usable burners.`),
-    gauge("cold", "Cold storage", fridgeUsed, fridgeCap, "shelf units", `Fridge described as ${c.kitchen.fridge}; make-ahead dishes must live somewhere.`),
+    gauge("cold", "Cold storage", fridgeUsed, fridgeCap, "shelf units", `Fridge described as ${c.kitchen.fridge}${coldBonus(ops) ? `, plus ${coldBonus(ops)} declared cool-box units` : ""}; make-ahead dishes must live somewhere.`),
     gauge("counter", "Counter & landing", counterUsed, counterCap, "zones", `${c.kitchen.counter} working surface with ${dayOf.length} day-of dishes.`),
-    gauge("hands", "Host labour", handsUsed, handsCap, "min", `${c.helpers === 0 ? "Solo host" : `${c.helpers} helper${c.helpers === 1 ? "" : "s"}`} inside the prep window.`),
-    gauge("wash", "Wash-up throughput", washUsed, washCap, "items", c.kitchen.dishwasher ? "Dishwasher available." : "Hand-wash only — this is usually the hidden failure."),
+    gauge("hands", "Host labour", handsUsed, handsCap, "min", `${c.helpers === 0 ? "Solo host" : `${c.helpers} helper${c.helpers === 1 ? "" : "s"}`} at ${["cautious", "confident", "practised"][ops.general.skill - 1]} pace, ${ops.table.serviceMode} service.`),
+    gauge("wash", "Wash-up throughput", washUsed, washCap, "items", `${c.kitchen.dishwasher ? "Dishwasher available" : "Hand-wash only"}, ${ops.constraint.sink} sink across ${ops.table.courses} courses.`),
+    gauge("cleanup", "Recovery window", Math.round(c.guests * styleWash * 0.9), ops.general.cleanupWindowMin, "min", "Clearing, cooling and covering after the last plate."),
   ];
 
   if (c.style === "seated") {
     gauges.push(
-      gauge("table", "Table capacity", c.guests, c.kitchen.seats, "seats", "Seated service cannot exceed real seats."),
+      gauge("table", "Table capacity", c.guests, c.kitchen.seats, "seats", `${ops.table.tables} table${ops.table.tables === 1 ? "" : "s"} at ${ops.table.seatsPerTable} seats. Seated service cannot exceed real seats.`),
+    );
+  } else {
+    const seatedShare = Math.round(c.guests * (1 - ops.crowd.standingShare));
+    gauges.push(
+      gauge("table", "Seating pressure", seatedShare, Math.max(c.kitchen.seats, 1), "seats", `${Math.round(ops.crowd.standingShare * 100)}% of the room is expected to stand.`),
+      gauge("stations", "Serving stations", c.guests, Math.max(1, ops.crowd.stations) * 14, "guests", `${ops.crowd.stations} serving point${ops.crowd.stations === 1 ? "" : "s"}, ${ops.crowd.selfServe ? "self-serve" : "hosted"}, refilled every ${ops.crowd.refillCadenceMin} min.`),
     );
   }
+
 
   // ---- Hard stops (fail closed) ----------------------------------------
   if (c.style === "seated" && c.guests > c.kitchen.seats) {
