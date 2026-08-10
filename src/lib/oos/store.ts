@@ -68,7 +68,13 @@ const scenarioSchema = z.object({
   name: z.string().trim().min(1).max(60),
   note: z.string().trim().max(120).default(""),
   conditions: z.record(z.string(), z.unknown()),
+  /** favourites float to the top of the gallery */
+  pinned: z.boolean().default(false),
+  /** the kitchen profile in force when the preset was captured */
+  kitchenProfile: z.string().max(60).default(""),
+  createdAt: z.number().default(0),
 });
+
 
 const profileSchema = z.object({
   id: z.string(),
