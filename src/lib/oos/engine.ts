@@ -73,35 +73,83 @@ function equipmentOk(dish: Dish, c: Conditions): boolean {
 const FRIDGE_CAP = { tight: 11, normal: 17, roomy: 25 } as const;
 const COUNTER_CAP = { small: 4, medium: 7, large: 11 } as const;
 
+/** Per-head ceiling for each budget tier, in local currency units. */
+export const BUDGET_CEILING: Record<Conditions["budgetTier"], number> = { 1: 12, 2: 22, 3: 40 };
+
+export const BUDGET_LABELS: Record<Conditions["budgetTier"], string> = {
+  1: "Modest",
+  2: "Considered",
+  3: "Unconstrained",
+};
+
+const cost = (d: Dish) => d.costPerGuest ?? 2;
+
+function seasonFit(d: Dish, season: Conditions["season"]): number {
+  const list = d.season ?? ["year-round"];
+  if (list.includes("year-round")) return 8;
+  if (list.includes(season)) return 22;
+  return -18;
+}
+
 function pick(
   pool: Dish[],
   course: Dish["course"],
   count: number,
   c: Conditions,
   taken: Set<string>,
+  chosen: Dish[],
 ): Dish[] {
   const tightOven = c.kitchen.ovens <= 1;
   const shortWindow = c.prepWindowH <= 4;
+  const ceiling = BUDGET_CEILING[c.budgetTier];
+  const spent = chosen.reduce((s, d) => s + cost(d), 0);
+  const methods = new Set(chosen.map((d) => d.method));
+  const temps = new Set(chosen.map((d) => d.tempBand));
+  const dayOfCount = chosen.filter((d) => d.makeAheadDays === 0).length;
+
   const scored = pool
     .filter((d) => d.course === course && !taken.has(d.id))
     .map((d) => {
       let s = 0;
       if (d.shapes.includes(c.shape)) s += 40;
       if (d.formats.includes(c.style)) s += 25;
+      s += seasonFit(d, c.season);
       if (shortWindow) s += d.makeAheadDays * 14;
       if (tightOven) s -= Math.min(d.ovenMin, 120) / 14;
       if (c.kitchen.burners <= 2) s -= Math.min(d.burnerMin, 90) / 8;
       if (c.helpers === 0) s -= d.activeMin / 6;
       s += (3 - c.ambition) * (d.makeAheadDays * 3);
       s += c.ambition * (d.activeMin / 40);
+
+      // Balance: the route should not repeat one method, one temperature band,
+      // or stack every dish into the day-of window.
+      if (methods.has(d.method)) s -= 16;
+      if (temps.has(d.tempBand)) s -= 10;
+      if (d.makeAheadDays === 0 && dayOfCount >= 3) s -= 20;
+
+      // Budget: trim ambition rather than silently overspending.
+      const headroom = ceiling - spent;
+      if (cost(d) > headroom) s -= 30;
+      s -= cost(d) * (c.budgetTier === 1 ? 2.4 : c.budgetTier === 2 ? 1.1 : 0.3);
+
+      if (c.kids && d.kidFriendly) s += 12;
+      if (c.outdoor && d.outdoorSafe) s += 10;
+      if (c.leftovers === "deliberate") s += d.holdMin / 40;
+      if (c.leftovers === "none") s -= d.holdMin / 90;
+      if (c.kitchen.grill && d.grill) s += 12;
+
       return { d, s };
     })
     .sort((a, b) => b.s - a.s || a.d.id.localeCompare(b.d.id));
 
   const out = scored.slice(0, count).map((x) => x.d);
-  out.forEach((d) => taken.add(d.id));
+  out.forEach((d) => {
+    taken.add(d.id);
+    chosen.push(d);
+  });
   return out;
 }
+
 
 function buildMenu(c: Conditions): Dish[] {
   const pool = LIBRARY.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
