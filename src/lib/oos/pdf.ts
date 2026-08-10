@@ -144,7 +144,7 @@ export interface MenuCard {
   title: string;
   subtitle: string;
   footer: string;
-  items: { name: string; note: string; course?: string }[];
+  items: { name: string; note: string; course?: string | undefined }[];
 }
 
 /** A centred, typographic card for the table. One page, no chrome. */
