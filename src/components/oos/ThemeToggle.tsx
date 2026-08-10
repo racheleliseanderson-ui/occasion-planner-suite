@@ -25,7 +25,7 @@ export function ThemeToggle() {
             aria-pressed={on}
             title={THEME_LABELS[t]}
             className={
-              "px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors " +
+              "min-h-11 px-3 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:min-h-9 " +
               (i > 0 ? "border-l border-border " : "") +
               (on ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground")
             }

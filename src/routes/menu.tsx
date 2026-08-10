@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
+import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { takeMenu } from "@/lib/oos/handoff";
-import { menuCardPdf } from "@/lib/oos/pdf";
+import { menuCardPdf, styleForTheme } from "@/lib/oos/pdf";
+import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/menu")({
@@ -42,6 +44,7 @@ const btn =
   "min-h-11 border border-border bg-card px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground";
 
 function MenuBuilder() {
+  const { theme } = useTheme();
   const [lines, setLines] = useState<Line[]>([]);
   const [title, setTitle] = useState("A table for the evening");
   const [subtitle, setSubtitle] = useState("");
@@ -91,6 +94,7 @@ function MenuBuilder() {
             <span className="rule-label hidden sm:inline">Menu builder</span>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageToggle />
             <ThemeToggle />
             <Link
               to="/"
@@ -306,6 +310,7 @@ function MenuBuilder() {
                     })),
                   },
                   size,
+                  styleForTheme(theme),
                 )
               }
               className="mt-4 min-h-11 w-full border border-foreground bg-foreground px-4 py-2.5 text-sm text-background transition-opacity hover:opacity-85 disabled:opacity-40"

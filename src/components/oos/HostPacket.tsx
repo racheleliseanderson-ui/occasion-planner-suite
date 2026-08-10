@@ -1,19 +1,22 @@
 import type { Plan } from "@/lib/oos/types";
 import { DIET_LABELS } from "@/lib/oos/engine";
+import { useT } from "@/lib/i18n";
 
-const WHEN_LABEL = { d2: "Two days out", d1: "Day before", dayof: "Day of" } as const;
+
 
 export function HostPacket({ plan }: { plan: Plan }) {
   const c = plan.conditions;
+  const { t } = useT();
+  const WHEN_LABEL = { d2: t("packet.d2"), d1: t("packet.d1"), dayof: t("packet.dayof") } as const;
   return (
     <article className="paper packet-page px-6 py-8 sm:px-10 sm:py-12">
       <header className="border-b border-foreground pb-6">
-        <span className="rule-label">Host decision packet · Salty &amp; Clever</span>
+        <span className="rule-label">{t("packet.eyebrow")}</span>
         <h2 className="mt-2 font-display text-4xl tracking-tight">{c.label}</h2>
         <p className="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          {c.guests} guests · {c.style} · service {c.serviceTime} · {c.kitchen.ovens} oven
+          {c.guests} {t("packet.guests")} · {c.style} · {t("packet.service")} {c.serviceTime} · {c.kitchen.ovens} oven
           {c.kitchen.ovens === 1 ? "" : "s"} / {c.kitchen.burners} burners ·{" "}
-          {c.helpers === 0 ? "solo" : `${c.helpers} helper${c.helpers === 1 ? "" : "s"}`}
+          {c.helpers === 0 ? t("packet.solo") : `${c.helpers} helper${c.helpers === 1 ? "" : "s"}`}
         </p>
         <p className="mt-3 font-mono text-[11px] text-muted-foreground">
           Feasibility {plan.feasibility}/100 · balance {plan.balance}/100 · {plan.verdict} ·{" "}
@@ -31,7 +34,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
 
       {plan.stops.length > 0 && (
         <section className="packet-page mt-8">
-          <span className="rule-label">Blocked — resolve before shopping</span>
+          <span className="rule-label">{t("packet.blocked")}</span>
           <ul className="mt-3 space-y-3">
             {plan.stops.map((s) => (
               <li key={s.code} className="border-l-2 border-signal-over pl-3">
@@ -39,7 +42,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
                   {s.code} — {s.title}
                 </p>
                 <p className="text-sm text-muted-foreground">{s.detail}</p>
-                <p className="text-sm">Correction: {s.correction}</p>
+                <p className="text-sm">{t("packet.correction")} {s.correction}</p>
               </li>
             ))}
           </ul>
@@ -47,7 +50,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
       )}
 
       <section className="packet-page mt-8">
-        <span className="rule-label">01 · Controlled route</span>
+        <span className="rule-label">{t("packet.01")}</span>
         <ul className="mt-3 divide-y divide-border border-t border-border">
           {plan.menu.map((m) => (
             <li key={m.dish.id} className="flex flex-wrap justify-between gap-3 py-2">
@@ -64,7 +67,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
       </section>
 
       <section className="packet-page mt-8">
-        <span className="rule-label">02 · Where the plan is tight</span>
+        <span className="rule-label">{t("packet.02")}</span>
         <ul className="mt-3 divide-y divide-border border-t border-border">
           {plan.gauges.map((g) => (
             <li key={g.key} className="flex justify-between gap-3 py-2 text-sm">
@@ -78,7 +81,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
       </section>
 
       <section className="packet-page mt-8">
-        <span className="rule-label">03 · Shopping list</span>
+        <span className="rule-label">{t("packet.03")}</span>
         <ul className="mt-3 grid gap-x-8 border-t border-border sm:grid-cols-2">
           {plan.shopping.map((l) => (
             <li key={l.item} className="flex justify-between gap-3 border-b border-border py-2 text-sm">
@@ -96,7 +99,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
       </section>
 
       <section className="packet-page mt-8">
-        <span className="rule-label">04 · Prep clock</span>
+        <span className="rule-label">{t("packet.04")}</span>
         <ul className="mt-3 divide-y divide-border border-t border-border">
           {plan.timeline.map((t, i) => (
             <li key={i} className="grid gap-1 py-2 sm:grid-cols-[7rem_1fr]">
@@ -111,7 +114,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
       </section>
 
       <section className="packet-page mt-8">
-        <span className="rule-label">05 · Service sequence</span>
+        <span className="rule-label">{t("packet.05")}</span>
         <ul className="mt-3 divide-y divide-border border-t border-border">
           {plan.service.map((s, i) => (
             <li key={i} className="grid gap-1 py-2 sm:grid-cols-[7rem_1fr]">
@@ -126,10 +129,7 @@ export function HostPacket({ plan }: { plan: Plan }) {
       </section>
 
       <footer className="mt-10 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
-        Educational planning tool. Fixture menus, not tested recipes, live prices, or professional
-        food-service certification. Dietary categories are planning filters only and carry no
-        allergen safety guarantee — confirm ingredients and cross-contact yourself. Cool leftovers
-        within two hours. Signature: <span className="font-mono">{plan.signature}</span>
+        {t("packet.footer")} <span className="font-mono">{plan.signature}</span>
       </footer>
     </article>
   );

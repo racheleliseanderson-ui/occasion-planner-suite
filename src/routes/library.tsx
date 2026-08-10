@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from "react";
 import { BulkImport } from "@/components/oos/BulkImport";
 import { DishEditor } from "@/components/oos/DishEditor";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
+import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { GLOSSARY } from "@/lib/oos/explain";
 import { FIXTURE_IDS, isFixture, resolveLibrary } from "@/lib/oos/library";
 import {
@@ -82,7 +83,7 @@ function LibraryWorkshop() {
   const editedCount = Object.keys(config.dishOverrides).length;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-baseline gap-3">
@@ -92,6 +93,7 @@ function LibraryWorkshop() {
             <span className="rule-label hidden sm:inline">Library workshop</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageToggle />
             <ThemeToggle />
             <Link
               to="/"
