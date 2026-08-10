@@ -112,8 +112,9 @@ export async function planPdf(plan: Plan): Promise<void> {
   y = rule(doc, y);
   y = label(doc, "Prep clock", y);
   for (const t of [...plan.timeline, ...plan.service]) {
-    y = body(doc, `${t.at}  ${t.title}${t.owner ? `  [${t.owner}]` : ""}`, y, 9.5);
-    if (t.detail) y = body(doc, t.detail, y, 8.5, 6);
+    y = body(doc, `${t.phase}  ${t.clock}  ${t.task}${t.owner ? `  [${t.owner}]` : ""}`, y, 9.5);
+    if (t.dish) y = body(doc, `${t.dish} · ${t.minutes} min · ${t.resource}`, y, 8.5, 6);
+
   }
 
   doc.addPage();
