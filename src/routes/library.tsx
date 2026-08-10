@@ -454,6 +454,17 @@ function LibraryWorkshop() {
           </div>
         </section>
 
+        {/* Bulk import */}
+        <section>
+          <span className="rule-label">Section 03b</span>
+          <h2 className="mt-1 text-2xl tracking-tight">Bulk import</h2>
+          <div className="mt-4">
+            <BulkImport fixtureIds={FIXTURE_IDS} />
+          </div>
+        </section>
+
+
+
         {/* Glossary */}
         <section>
           <span className="rule-label">Section 04</span>
