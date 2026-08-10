@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
+import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { takeMenu } from "@/lib/oos/handoff";
 import { menuCardPdf, styleForTheme } from "@/lib/oos/pdf";
 import { useTheme } from "@/hooks/use-theme";
@@ -93,6 +94,7 @@ function MenuBuilder() {
             <span className="rule-label hidden sm:inline">Menu builder</span>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageToggle />
             <ThemeToggle />
             <Link
               to="/"

@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from "react";
 import { BulkImport } from "@/components/oos/BulkImport";
 import { DishEditor } from "@/components/oos/DishEditor";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
+import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { GLOSSARY } from "@/lib/oos/explain";
 import { FIXTURE_IDS, isFixture, resolveLibrary } from "@/lib/oos/library";
 import {
@@ -92,6 +93,7 @@ function LibraryWorkshop() {
             <span className="rule-label hidden sm:inline">Library workshop</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageToggle />
             <ThemeToggle />
             <Link
               to="/"
