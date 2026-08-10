@@ -1,38 +1,47 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Theme = "light" | "dark";
+export type Theme = "light" | "dark" | "contrast";
 
 const KEY = "oos-theme";
+const ORDER: Theme[] = ["light", "dark", "contrast"];
+
+export const THEME_LABELS: Record<Theme, string> = {
+  light: "Parchment",
+  dark: "Ink",
+  contrast: "High contrast",
+};
 
 function resolve(): Theme {
   if (typeof window === "undefined") return "light";
   try {
     const stored = window.localStorage.getItem(KEY);
-    if (stored === "light" || stored === "dark") return stored;
+    if (stored === "light" || stored === "dark" || stored === "contrast") return stored;
   } catch {
     /* storage unavailable */
   }
+  if (window.matchMedia("(prefers-contrast: more)").matches) return "contrast";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 /**
- * Device-remembered theme. First visit follows the operating system; once the
- * host toggles, that choice wins. The pre-hydration script in __root applies the
- * class before first paint, so there is no flash of the wrong theme.
+ * Device-remembered art direction. First visit follows the operating system —
+ * including a declared contrast preference; once the host chooses, that wins.
+ * The pre-hydration script in __root applies the class before first paint.
  */
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>("light");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const t = resolve();
-    setThemeState(t);
+    setThemeState(resolve());
     setReady(true);
   }, []);
 
   const apply = useCallback((t: Theme) => {
-    document.documentElement.classList.toggle("dark", t === "dark");
-    document.documentElement.style.colorScheme = t;
+    const root = document.documentElement;
+    root.classList.toggle("dark", t === "dark");
+    root.classList.toggle("contrast", t === "contrast");
+    root.style.colorScheme = t === "dark" ? "dark" : "light";
     try {
       window.localStorage.setItem(KEY, t);
     } catch {
@@ -41,7 +50,10 @@ export function useTheme() {
     setThemeState(t);
   }, []);
 
-  const toggle = useCallback(() => apply(theme === "dark" ? "light" : "dark"), [apply, theme]);
+  const cycle = useCallback(
+    () => apply(ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length]!),
+    [apply, theme],
+  );
 
-  return { theme, ready, setTheme: apply, toggle };
+  return { theme, ready, setTheme: apply, cycle, toggle: cycle, themes: ORDER };
 }
