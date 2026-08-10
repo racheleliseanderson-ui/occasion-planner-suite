@@ -197,10 +197,14 @@ function courseOrder(d: Dish): number {
   return ["board", "starter", "anchor", "side", "bread", "sweet", "drink"].indexOf(d.course);
 }
 
-export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
+export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
+  // Declared operating conditions are folded in before anything is modelled.
+  const c = normaliseConditions(input);
+  const ops = c.ops!;
   const stops: Stop[] = [];
   const advisories: string[] = [];
   const dishes = buildMenu(c, library).sort((a, b) => courseOrder(a) - courseOrder(b));
+
 
   // Leftovers are a stated goal, not an accident: deliberate leftovers buy volume,
   // "none" trims to the tightest honest batch count.
