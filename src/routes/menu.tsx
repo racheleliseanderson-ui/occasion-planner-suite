@@ -43,6 +43,7 @@ const btn =
   "min-h-11 border border-border bg-card px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground";
 
 function MenuBuilder() {
+  const { theme } = useTheme();
   const [lines, setLines] = useState<Line[]>([]);
   const [title, setTitle] = useState("A table for the evening");
   const [subtitle, setSubtitle] = useState("");
@@ -307,6 +308,7 @@ function MenuBuilder() {
                     })),
                   },
                   size,
+                  styleForTheme(theme),
                 )
               }
               className="mt-4 min-h-11 w-full border border-foreground bg-foreground px-4 py-2.5 text-sm text-background transition-opacity hover:opacity-85 disabled:opacity-40"
