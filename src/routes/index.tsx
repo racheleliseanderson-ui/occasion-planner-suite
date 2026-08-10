@@ -4,6 +4,7 @@ import { ConditionsPanel } from "@/components/oos/ConditionsPanel";
 import { PlanSurface } from "@/components/oos/PlanSurface";
 import { HostPacket } from "@/components/oos/HostPacket";
 import { signalClass } from "@/components/oos/Signals";
+import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
 import type { Conditions, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
