@@ -70,7 +70,7 @@ function equipmentOk(dish: Dish, c: Conditions): boolean {
   return true;
 }
 
-const FRIDGE_CAP = { tight: 8, normal: 13, roomy: 20 } as const;
+const FRIDGE_CAP = { tight: 11, normal: 17, roomy: 25 } as const;
 const COUNTER_CAP = { small: 4, medium: 7, large: 11 } as const;
 
 function pick(
@@ -89,7 +89,7 @@ function pick(
       if (d.shapes.includes(c.shape)) s += 40;
       if (d.formats.includes(c.style)) s += 25;
       if (shortWindow) s += d.makeAheadDays * 14;
-      if (tightOven) s -= Math.min(d.ovenMin, 120) / 6;
+      if (tightOven) s -= Math.min(d.ovenMin, 120) / 14;
       if (c.kitchen.burners <= 2) s -= Math.min(d.burnerMin, 90) / 8;
       if (c.helpers === 0) s -= d.activeMin / 6;
       s += (3 - c.ambition) * (d.makeAheadDays * 3);
