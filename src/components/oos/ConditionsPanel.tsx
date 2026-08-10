@@ -290,6 +290,73 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
+        <Field label="Season" hint="drives which fixtures read correctly">
+          <Segmented<Conditions["season"]>
+            value={value.season}
+            onSelect={(season) => set({ season })}
+            options={[
+              { value: "spring", label: "Spring" },
+              { value: "summer", label: "Summer" },
+              { value: "autumn", label: "Autumn" },
+              { value: "winter", label: "Winter" },
+              { value: "year-round", label: "Any" },
+            ]}
+          />
+        </Field>
+
+        <Field label="Budget tier" hint="per-head ceiling, indicative only">
+          <Segmented<Conditions["budgetTier"]>
+            value={value.budgetTier}
+            onSelect={(budgetTier) => set({ budgetTier })}
+            options={[
+              { value: 1, label: `Modest · ${BUDGET_CEILING[1]}/head` },
+              { value: 2, label: `Considered · ${BUDGET_CEILING[2]}/head` },
+              { value: 3, label: `Unconstrained · ${BUDGET_CEILING[3]}/head` },
+            ]}
+          />
+        </Field>
+
+        <Field label="Leftovers goal" hint="sets batch volume honestly">
+          <Segmented<Conditions["leftovers"]>
+            value={value.leftovers}
+            onSelect={(leftovers) => set({ leftovers })}
+            options={[
+              { value: "none", label: "None" },
+              { value: "some", label: "Some" },
+              { value: "deliberate", label: "Deliberate" },
+            ]}
+          />
+        </Field>
+
+        <Field label="Room conditions">
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => set({ kids: !value.kids })}
+              className={cn(
+                "border px-3 py-1.5 text-sm transition-colors",
+                value.kids
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-card hover:border-foreground/40",
+              )}
+            >
+              Children at the table
+            </button>
+            <button
+              type="button"
+              onClick={() => set({ outdoor: !value.outdoor })}
+              className={cn(
+                "border px-3 py-1.5 text-sm transition-colors",
+                value.outdoor
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-card hover:border-foreground/40",
+              )}
+            >
+              Usable outdoor space
+            </button>
+          </div>
+        </Field>
+
         <Field label="Dietary categories" hint="planning filters — not allergy guarantees">
           <div className="flex flex-wrap gap-1.5">
             {DIETS.map((d) => {
@@ -318,6 +385,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
             labels, cross-contact, or supplier changes. Confirm every ingredient yourself.
           </p>
         </Field>
+
       </div>
     </div>
   );
