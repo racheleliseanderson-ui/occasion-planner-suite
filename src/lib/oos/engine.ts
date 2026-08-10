@@ -143,10 +143,8 @@ function pick(
     .sort((a, b) => b.s - a.s || a.d.id.localeCompare(b.d.id));
 
   const out = scored.slice(0, count).map((x) => x.d);
-  out.forEach((d) => {
-    taken.add(d.id);
-    chosen.push(d);
-  });
+  // `chosen` is the caller's accumulator; it appends the return value itself.
+  out.forEach((d) => taken.add(d.id));
   return out;
 }
 
