@@ -1,5 +1,5 @@
 import { LIBRARY } from "./library";
-import { SINK_FACTOR, SKILL_FACTOR, coldBonus, normaliseConditions } from "./ops";
+import { DEFAULT_OPS, SINK_FACTOR, SKILL_FACTOR, coldBonus, normaliseConditions } from "./ops";
 
 import type {
   Conditions,
