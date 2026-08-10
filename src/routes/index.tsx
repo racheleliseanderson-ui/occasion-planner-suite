@@ -6,6 +6,8 @@ import { HostPacket } from "@/components/oos/HostPacket";
 import { signalClass } from "@/components/oos/Signals";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { ScenarioGallery } from "@/components/oos/ScenarioGallery";
+import { LanguageToggle } from "@/components/oos/LanguageToggle";
+import { useT } from "@/lib/i18n";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
 import { resolveLibrary } from "@/lib/oos/library";
 import { saveScenario, useConfig } from "@/lib/oos/store";
@@ -52,6 +54,7 @@ interface Variant {
 
 function Index() {
   const config = useConfig();
+  const { t } = useT();
   const library = useMemo(() => resolveLibrary(config), [config]);
   const [conditions, setConditions] = useState<Conditions>(DEFAULT_CONDITIONS);
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -66,21 +69,22 @@ function Index() {
     );
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       {/* Masthead */}
       <header className="no-print sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-baseline gap-3">
-            <span className="font-display text-lg tracking-tight">Occasion Operating System</span>
-            <span className="rule-label hidden sm:inline">Salty &amp; Clever</span>
+            <span className="font-display text-lg tracking-tight">{t("app.name")}</span>
+            <span className="rule-label hidden sm:inline">{t("app.house")}</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageToggle />
             <ThemeToggle />
             <Link
               to="/library"
               className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
-              Library workshop
+              {t("nav.library")}
             </Link>
             <a
               href="https://saltnotes.blog/restaurant-intelligence/"
@@ -88,14 +92,14 @@ function Index() {
               rel="noreferrer noopener"
               className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
-              Restaurant Intelligence ↗
+              {t("nav.restaurant")}
             </a>
             <button
               type="button"
               onClick={() => window.print()}
               className="border border-foreground px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
             >
-              Print packet
+              {t("action.print")}
             </button>
           </div>
         </div>
@@ -112,27 +116,23 @@ function Index() {
         />
         <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-24 sm:py-36 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
-            <span className="rule-label text-brass">Host planning instrument · v2</span>
+            <span className="rule-label text-brass">{t("hero.eyebrow")}</span>
             <h1 className="mt-4 font-display text-5xl leading-[0.95] tracking-tight sm:text-7xl">
-              Plan the night
+              {t("hero.title.1")}
               <br />
-              you can
-              <em className="not-italic text-brass"> actually</em>
+              {t("hero.title.2")}
+              <em className="not-italic text-brass"> {t("hero.title.3")}</em>
               <br />
-              host.
+              {t("hero.title.4")}
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-ink-muted">
-              Guest count, seating, real equipment, and dietary categories go in. A controlled route
-              comes out — shopping, prep clock, service sequence, and an honest reading of where the
-              evening is tight. Nothing is invented. When a plan cannot fit, it stops and tells you why.
+              {t("hero.body")}
             </p>
           </div>
           <div className="self-end border border-ink-muted/30 bg-ink/70 p-6 backdrop-blur-sm">
-            <span className="rule-label text-brass">Boundary</span>
+            <span className="rule-label text-brass">{t("hero.boundary")}</span>
             <p className="mt-3 text-sm leading-relaxed text-ink-muted">
-              Educational planning only. Fixture menus, not tested recipes. Dietary categories are
-              planning filters and carry no allergen safety guarantee. Capacity, equipment, and time
-              constraints fail closed rather than guess.
+              {t("hero.boundary.body")}
             </p>
           </div>
         </div>
@@ -143,23 +143,21 @@ function Index() {
         <div className="mx-auto max-w-6xl px-5 py-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="rule-label">Starting conditions</span>
-              <h2 className="mt-1 text-2xl tracking-tight">Twelve real situations</h2>
-              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                Load one, then move a single input to see what it costs you. Your own conditions can be
-                saved alongside them.
-              </p>
+              <span className="rule-label">{t("scen.eyebrow")}</span>
+              <h2 className="mt-1 text-2xl tracking-tight">{t("scen.title")}</h2>
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("scen.body")}</p>
             </div>
             <Link
               to="/library"
               className="border border-foreground px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
             >
-              Tune the library →
+              {t("scen.tune")}
             </Link>
           </div>
           <div className="mt-7">
             <ScenarioGallery
               activeLabel={conditions.label}
+              current={conditions}
               onLoad={(patch) => {
                 setConditions({ ...DEFAULT_CONDITIONS, ...patch } as Conditions);
                 setBuilt(true);
@@ -186,7 +184,7 @@ function Index() {
                 onClick={() => setBuilt(true)}
                 className="flex-1 bg-foreground px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-90"
               >
-                {built ? "Rebuild route" : "Build controlled route"}
+                {built ? t("work.rebuild") : t("work.build")}
               </button>
               <button
                 type="button"
@@ -196,7 +194,7 @@ function Index() {
                 }}
                 className="border border-border px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
               >
-                Reset
+                {t("work.reset")}
               </button>
             </div>
           </div>
@@ -204,8 +202,8 @@ function Index() {
           <div>
             <div className="mb-6 flex items-baseline justify-between gap-4">
               <div>
-                <span className="rule-label">Section 02</span>
-                <h2 className="mt-1 text-2xl tracking-tight">Controlled route</h2>
+                <span className="rule-label">{t("work.section02")}</span>
+                <h2 className="mt-1 text-2xl tracking-tight">{t("work.route")}</h2>
               </div>
               {built && (
                 <div className="flex flex-wrap items-center gap-2">
@@ -214,13 +212,13 @@ function Index() {
                     onClick={saveVariant}
                     className="border border-border px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground"
                   >
-                    Save as variation
+                    {t("work.saveVariation")}
                   </button>
                   <input
                     value={scenarioName}
                     onChange={(e) => setScenarioName(e.target.value)}
                     maxLength={60}
-                    placeholder="Name these conditions"
+                    placeholder={t("work.nameConditions")}
                     className="border border-border bg-card px-3 py-2 text-sm"
                   />
                   <button
@@ -232,7 +230,7 @@ function Index() {
                     }}
                     className="border border-border px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground disabled:opacity-40"
                   >
-                    Save scenario
+                    {t("work.saveScenario")}
                   </button>
                 </div>
               )}
@@ -251,17 +249,13 @@ function Index() {
                   className="h-56 w-full object-cover"
                 />
                 <div className="px-6 py-8">
-                  <h3 className="text-2xl tracking-tight">Empty on purpose</h3>
-                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                    Nothing is generated until conditions are declared. Set guests, seats, equipment
-                    and hands on the left, then build. If the route cannot fit what you have, the
-                    system blocks with a correction path rather than guessing.
-                  </p>
+                  <h3 className="text-2xl tracking-tight">{t("work.empty.title")}</h3>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{t("work.empty.body")}</p>
                   <ol className="mt-6 grid gap-4 sm:grid-cols-3">
                     {[
-                      ["01", "Declare", "Guests, seats, ovens, burners, cold storage, hands, time."],
-                      ["02", "Build", "A route scored against your real constraints."],
-                      ["03", "Refine", "Adjust one input, compare variations, then print the packet."],
+                      ["01", t("work.step1"), t("work.step1.body")],
+                      ["02", t("work.step2"), t("work.step2.body")],
+                      ["03", t("work.step3"), t("work.step3.body")],
                     ].map(([n, t, d]) => (
                       <li key={n} className="border-t border-foreground pt-3">
                         <span className="rule-label">{n}</span>
@@ -279,8 +273,8 @@ function Index() {
         {/* Variations */}
         {built && variants.length > 0 && (
           <section className="no-print mt-16">
-            <span className="rule-label">Section 03</span>
-            <h2 className="mt-1 text-2xl tracking-tight">Variation comparison</h2>
+            <span className="rule-label">{t("work.section03")}</span>
+            <h2 className="mt-1 text-2xl tracking-tight">{t("work.variations")}</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Saved assumptions held side by side. Compare the cost of one more guest, one fewer
               burner, or one lost helper before you commit.
@@ -289,16 +283,16 @@ function Index() {
               <table className="w-full min-w-[42rem] border-collapse text-sm">
                 <thead>
                   <tr className="border-y border-foreground">
-                    <th className="py-2 text-left rule-label">Variation</th>
-                    <th className="py-2 text-right rule-label">Guests</th>
-                    <th className="py-2 text-right rule-label">Feasibility</th>
-                    <th className="py-2 text-right rule-label">Oven</th>
-                    <th className="py-2 text-right rule-label">Labour</th>
-                    <th className="py-2 text-right rule-label">Stops</th>
+                    <th className="py-2 text-left rule-label">{t("tbl.variation")}</th>
+                    <th className="py-2 text-right rule-label">{t("tbl.guests")}</th>
+                    <th className="py-2 text-right rule-label">{t("tbl.feasibility")}</th>
+                    <th className="py-2 text-right rule-label">{t("tbl.oven")}</th>
+                    <th className="py-2 text-right rule-label">{t("tbl.labour")}</th>
+                    <th className="py-2 text-right rule-label">{t("tbl.stops")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...variants, { id: "current", label: "Current build", plan }].map((v) => {
+                  {[...variants, { id: "current", label: t("tbl.current"), plan }].map((v) => {
                     const oven = v.plan.gauges.find((g) => g.key === "oven");
                     const hands = v.plan.gauges.find((g) => g.key === "hands");
                     return (
@@ -327,7 +321,7 @@ function Index() {
               onClick={() => setVariants([])}
               className="mt-4 font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
-              Clear saved variations
+              {t("work.clearVariations")}
             </button>
           </section>
         )}
@@ -337,8 +331,8 @@ function Index() {
           <section className="mt-16">
             <div className="no-print mb-5 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <span className="rule-label">Section 04</span>
-                <h2 className="mt-1 text-2xl tracking-tight">Host decision packet</h2>
+                <span className="rule-label">{t("work.section04")}</span>
+                <h2 className="mt-1 text-2xl tracking-tight">{t("work.packet")}</h2>
                 <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
                   One document to carry into the kitchen. Prints clean on paper.
                 </p>
@@ -348,7 +342,7 @@ function Index() {
                 onClick={() => window.print()}
                 className="bg-foreground px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-90"
               >
-                Print packet
+                {t("action.print")}
               </button>
             </div>
             <HostPacket plan={plan} />
@@ -373,7 +367,7 @@ function Index() {
               rel="noreferrer noopener"
               className="block hover:text-ink-foreground"
             >
-              Restaurant Intelligence ↗
+              {t("nav.restaurant")}
             </a>
           </div>
         </div>
