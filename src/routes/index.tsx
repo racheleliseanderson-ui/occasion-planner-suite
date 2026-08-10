@@ -4,6 +4,7 @@ import { ConditionsPanel } from "@/components/oos/ConditionsPanel";
 import { PlanSurface } from "@/components/oos/PlanSurface";
 import { HostPacket } from "@/components/oos/HostPacket";
 import { signalClass } from "@/components/oos/Signals";
+import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
 import type { Conditions, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,11 @@ const PRESETS: { label: string; note: string; patch: Partial<Conditions> }[] = [
       prepWindowH: 5,
       ambition: 2,
       diets: [],
+      season: "winter",
+      budgetTier: 2,
+      kids: false,
+      outdoor: false,
+      leftovers: "some",
       kitchen: { ovens: 1, burners: 4, grill: false, dishwasher: true, fridge: "normal", counter: "medium", seats: 8 },
     },
   },
@@ -68,6 +74,11 @@ const PRESETS: { label: string; note: string; patch: Partial<Conditions> }[] = [
       prepWindowH: 3,
       ambition: 1,
       diets: [],
+      season: "autumn",
+      budgetTier: 1,
+      kids: false,
+      outdoor: false,
+      leftovers: "none",
       kitchen: { ovens: 1, burners: 2, grill: false, dishwasher: false, fridge: "tight", counter: "small", seats: 6 },
     },
   },
@@ -83,6 +94,11 @@ const PRESETS: { label: string; note: string; patch: Partial<Conditions> }[] = [
       prepWindowH: 6,
       ambition: 2,
       diets: ["no-animal"],
+      season: "summer",
+      budgetTier: 2,
+      kids: false,
+      outdoor: true,
+      leftovers: "deliberate",
       kitchen: { ovens: 1, burners: 4, grill: false, dishwasher: true, fridge: "roomy", counter: "large", seats: 6 },
     },
   },
@@ -116,6 +132,7 @@ function Index() {
             <span className="rule-label hidden sm:inline">Salty &amp; Clever</span>
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <a
               href="https://saltnotes.blog/restaurant-intelligence/"
               target="_blank"

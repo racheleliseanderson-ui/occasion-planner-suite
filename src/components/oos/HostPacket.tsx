@@ -16,10 +16,17 @@ export function HostPacket({ plan }: { plan: Plan }) {
           {c.helpers === 0 ? "solo" : `${c.helpers} helper${c.helpers === 1 ? "" : "s"}`}
         </p>
         <p className="mt-3 font-mono text-[11px] text-muted-foreground">
-          Feasibility {plan.feasibility}/100 · {plan.verdict} · {plan.stops.length} hard stop
-          {plan.stops.length === 1 ? "" : "s"} ·{" "}
+          Feasibility {plan.feasibility}/100 · balance {plan.balance}/100 · {plan.verdict} ·{" "}
+          {plan.stops.length} hard stop{plan.stops.length === 1 ? "" : "s"} ·{" "}
           {c.diets.length ? c.diets.map((d) => DIET_LABELS[d]).join(", ") : "no dietary filters"}
         </p>
+        <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+          {c.season} · indicative cost {plan.costPerHead.toFixed(2)}/head · {plan.costTotal} total
+          (ceiling {plan.costCeiling}) · leftovers: {c.leftovers}
+          {c.kids ? " · children present" : ""}
+          {c.outdoor ? " · outdoor space" : ""}
+        </p>
+
       </header>
 
       {plan.stops.length > 0 && (

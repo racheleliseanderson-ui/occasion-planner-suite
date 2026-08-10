@@ -1,4 +1,4 @@
-import { DISHES } from "./dishes";
+import { LIBRARY } from "./library";
 import type {
   Conditions,
   Contains,
@@ -73,63 +73,109 @@ function equipmentOk(dish: Dish, c: Conditions): boolean {
 const FRIDGE_CAP = { tight: 11, normal: 17, roomy: 25 } as const;
 const COUNTER_CAP = { small: 4, medium: 7, large: 11 } as const;
 
+/** Per-head ceiling for each budget tier, in local currency units. */
+export const BUDGET_CEILING: Record<Conditions["budgetTier"], number> = { 1: 12, 2: 22, 3: 40 };
+
+export const BUDGET_LABELS: Record<Conditions["budgetTier"], string> = {
+  1: "Modest",
+  2: "Considered",
+  3: "Unconstrained",
+};
+
+const cost = (d: Dish) => d.costPerGuest ?? 2;
+
+function seasonFit(d: Dish, season: Conditions["season"]): number {
+  const list = d.season ?? ["year-round"];
+  if (list.includes("year-round")) return 8;
+  if (list.includes(season)) return 22;
+  return -18;
+}
+
 function pick(
   pool: Dish[],
   course: Dish["course"],
   count: number,
   c: Conditions,
   taken: Set<string>,
+  chosen: Dish[],
 ): Dish[] {
   const tightOven = c.kitchen.ovens <= 1;
   const shortWindow = c.prepWindowH <= 4;
+  const ceiling = BUDGET_CEILING[c.budgetTier];
+  const spent = chosen.reduce((s, d) => s + cost(d), 0);
+  const methods = new Set(chosen.map((d) => d.method));
+  const temps = new Set(chosen.map((d) => d.tempBand));
+  const dayOfCount = chosen.filter((d) => d.makeAheadDays === 0).length;
+
   const scored = pool
     .filter((d) => d.course === course && !taken.has(d.id))
     .map((d) => {
       let s = 0;
       if (d.shapes.includes(c.shape)) s += 40;
       if (d.formats.includes(c.style)) s += 25;
+      s += seasonFit(d, c.season);
       if (shortWindow) s += d.makeAheadDays * 14;
       if (tightOven) s -= Math.min(d.ovenMin, 120) / 14;
       if (c.kitchen.burners <= 2) s -= Math.min(d.burnerMin, 90) / 8;
       if (c.helpers === 0) s -= d.activeMin / 6;
       s += (3 - c.ambition) * (d.makeAheadDays * 3);
       s += c.ambition * (d.activeMin / 40);
+
+      // Balance: the route should not repeat one method, one temperature band,
+      // or stack every dish into the day-of window.
+      if (methods.has(d.method)) s -= 16;
+      if (temps.has(d.tempBand)) s -= 10;
+      if (d.makeAheadDays === 0 && dayOfCount >= 3) s -= 20;
+
+      // Budget: trim ambition rather than silently overspending.
+      const headroom = ceiling - spent;
+      if (cost(d) > headroom) s -= 30;
+      s -= cost(d) * (c.budgetTier === 1 ? 2.4 : c.budgetTier === 2 ? 1.1 : 0.3);
+
+      if (c.kids && d.kidFriendly) s += 12;
+      if (c.outdoor && d.outdoorSafe) s += 10;
+      if (c.leftovers === "deliberate") s += d.holdMin / 40;
+      if (c.leftovers === "none") s -= d.holdMin / 90;
+      if (c.kitchen.grill && d.grill) s += 12;
+
       return { d, s };
     })
     .sort((a, b) => b.s - a.s || a.d.id.localeCompare(b.d.id));
 
   const out = scored.slice(0, count).map((x) => x.d);
+  // `chosen` is the caller's accumulator; it appends the return value itself.
   out.forEach((d) => taken.add(d.id));
   return out;
 }
 
+
 function buildMenu(c: Conditions): Dish[] {
-  const pool = DISHES.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
+  const pool = LIBRARY.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
   const taken = new Set<string>();
   const out: Dish[] = [];
   const big = c.guests >= 10;
 
   if (c.style === "seated") {
-    out.push(...pick(pool, "starter", 1, c, taken));
-    out.push(...pick(pool, "anchor", 1, c, taken));
-    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken));
-    out.push(...pick(pool, "bread", 1, c, taken));
-    out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "starter", 1, c, taken, out));
+    out.push(...pick(pool, "anchor", 1, c, taken, out));
+    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "bread", 1, c, taken, out));
+    out.push(...pick(pool, "sweet", 1, c, taken, out));
   } else if (c.style === "buffet") {
-    out.push(...pick(pool, "board", big ? 1 : 0, c, taken));
-    out.push(...pick(pool, "anchor", c.ambition === 3 && big ? 2 : 1, c, taken));
-    out.push(...pick(pool, "side", 2, c, taken));
-    out.push(...pick(pool, "bread", 1, c, taken));
-    out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "board", big ? 1 : 0, c, taken, out));
+    out.push(...pick(pool, "anchor", c.ambition === 3 && big ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "side", 2, c, taken, out));
+    out.push(...pick(pool, "bread", 1, c, taken, out));
+    out.push(...pick(pool, "sweet", 1, c, taken, out));
   } else if (c.style === "grazing") {
-    out.push(...pick(pool, "board", 2, c, taken));
-    out.push(...pick(pool, "starter", 1, c, taken));
-    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken));
-    out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "board", 2, c, taken, out));
+    out.push(...pick(pool, "starter", 1, c, taken, out));
+    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "sweet", 1, c, taken, out));
   } else {
-    out.push(...pick(pool, "board", 2, c, taken));
-    out.push(...pick(pool, "starter", c.ambition >= 2 ? 2 : 1, c, taken));
-    if (c.ambition >= 2) out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "board", 2, c, taken, out));
+    out.push(...pick(pool, "starter", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    if (c.ambition >= 2) out.push(...pick(pool, "sweet", 1, c, taken, out));
   }
 
   // Drinks: zero-proof is equal status and always present.
@@ -139,7 +185,7 @@ function buildMenu(c: Conditions): Dish[] {
     const wine = pool.find((d) => d.id === "drink-wine");
     if (wine) out.push(wine);
   }
-  const kit = DISHES.find((d) => d.id === "non-food-service");
+  const kit = LIBRARY.find((d) => d.id === "non-food-service");
   if (kit) out.push(kit);
 
   return out;
@@ -154,8 +200,12 @@ export function buildPlan(c: Conditions): Plan {
   const advisories: string[] = [];
   const dishes = buildMenu(c).sort((a, b) => courseOrder(a) - courseOrder(b));
 
+  // Leftovers are a stated goal, not an accident: deliberate leftovers buy volume,
+  // "none" trims to the tightest honest batch count.
+  const volume = c.leftovers === "deliberate" ? 1.25 : c.leftovers === "none" ? 0.95 : 1.08;
+
   const menu: PlannedDish[] = dishes.map((dish) => {
-    const batches = Math.max(1, Math.ceil(c.guests / dish.servesPerBatch));
+    const batches = Math.max(1, Math.ceil((c.guests * volume) / dish.servesPerBatch));
     const shortWindow = c.prepWindowH <= 5;
     const when: PlannedDish["when"] =
       dish.makeAheadDays === 2 && (shortWindow || c.guests >= 10)
@@ -165,6 +215,7 @@ export function buildPlan(c: Conditions): Plan {
           : "dayof";
     return { dish, batches, serves: batches * dish.servesPerBatch, when };
   });
+
 
   const dayOf = menu.filter((m) => m.when === "dayof");
   const windowMin = Math.round(c.prepWindowH * 60);
@@ -440,12 +491,86 @@ export function buildPlan(c: Conditions): Plan {
     .map((l) => ({ ...l, qty: round(l) }))
     .sort((a, b) => a.aisle.localeCompare(b.aisle) || a.item.localeCompare(b.item));
 
+  // ---- Cost -------------------------------------------------------------
+  const foodMenu = menu.filter((m) => m.dish.course !== "drink" || true);
+  const costPerHead =
+    Math.round(foodMenu.reduce((s, m) => s + cost(m.dish) * volume, 0) * 100) / 100;
+  const costTotal = Math.round(costPerHead * c.guests);
+  const costCeiling = BUDGET_CEILING[c.budgetTier];
+  if (costPerHead > costCeiling) {
+    advisories.push(
+      `Indicative cost is about ${costPerHead.toFixed(2)} per head against a ${BUDGET_LABELS[c.budgetTier].toLowerCase()} ceiling of ${costCeiling}. Drop the most expensive dish, or raise the tier deliberately rather than by accident.`,
+    );
+  }
+
+  // ---- Menu balance -----------------------------------------------------
+  const balanceNotes: string[] = [];
+  let balance = 100;
+  const eatable = menu.filter((m) => m.dish.course !== "drink" && m.dish.ingredients.length > 0);
+  const methodCounts = new Map<string, number>();
+  const tempCounts = new Map<string, number>();
+  eatable.forEach((m) => {
+    methodCounts.set(m.dish.method ?? "raw", (methodCounts.get(m.dish.method ?? "raw") ?? 0) + 1);
+    tempCounts.set(m.dish.tempBand ?? "hot", (tempCounts.get(m.dish.tempBand ?? "hot") ?? 0) + 1);
+  });
+  methodCounts.forEach((n, k) => {
+    if (n >= 3) {
+      balance -= (n - 2) * 12;
+      balanceNotes.push(`${n} dishes share the same method (${k}). The table will read flat.`);
+    }
+  });
+  tempCounts.forEach((n, k) => {
+    if (n >= 4) {
+      balance -= (n - 3) * 10;
+      balanceNotes.push(`${n} dishes land in the same temperature band (${k}). Add one contrast.`);
+    }
+  });
+  const dayOfShare = eatable.length ? dayOf.length / eatable.length : 0;
+  if (dayOfShare > 0.5) {
+    balance -= Math.round((dayOfShare - 0.5) * 80);
+    balanceNotes.push("More than half the route is day-of work. Move one dish back a day.");
+  }
+  const offSeason = eatable.filter(
+    (m) => !(m.dish.season ?? ["year-round"]).some((s) => s === "year-round" || s === c.season),
+  );
+  if (offSeason.length) {
+    balance -= offSeason.length * 8;
+    balanceNotes.push(
+      `Out of season for ${c.season}: ${offSeason.map((m) => m.dish.name).join(", ")}. Expect weaker produce and a higher price.`,
+    );
+  }
+  balance = Math.max(0, Math.min(100, balance));
+
+  if (c.kids) {
+    const friendly = eatable.filter((m) => m.dish.kidFriendly).length;
+    advisories.push(
+      friendly >= 2
+        ? `${friendly} dishes on this route are reliably eaten by children. No separate menu required.`
+        : "Children are present but only one dish on this route is a safe bet. Add bread, a plain side, or accept a second small plate.",
+    );
+  }
+  if (c.outdoor) {
+    const risky = eatable.filter((m) => m.dish.tempBand === "cold" && !m.dish.outdoorSafe);
+    if (risky.length)
+      advisories.push(
+        `Serving outdoors: ${risky.map((m) => m.dish.name).join(", ")} should stay inside on ice until the moment they are wanted. Two hours out of the fridge is the limit.`,
+      );
+  }
+  if (c.leftovers === "deliberate")
+    advisories.push("Deliberate leftovers: quantities carry a 25% surplus. Cool within two hours, label with the date, and plan the second meal now.");
+  if (c.leftovers === "none")
+    advisories.push("Zero-leftover target: quantities are cut close. There is no margin for a late extra guest.");
+
   // ---- Score ------------------------------------------------------------
   const overloadPenalty = gauges.reduce((s, g) => s + Math.max(0, g.pct - 82) * 0.9, 0);
   const idlePenalty = gauges.reduce((s, g) => s + (g.pct < 25 ? 3 : 0), 0);
+  const balancePenalty = (100 - balance) * 0.12;
   const feasibility = Math.max(
     0,
-    Math.min(100, Math.round(100 - overloadPenalty - idlePenalty - stops.length * 22)),
+    Math.min(
+      100,
+      Math.round(100 - overloadPenalty - idlePenalty - balancePenalty - stops.length * 22),
+    ),
   );
   const verdict: LoadLabel =
     stops.length > 0 || feasibility < 40
@@ -471,7 +596,12 @@ export function buildPlan(c: Conditions): Plan {
     service,
     makeAheadShare,
     handsOnMin: Math.round(handsUsed),
-    signature: `${c.guests}·${c.style}·${c.kitchen.ovens}o${c.kitchen.burners}b·${c.diets.slice().sort().join("+") || "no filters"}·${c.prepWindowH}h`,
+    costPerHead,
+    costTotal,
+    costCeiling,
+    balance,
+    balanceNotes,
+    signature: `${c.guests}·${c.style}·${c.season}·b${c.budgetTier}·${c.kitchen.ovens}o${c.kitchen.burners}b·${c.diets.slice().sort().join("+") || "no filters"}·${c.prepWindowH}h`,
   };
 }
 
@@ -485,6 +615,11 @@ export const DEFAULT_CONDITIONS: Conditions = {
   prepWindowH: 5,
   ambition: 2,
   diets: [],
+  season: "winter",
+  budgetTier: 2,
+  kids: false,
+  outdoor: false,
+  leftovers: "some",
   kitchen: {
     ovens: 1,
     burners: 4,
@@ -495,3 +630,4 @@ export const DEFAULT_CONDITIONS: Conditions = {
     seats: 8,
   },
 };
+

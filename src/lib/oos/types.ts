@@ -50,6 +50,14 @@ export interface IngredientLine {
   aisle: Aisle;
 }
 
+export type Season = "spring" | "summer" | "autumn" | "winter" | "year-round";
+
+export type CookMethod = "roast" | "braise" | "fry" | "boil" | "grill" | "raw" | "bake" | "chill";
+
+export type TempBand = "cold" | "ambient" | "warm" | "hot";
+
+export type BudgetTier = 1 | 2 | 3;
+
 export interface Dish {
   id: string;
   name: string;
@@ -75,6 +83,18 @@ export interface Dish {
   /** minutes the finished dish holds acceptably before service */
   holdMin: number;
   ingredients: IngredientLine[];
+  /** seasons the dish reads correctly in */
+  season?: Season[];
+  /** indicative planning cost per guest, in your local currency unit */
+  costPerGuest?: number;
+  /** dominant cooking method, used for menu balance scoring */
+  method?: CookMethod;
+  /** temperature the dish lands at on the table */
+  tempBand?: TempBand;
+  /** true if it survives a crowd of children without negotiation */
+  kidFriendly?: boolean;
+  /** true if it holds up outdoors in warm air */
+  outdoorSafe?: boolean;
 }
 
 export interface Kitchen {
@@ -98,7 +118,18 @@ export interface Conditions {
   ambition: 1 | 2 | 3;
   diets: DietFilter[];
   kitchen: Kitchen;
+  /** season drives dish availability and a seasonal note */
+  season: Season;
+  /** per-head ceiling tier: 1 modest, 2 considered, 3 unconstrained */
+  budgetTier: BudgetTier;
+  /** children at the table */
+  kids: boolean;
+  /** usable outdoor space */
+  outdoor: boolean;
+  /** deliberate leftovers goal */
+  leftovers: "none" | "some" | "deliberate";
 }
+
 
 export type LoadLabel = "under-used" | "controlled" | "tight" | "overloaded";
 
@@ -158,5 +189,13 @@ export interface Plan {
   service: TimelineEntry[];
   makeAheadShare: number; // 0–1
   handsOnMin: number;
+  /** indicative planning cost, not live prices */
+  costPerHead: number;
+  costTotal: number;
+  costCeiling: number;
+  /** 0–100, higher = better spread of method, temperature and timing */
+  balance: number;
+  balanceNotes: string[];
   signature: string;
 }
+

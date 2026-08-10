@@ -85,6 +85,44 @@
   --signal-over: oklch(0.52 0.17 32);
 }
 
+/* Dark is a second art direction, not an inversion: deep ink field, warm paper type,
+   brass raised in weight, signals re-tuned for legibility on ink. */
+.dark {
+  --background: oklch(0.175 0.012 58);
+  --foreground: oklch(0.938 0.014 84);
+  --card: oklch(0.222 0.014 58);
+  --card-foreground: oklch(0.938 0.014 84);
+  --popover: oklch(0.222 0.014 58);
+  --popover-foreground: oklch(0.938 0.014 84);
+  --primary: oklch(0.93 0.016 84);
+  --primary-foreground: oklch(0.19 0.014 58);
+  --secondary: oklch(0.248 0.016 60);
+  --secondary-foreground: oklch(0.93 0.016 84);
+  --muted: oklch(0.262 0.014 60);
+  --muted-foreground: oklch(0.735 0.018 80);
+  --accent: oklch(0.775 0.125 76);
+  --accent-foreground: oklch(0.18 0.016 58);
+  --destructive: oklch(0.62 0.17 30);
+  --destructive-foreground: oklch(0.97 0.012 85);
+  --border: oklch(0.322 0.016 62);
+  --input: oklch(0.322 0.016 62);
+  --ring: oklch(0.775 0.125 76);
+
+  --ink: oklch(0.132 0.012 56);
+  --ink-foreground: oklch(0.952 0.012 85);
+  --ink-muted: oklch(0.755 0.02 78);
+  --brass: oklch(0.805 0.125 76);
+  --signal-clear: oklch(0.72 0.055 250);
+  --signal-controlled: oklch(0.72 0.095 155);
+  --signal-tight: oklch(0.79 0.135 72);
+  --signal-over: oklch(0.685 0.17 30);
+}
+
+.dark img {
+  filter: saturate(0.92) brightness(0.86) contrast(1.04);
+}
+
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -159,4 +197,21 @@
 
 .print-only {
   display: none;
+}
+
+/* The packet always prints on paper, regardless of on-screen theme. */
+@media print {
+  .dark {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.2 0.014 58);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.2 0.014 58);
+    --muted-foreground: oklch(0.42 0.018 62);
+    --border: oklch(0.78 0.014 82);
+    --accent: oklch(0.6 0.11 72);
+    --signal-over: oklch(0.5 0.17 32);
+  }
+  .dark img {
+    filter: none;
+  }
 }
