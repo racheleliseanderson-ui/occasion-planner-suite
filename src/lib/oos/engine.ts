@@ -617,12 +617,23 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
   const costPerHead =
     Math.round(foodMenu.reduce((s, m) => s + cost(m.dish) * volume, 0) * 100) / 100;
   const costTotal = Math.round(costPerHead * c.guests);
-  const costCeiling = BUDGET_CEILING[c.budgetTier];
+  const hardCap = ops.constraint.hardCapPerHead;
+  const costCeiling = hardCap && hardCap > 0 ? hardCap : BUDGET_CEILING[c.budgetTier];
   if (costPerHead > costCeiling) {
-    advisories.push(
-      `Indicative cost is about ${costPerHead.toFixed(2)} per head against a ${BUDGET_LABELS[c.budgetTier].toLowerCase()} ceiling of ${costCeiling}. Drop the most expensive dish, or raise the tier deliberately rather than by accident.`,
-    );
+    if (hardCap && hardCap > 0) {
+      stops.push({
+        code: "BUD-02",
+        title: "Route breaks the declared hard cap",
+        detail: `About ${costPerHead.toFixed(2)} per head against a stated cap of ${hardCap}.`,
+        correction: "Drop the most expensive dish, cut a course, or raise the cap deliberately.",
+      });
+    } else {
+      advisories.push(
+        `Indicative cost is about ${costPerHead.toFixed(2)} per head against a ${BUDGET_LABELS[c.budgetTier].toLowerCase()} ceiling of ${costCeiling}. Drop the most expensive dish, or raise the tier deliberately rather than by accident.`,
+      );
+    }
   }
+
 
   // ---- Menu balance -----------------------------------------------------
   const balanceNotes: string[] = [];
