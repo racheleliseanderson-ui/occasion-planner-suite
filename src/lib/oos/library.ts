@@ -32,9 +32,13 @@ export const FIXTURES: Dish[] = [...DISHES, ...EXTRA_DISHES]
 /** Back-compatible default library (no personal overrides applied). */
 export const LIBRARY: Dish[] = FIXTURES;
 
+/** Ids shipped with the instrument; anything else is the host's own. */
+export const FIXTURE_IDS = new Set(FIXTURES.map((d) => d.id));
+
 export function isFixture(id: string): boolean {
-  return FIXTURES.some((d) => d.id === id);
+  return FIXTURE_IDS.has(id);
 }
+
 
 /**
  * The library the engine actually plans against: fixtures, with the host's
