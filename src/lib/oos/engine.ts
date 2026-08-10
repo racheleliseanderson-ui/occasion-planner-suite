@@ -615,6 +615,11 @@ export const DEFAULT_CONDITIONS: Conditions = {
   prepWindowH: 5,
   ambition: 2,
   diets: [],
+  season: "winter",
+  budgetTier: 2,
+  kids: false,
+  outdoor: false,
+  leftovers: "some",
   kitchen: {
     ovens: 1,
     burners: 4,
@@ -625,3 +630,4 @@ export const DEFAULT_CONDITIONS: Conditions = {
     seats: 8,
   },
 };
+
