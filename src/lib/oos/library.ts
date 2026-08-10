@@ -24,8 +24,10 @@ export function normalise(d: Dish): Dish {
   };
 }
 
-/** The untouched first-party fixture set. */
-export const FIXTURES: Dish[] = [...DISHES, ...EXTRA_DISHES].map(normalise);
+/** The untouched first-party fixture set, de-duplicated by id (first wins). */
+export const FIXTURES: Dish[] = [...DISHES, ...EXTRA_DISHES]
+  .filter((d, i, arr) => arr.findIndex((x) => x.id === d.id) === i)
+  .map(normalise);
 
 /** Back-compatible default library (no personal overrides applied). */
 export const LIBRARY: Dish[] = FIXTURES;
