@@ -1,6 +1,7 @@
 import { DISHES } from "./dishes";
 import { EXTRA_DISHES } from "./dishes-extra";
 import type { Dish } from "./types";
+import type { OosConfig } from "./store";
 
 /** Indicative planning cost when a fixture predates the cost field. */
 const DEFAULT_COST: Record<Dish["course"], number> = {
@@ -13,7 +14,7 @@ const DEFAULT_COST: Record<Dish["course"], number> = {
   drink: 2,
 };
 
-function normalise(d: Dish): Dish {
+export function normalise(d: Dish): Dish {
   return {
     ...d,
     season: d.season ?? ["year-round"],
@@ -23,5 +24,30 @@ function normalise(d: Dish): Dish {
   };
 }
 
-/** The single merged library every consumer reads. */
-export const LIBRARY: Dish[] = [...DISHES, ...EXTRA_DISHES].map(normalise);
+/** The untouched first-party fixture set, de-duplicated by id (first wins). */
+export const FIXTURES: Dish[] = [...DISHES, ...EXTRA_DISHES]
+  .filter((d, i, arr) => arr.findIndex((x) => x.id === d.id) === i)
+  .map(normalise);
+
+/** Back-compatible default library (no personal overrides applied). */
+export const LIBRARY: Dish[] = FIXTURES;
+
+export function isFixture(id: string): boolean {
+  return FIXTURES.some((d) => d.id === id);
+}
+
+/**
+ * The library the engine actually plans against: fixtures, with the host's
+ * edits merged over the top, hidden dishes removed, custom dishes appended.
+ */
+export function resolveLibrary(config: OosConfig): Dish[] {
+  const hidden = new Set(config.hiddenDishIds);
+  const merged = FIXTURES.map((d) => {
+    const patch = config.dishOverrides[d.id];
+    return patch ? normalise({ ...d, ...(patch as Partial<Dish>) }) : d;
+  }).filter((d) => !hidden.has(d.id));
+  const custom = (config.customDishes as unknown as Dish[])
+    .filter((d) => !hidden.has(d.id))
+    .map(normalise);
+  return [...merged, ...custom];
+}

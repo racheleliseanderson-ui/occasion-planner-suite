@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ConditionsPanel } from "@/components/oos/ConditionsPanel";
 import { PlanSurface } from "@/components/oos/PlanSurface";
 import { HostPacket } from "@/components/oos/HostPacket";
 import { signalClass } from "@/components/oos/Signals";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
+import { ScenarioGallery } from "@/components/oos/ScenarioGallery";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
+import { resolveLibrary } from "@/lib/oos/library";
+import { saveScenario, useConfig } from "@/lib/oos/store";
 import type { Conditions, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
 import heroImage from "@/assets/oos-hero.jpg";
@@ -41,69 +44,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const PRESETS: { label: string; note: string; patch: Partial<Conditions> }[] = [
-  {
-    label: "Winter table for eight",
-    note: "Seated · one oven · one helper",
-    patch: {
-      label: "Winter table for eight",
-      shape: "dinner",
-      style: "seated",
-      guests: 8,
-      helpers: 1,
-      prepWindowH: 5,
-      ambition: 2,
-      diets: [],
-      season: "winter",
-      budgetTier: 2,
-      kids: false,
-      outdoor: false,
-      leftovers: "some",
-      kitchen: { ovens: 1, burners: 4, grill: false, dishwasher: true, fridge: "normal", counter: "medium", seats: 8 },
-    },
-  },
-  {
-    label: "Small-kitchen supper for six",
-    note: "No dishwasher · two burners · tight fridge",
-    patch: {
-      label: "Small-kitchen supper for six",
-      shape: "dinner",
-      style: "seated",
-      guests: 6,
-      helpers: 0,
-      prepWindowH: 3,
-      ambition: 1,
-      diets: [],
-      season: "autumn",
-      budgetTier: 1,
-      kids: false,
-      outdoor: false,
-      leftovers: "none",
-      kitchen: { ovens: 1, burners: 2, grill: false, dishwasher: false, fridge: "tight", counter: "small", seats: 6 },
-    },
-  },
-  {
-    label: "Standing reception for eighteen",
-    note: "Grazing · plant-only · no oven pressure",
-    patch: {
-      label: "Standing reception for eighteen",
-      shape: "reception",
-      style: "grazing",
-      guests: 18,
-      helpers: 2,
-      prepWindowH: 6,
-      ambition: 2,
-      diets: ["no-animal"],
-      season: "summer",
-      budgetTier: 2,
-      kids: false,
-      outdoor: true,
-      leftovers: "deliberate",
-      kitchen: { ovens: 1, burners: 4, grill: false, dishwasher: true, fridge: "roomy", counter: "large", seats: 6 },
-    },
-  },
-];
-
 interface Variant {
   id: string;
   label: string;
@@ -111,11 +51,14 @@ interface Variant {
 }
 
 function Index() {
+  const config = useConfig();
+  const library = useMemo(() => resolveLibrary(config), [config]);
   const [conditions, setConditions] = useState<Conditions>(DEFAULT_CONDITIONS);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [built, setBuilt] = useState(false);
+  const [scenarioName, setScenarioName] = useState("");
 
-  const plan = useMemo(() => buildPlan(conditions), [conditions]);
+  const plan = useMemo(() => buildPlan(conditions, library), [conditions, library]);
 
   const saveVariant = () =>
     setVariants((v) =>
@@ -133,6 +76,12 @@ function Index() {
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
+            <Link
+              to="/library"
+              className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Library workshop
+            </Link>
             <a
               href="https://saltnotes.blog/restaurant-intelligence/"
               target="_blank"
@@ -189,26 +138,34 @@ function Index() {
         </div>
       </section>
 
-      {/* Presets */}
+      {/* Scenarios */}
       <section className="no-print border-b border-border bg-secondary">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-4">
-          <span className="rule-label">Load a starting condition</span>
-          {PRESETS.map((p) => (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => {
-                setConditions({ ...DEFAULT_CONDITIONS, ...p.patch } as Conditions);
+        <div className="mx-auto max-w-6xl px-5 py-10">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span className="rule-label">Starting conditions</span>
+              <h2 className="mt-1 text-2xl tracking-tight">Twelve real situations</h2>
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                Load one, then move a single input to see what it costs you. Your own conditions can be
+                saved alongside them.
+              </p>
+            </div>
+            <Link
+              to="/library"
+              className="border border-foreground px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+            >
+              Tune the library →
+            </Link>
+          </div>
+          <div className="mt-7">
+            <ScenarioGallery
+              activeLabel={conditions.label}
+              onLoad={(patch) => {
+                setConditions({ ...DEFAULT_CONDITIONS, ...patch } as Conditions);
                 setBuilt(true);
               }}
-              className="group border border-border bg-card px-3 py-2 text-left transition-colors hover:border-foreground"
-            >
-              <span className="block text-sm">{p.label}</span>
-              <span className="block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                {p.note}
-              </span>
-            </button>
-          ))}
+            />
+          </div>
         </div>
       </section>
 
@@ -251,13 +208,33 @@ function Index() {
                 <h2 className="mt-1 text-2xl tracking-tight">Controlled route</h2>
               </div>
               {built && (
-                <button
-                  type="button"
-                  onClick={saveVariant}
-                  className="border border-border px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground"
-                >
-                  Save as variation
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={saveVariant}
+                    className="border border-border px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground"
+                  >
+                    Save as variation
+                  </button>
+                  <input
+                    value={scenarioName}
+                    onChange={(e) => setScenarioName(e.target.value)}
+                    maxLength={60}
+                    placeholder="Name these conditions"
+                    className="border border-border bg-card px-3 py-2 text-sm"
+                  />
+                  <button
+                    type="button"
+                    disabled={!scenarioName.trim()}
+                    onClick={() => {
+                      saveScenario(scenarioName.trim(), plan.signature, conditions);
+                      setScenarioName("");
+                    }}
+                    className="border border-border px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground disabled:opacity-40"
+                  >
+                    Save scenario
+                  </button>
+                </div>
               )}
             </div>
 

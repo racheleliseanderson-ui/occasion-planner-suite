@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Plan } from "@/lib/oos/types";
 import { GaugeRow, StopsBlock, VerdictBlock } from "./Signals";
+import { HandoffBar } from "./HandoffBar";
+import { relief } from "@/lib/oos/explain";
 import { cn } from "@/lib/utils";
 
 const TABS = ["Route", "Load", "Shopping", "Prep clock", "Service"] as const;
@@ -10,10 +12,12 @@ const WHEN_LABEL = { d2: "Two days out", d1: "Day before", dayof: "Day of" } as 
 
 export function PlanSurface({ plan }: { plan: Plan }) {
   const [tab, setTab] = useState<Tab>("Route");
+  const [bought, setBought] = useState<string[]>([]);
 
   return (
     <div className="space-y-6">
       <VerdictBlock plan={plan} />
+      <HandoffBar plan={plan} />
       <StopsBlock plan={plan} />
 
       <div className="paper grid gap-px bg-border sm:grid-cols-3">
@@ -114,9 +118,19 @@ export function PlanSurface({ plan }: { plan: Plan }) {
 
           {tab === "Load" && (
             <div>
-              {plan.gauges.map((g) => (
-                <GaugeRow key={g.key} g={g} />
-              ))}
+              {plan.gauges.map((g) => {
+                const fix = relief(g, plan.conditions);
+                return (
+                  <div key={g.key}>
+                    <GaugeRow g={g} />
+                    {fix && (
+                      <p className="mb-4 border-l-2 border-signal-tight pl-3 text-xs leading-relaxed text-muted-foreground">
+                        <span className="rule-label">Relief</span> {fix}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -133,9 +147,20 @@ export function PlanSurface({ plan }: { plan: Plan }) {
                   <ul className="mt-2 divide-y divide-border border-t border-border">
                     {lines.map((l) => (
                       <li key={l.item} className="flex flex-wrap items-baseline justify-between gap-3 py-2.5">
-                        <span className="text-sm">
-                          {l.item}
-                          <span className="ml-2 text-xs text-muted-foreground">{l.forDishes.join(" · ")}</span>
+                        <span className="flex items-baseline gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={bought.includes(l.item)}
+                            onChange={() =>
+                              setBought((b) =>
+                                b.includes(l.item) ? b.filter((x) => x !== l.item) : [...b, l.item],
+                              )
+                            }
+                            aria-label={`Mark ${l.item} bought`}
+                            className="accent-accent"
+                          />
+                          <span className={cn(bought.includes(l.item) && "line-through opacity-50")}>{l.item}</span>
+                          <span className="ml-1 text-xs text-muted-foreground">{l.forDishes.join(" · ")}</span>
                         </span>
                         <span className="font-mono text-sm tabular-nums">
                           {l.qty} {l.unit}
@@ -145,6 +170,9 @@ export function PlanSurface({ plan }: { plan: Plan }) {
                   </ul>
                 </div>
               ))}
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                {bought.length} of {plan.shopping.length} lines marked bought
+              </p>
               <p className="border-l-2 border-accent pl-3 text-xs text-muted-foreground">
                 Quantities are fixture-derived planning estimates. No live prices, no substitutions,
                 no guarantee against appetite. Check them against your own judgement before buying.
@@ -163,6 +191,11 @@ export function PlanSurface({ plan }: { plan: Plan }) {
                     <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                       {t.resource}
                     </span>
+                    {t.owner && (
+                      <span className="border border-border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest text-accent">
+                        {t.owner}
+                      </span>
+                    )}
                   </div>
                   <p className="mt-1 text-sm">
                     <span className="font-medium">{t.dish}</span> — {t.task}

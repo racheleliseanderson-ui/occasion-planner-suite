@@ -166,6 +166,8 @@ export interface TimelineEntry {
   dish: string;
   minutes: number;
   resource: "oven" | "burner" | "grill" | "cold" | "hands" | "table";
+  /** who is carrying the task: the host or a named helper slot */
+  owner?: string;
 }
 
 export interface ShoppingLine {

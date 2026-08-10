@@ -1,5 +1,8 @@
 import type { Conditions, DietFilter, OccasionShape, ServiceStyle } from "@/lib/oos/types";
 import { BUDGET_CEILING, DIET_LABELS } from "@/lib/oos/engine";
+import { EXPLAIN } from "@/lib/oos/explain";
+import { useConfig } from "@/lib/oos/store";
+import { Explain } from "./Explain";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -10,16 +13,21 @@ interface Props {
 function Field({
   label,
   hint,
+  explain,
   children,
 }: {
   label: string;
   hint?: string;
+  explain?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="border-t border-border pt-4">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="rule-label">{label}</span>
+        <span className="flex items-center gap-2">
+          <span className="rule-label">{label}</span>
+          {explain ? <Explain text={explain} label={`What ${label} changes`} /> : null}
+        </span>
         {hint ? <span className="font-mono text-[10px] text-muted-foreground">{hint}</span> : null}
       </div>
       <div className="mt-3">{children}</div>
@@ -111,6 +119,7 @@ const DIETS: DietFilter[] = [
 ];
 
 export function ConditionsPanel({ value, onChange }: Props) {
+  const config = useConfig();
   const set = (patch: Partial<Conditions>) => onChange({ ...value, ...patch });
   const setKitchen = (patch: Partial<Conditions["kitchen"]>) =>
     onChange({ ...value, kitchen: { ...value.kitchen, ...patch } });
@@ -127,7 +136,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
       </div>
 
       <div className="space-y-5 px-6 py-5">
-        <Field label="Occasion shape">
+        <Field label="Occasion shape" explain={EXPLAIN.shape}>
           <Segmented<OccasionShape>
             value={value.shape}
             onSelect={(shape) => set({ shape })}
@@ -141,7 +150,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Service style" hint="drives portioning and choreography">
+        <Field label="Service style" hint="drives portioning and choreography" explain={EXPLAIN.style}>
           <Segmented<ServiceStyle>
             value={value.style}
             onSelect={(style) => set({ style })}
@@ -154,7 +163,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Guests" hint="counted, not estimated">
+        <Field label="Guests" hint="counted, not estimated" explain={EXPLAIN.guests}>
           <div className="flex flex-wrap items-center gap-3">
             <Stepper value={value.guests} min={2} max={40} onSet={(guests) => set({ guests })} />
             <span className="text-sm text-muted-foreground">
@@ -163,11 +172,11 @@ export function ConditionsPanel({ value, onChange }: Props) {
           </div>
         </Field>
 
-        <Field label="Seats at the real table">
+        <Field label="Seats at the real table" explain={EXPLAIN.seats}>
           <Stepper value={value.kitchen.seats} min={0} max={40} onSet={(seats) => setKitchen({ seats })} />
         </Field>
 
-        <Field label="Service time & day-of window">
+        <Field label="Service time & day-of window" explain={EXPLAIN.time}>
           <div className="flex flex-wrap items-center gap-3">
             <input
               type="time"
@@ -185,7 +194,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           </div>
         </Field>
 
-        <Field label="Kitchen reality" hint="fail-closed inputs">
+        <Field label="Kitchen reality" hint="fail-closed inputs" explain={EXPLAIN.kitchen}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="mb-2 text-xs text-muted-foreground">Ovens</p>
@@ -263,9 +272,26 @@ export function ConditionsPanel({ value, onChange }: Props) {
               Outdoor grill
             </button>
           </div>
+          {config.kitchenProfiles.length > 0 && (
+            <div className="mt-4 border-t border-border pt-3">
+              <p className="mb-2 text-xs text-muted-foreground">Saved kitchens</p>
+              <div className="flex flex-wrap gap-1.5">
+                {config.kitchenProfiles.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setKitchen(p.kitchen)}
+                    className="border border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </Field>
 
-        <Field label="Hands available">
+        <Field label="Hands available" explain={EXPLAIN.helpers}>
           <Segmented<number>
             value={value.helpers}
             onSelect={(helpers) => set({ helpers })}
@@ -278,7 +304,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Ambition" hint="course count and hands-on tolerance">
+        <Field label="Ambition" hint="course count and hands-on tolerance" explain={EXPLAIN.ambition}>
           <Segmented<1 | 2 | 3>
             value={value.ambition}
             onSelect={(ambition) => set({ ambition })}
@@ -290,7 +316,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Season" hint="drives which fixtures read correctly">
+        <Field label="Season" hint="drives which fixtures read correctly" explain={EXPLAIN.season}>
           <Segmented<Conditions["season"]>
             value={value.season}
             onSelect={(season) => set({ season })}
@@ -304,7 +330,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Budget tier" hint="per-head ceiling, indicative only">
+        <Field label="Budget tier" hint="per-head ceiling, indicative only" explain={EXPLAIN.budget}>
           <Segmented<Conditions["budgetTier"]>
             value={value.budgetTier}
             onSelect={(budgetTier) => set({ budgetTier })}
@@ -316,7 +342,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Leftovers goal" hint="sets batch volume honestly">
+        <Field label="Leftovers goal" hint="sets batch volume honestly" explain={EXPLAIN.leftovers}>
           <Segmented<Conditions["leftovers"]>
             value={value.leftovers}
             onSelect={(leftovers) => set({ leftovers })}
@@ -328,7 +354,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Room conditions">
+        <Field label="Room conditions" explain={EXPLAIN.room}>
           <div className="flex flex-wrap gap-1.5">
             <button
               type="button"
@@ -357,7 +383,7 @@ export function ConditionsPanel({ value, onChange }: Props) {
           </div>
         </Field>
 
-        <Field label="Dietary categories" hint="planning filters — not allergy guarantees">
+        <Field label="Dietary categories" hint="planning filters — not allergy guarantees" explain={EXPLAIN.diets}>
           <div className="flex flex-wrap gap-1.5">
             {DIETS.map((d) => {
               const on = value.diets.includes(d);
