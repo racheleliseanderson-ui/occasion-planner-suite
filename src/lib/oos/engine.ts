@@ -200,8 +200,12 @@ export function buildPlan(c: Conditions): Plan {
   const advisories: string[] = [];
   const dishes = buildMenu(c).sort((a, b) => courseOrder(a) - courseOrder(b));
 
+  // Leftovers are a stated goal, not an accident: deliberate leftovers buy volume,
+  // "none" trims to the tightest honest batch count.
+  const volume = c.leftovers === "deliberate" ? 1.25 : c.leftovers === "none" ? 0.95 : 1.08;
+
   const menu: PlannedDish[] = dishes.map((dish) => {
-    const batches = Math.max(1, Math.ceil(c.guests / dish.servesPerBatch));
+    const batches = Math.max(1, Math.ceil((c.guests * volume) / dish.servesPerBatch));
     const shortWindow = c.prepWindowH <= 5;
     const when: PlannedDish["when"] =
       dish.makeAheadDays === 2 && (shortWindow || c.guests >= 10)
@@ -211,6 +215,7 @@ export function buildPlan(c: Conditions): Plan {
           : "dayof";
     return { dish, batches, serves: batches * dish.servesPerBatch, when };
   });
+
 
   const dayOf = menu.filter((m) => m.when === "dayof");
   const windowMin = Math.round(c.prepWindowH * 60);
