@@ -341,6 +341,81 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
     });
   }
 
+  // ---- Declared-condition stops ----------------------------------------
+  if (c.style === "cocktail" || c.style === "grazing") {
+    const shortHold = menu.filter(
+      (m) => m.dish.course !== "drink" && m.dish.holdMin > 0 && m.dish.holdMin < ops.crowd.arrivalSpreadMin,
+    );
+    if (shortHold.length >= 2) {
+      stops.push({
+        code: "FLOW-01",
+        title: "Arrivals are spread wider than the food holds",
+        detail: `${shortHold.length} dishes hold for less time than the ${ops.crowd.arrivalSpreadMin}-minute arrival spread.`,
+        correction: "Tighten the arrival window, add a station and stagger the release, or choose dishes that hold.",
+      });
+    }
+  }
+  if (ops.crowd.stations * 14 < c.guests && c.style !== "seated") {
+    advisories.push(
+      `${c.guests} guests against ${ops.crowd.stations} serving station${ops.crowd.stations === 1 ? "" : "s"}: expect a queue. One station comfortably serves about fourteen.`,
+    );
+  }
+  if (ops.constraint.pantryOnly) {
+    const fresh = shoppingAisleCount(menu, ["produce", "protein", "bakery"]);
+    advisories.push(
+      `Pantry-only mode declared, but this route still needs ${fresh} fresh line${fresh === 1 ? "" : "s"}. Substitute deliberately or accept one trip.`,
+    );
+  }
+  if (ops.constraint.shoppingTrips <= 0) {
+    stops.push({
+      code: "SUP-01",
+      title: "No shopping trip declared",
+      detail: "The route requires ingredients that are not stated as already in the house.",
+      correction: "Declare at least one trip, switch on pantry-only mode, or reduce the route.",
+    });
+  }
+  if (ops.constraint.hardCapPerHead !== null && ops.constraint.hardCapPerHead <= 0) {
+    stops.push({
+      code: "BUD-01",
+      title: "Hard per-head cap set to zero",
+      detail: "A route cannot be costed against a zero ceiling.",
+      correction: "Raise the cap or clear it and use the budget tier.",
+    });
+  }
+  if (ops.constraint.curfew && c.prepWindowH > 6) {
+    advisories.push("A curfew is declared against a long prep window. Front-load noisy work and finish the loud stages early.");
+  }
+  if (c.outdoor && ops.outdoor.weatherRisk === "high") {
+    advisories.push("High weather risk outdoors: keep an indoor landing for every hot dish and do not commit the anchor to the grill alone.");
+  }
+  if (ops.outdoor.transportMin > 0) {
+    const fragile = menu.filter((m) => m.dish.tempBand === "hot" && m.dish.holdMin < ops.outdoor.transportMin + 20);
+    if (fragile.length)
+      advisories.push(
+        `${ops.outdoor.transportMin} minutes of transport: ${fragile.map((m) => m.dish.name).join(", ")} will not survive the journey hot. Finish them at the serving point.`,
+      );
+  }
+  if (c.outdoor && !ops.outdoor.shade && ops.outdoor.weatherRisk !== "low") {
+    advisories.push("No shade declared: cold dishes come out in relays, not all at once, and nothing sits in sun for more than an hour.");
+  }
+  if (ops.outdoor.insectPressure) {
+    advisories.push("Insect pressure declared: everything sweet or exposed needs a cover, and the sweet course lands late rather than early.");
+  }
+  if (c.outdoor && !ops.outdoor.water) {
+    advisories.push("No outdoor water: stage a rinse bin and a bin bag at the serving point before guests arrive.");
+  }
+  if (ops.general.dietStrictness === "strict" && c.diets.length > 0) {
+    advisories.push("Strict avoidance declared: separate boards, separate utensils and separate serving spoons. Read every label yourself; this tool cannot verify one.");
+  }
+  if (!ops.general.alcohol) {
+    advisories.push("Alcohol-free house: the zero-proof pour is the only pour, and it is treated as the main drink, not a fallback.");
+  }
+  if (ops.table.tablesideFinishing) {
+    advisories.push("Table-side finishing costs you the room for the length of the finish. Assign it to a helper or drop it.");
+  }
+
+
+
   // ---- Advisories -------------------------------------------------------
   if (!c.kitchen.dishwasher && c.guests >= 8)
     advisories.push("Hand-wash only at this guest count: stage a soak bin and clear between courses, or the sink becomes the bottleneck.");
