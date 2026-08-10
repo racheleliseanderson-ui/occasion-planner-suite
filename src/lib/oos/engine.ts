@@ -197,6 +197,15 @@ function courseOrder(d: Dish): number {
   return ["board", "starter", "anchor", "side", "bread", "sweet", "drink"].indexOf(d.course);
 }
 
+/** How many ingredient lines on the route come from the given aisles. */
+function shoppingAisleCount(menu: PlannedDish[], aisles: string[]): number {
+  return menu.reduce(
+    (n, m) => n + m.dish.ingredients.filter((i) => aisles.includes(i.aisle)).length,
+    0,
+  );
+}
+
+
 export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
   // Declared operating conditions are folded in before anything is modelled.
   const c = normaliseConditions(input);
