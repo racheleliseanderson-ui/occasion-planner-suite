@@ -3,6 +3,7 @@ import { BUDGET_CEILING, DIET_LABELS } from "@/lib/oos/engine";
 import { EXPLAIN } from "@/lib/oos/explain";
 import { useConfig } from "@/lib/oos/store";
 import { Explain } from "./Explain";
+import { OpsPanel } from "./OpsPanel";
 import { cn } from "@/lib/utils";
 
 interface Props {
