@@ -491,12 +491,86 @@ export function buildPlan(c: Conditions): Plan {
     .map((l) => ({ ...l, qty: round(l) }))
     .sort((a, b) => a.aisle.localeCompare(b.aisle) || a.item.localeCompare(b.item));
 
+  // ---- Cost -------------------------------------------------------------
+  const foodMenu = menu.filter((m) => m.dish.course !== "drink" || true);
+  const costPerHead =
+    Math.round(foodMenu.reduce((s, m) => s + cost(m.dish) * volume, 0) * 100) / 100;
+  const costTotal = Math.round(costPerHead * c.guests);
+  const costCeiling = BUDGET_CEILING[c.budgetTier];
+  if (costPerHead > costCeiling) {
+    advisories.push(
+      `Indicative cost is about ${costPerHead.toFixed(2)} per head against a ${BUDGET_LABELS[c.budgetTier].toLowerCase()} ceiling of ${costCeiling}. Drop the most expensive dish, or raise the tier deliberately rather than by accident.`,
+    );
+  }
+
+  // ---- Menu balance -----------------------------------------------------
+  const balanceNotes: string[] = [];
+  let balance = 100;
+  const eatable = menu.filter((m) => m.dish.course !== "drink" && m.dish.ingredients.length > 0);
+  const methodCounts = new Map<string, number>();
+  const tempCounts = new Map<string, number>();
+  eatable.forEach((m) => {
+    methodCounts.set(m.dish.method ?? "raw", (methodCounts.get(m.dish.method ?? "raw") ?? 0) + 1);
+    tempCounts.set(m.dish.tempBand ?? "hot", (tempCounts.get(m.dish.tempBand ?? "hot") ?? 0) + 1);
+  });
+  methodCounts.forEach((n, k) => {
+    if (n >= 3) {
+      balance -= (n - 2) * 12;
+      balanceNotes.push(`${n} dishes share the same method (${k}). The table will read flat.`);
+    }
+  });
+  tempCounts.forEach((n, k) => {
+    if (n >= 4) {
+      balance -= (n - 3) * 10;
+      balanceNotes.push(`${n} dishes land in the same temperature band (${k}). Add one contrast.`);
+    }
+  });
+  const dayOfShare = eatable.length ? dayOf.length / eatable.length : 0;
+  if (dayOfShare > 0.5) {
+    balance -= Math.round((dayOfShare - 0.5) * 80);
+    balanceNotes.push("More than half the route is day-of work. Move one dish back a day.");
+  }
+  const offSeason = eatable.filter(
+    (m) => !(m.dish.season ?? ["year-round"]).some((s) => s === "year-round" || s === c.season),
+  );
+  if (offSeason.length) {
+    balance -= offSeason.length * 8;
+    balanceNotes.push(
+      `Out of season for ${c.season}: ${offSeason.map((m) => m.dish.name).join(", ")}. Expect weaker produce and a higher price.`,
+    );
+  }
+  balance = Math.max(0, Math.min(100, balance));
+
+  if (c.kids) {
+    const friendly = eatable.filter((m) => m.dish.kidFriendly).length;
+    advisories.push(
+      friendly >= 2
+        ? `${friendly} dishes on this route are reliably eaten by children. No separate menu required.`
+        : "Children are present but only one dish on this route is a safe bet. Add bread, a plain side, or accept a second small plate.",
+    );
+  }
+  if (c.outdoor) {
+    const risky = eatable.filter((m) => m.dish.tempBand === "cold" && !m.dish.outdoorSafe);
+    if (risky.length)
+      advisories.push(
+        `Serving outdoors: ${risky.map((m) => m.dish.name).join(", ")} should stay inside on ice until the moment they are wanted. Two hours out of the fridge is the limit.`,
+      );
+  }
+  if (c.leftovers === "deliberate")
+    advisories.push("Deliberate leftovers: quantities carry a 25% surplus. Cool within two hours, label with the date, and plan the second meal now.");
+  if (c.leftovers === "none")
+    advisories.push("Zero-leftover target: quantities are cut close. There is no margin for a late extra guest.");
+
   // ---- Score ------------------------------------------------------------
   const overloadPenalty = gauges.reduce((s, g) => s + Math.max(0, g.pct - 82) * 0.9, 0);
   const idlePenalty = gauges.reduce((s, g) => s + (g.pct < 25 ? 3 : 0), 0);
+  const balancePenalty = (100 - balance) * 0.12;
   const feasibility = Math.max(
     0,
-    Math.min(100, Math.round(100 - overloadPenalty - idlePenalty - stops.length * 22)),
+    Math.min(
+      100,
+      Math.round(100 - overloadPenalty - idlePenalty - balancePenalty - stops.length * 22),
+    ),
   );
   const verdict: LoadLabel =
     stops.length > 0 || feasibility < 40
@@ -522,8 +596,15 @@ export function buildPlan(c: Conditions): Plan {
     service,
     makeAheadShare,
     handsOnMin: Math.round(handsUsed),
-    signature: `${c.guests}·${c.style}·${c.kitchen.ovens}o${c.kitchen.burners}b·${c.diets.slice().sort().join("+") || "no filters"}·${c.prepWindowH}h`,
+    costPerHead,
+    costTotal,
+    costCeiling,
+    balance,
+    balanceNotes,
+    signature: `${c.guests}·${c.style}·${c.season}·b${c.budgetTier}·${c.kitchen.ovens}o${c.kitchen.burners}b·${c.diets.slice().sort().join("+") || "no filters"}·${c.prepWindowH}h`,
   };
+}
+
 }
 
 export const DEFAULT_CONDITIONS: Conditions = {
