@@ -94,7 +94,12 @@ export function relief(g: LoadGauge, c: Conditions): string | null {
         : "Hand-wash only: soak bin from the start, serve on fewer vessels, and clear between courses rather than at the end.";
     case "table":
       return "Reduce guests, add real seats, or move to buffet or grazing service.";
+    case "stations":
+      return "Add a second serving point, or stage the release so the queue never forms in one place.";
+    case "cleanup":
+      return "Extend the recovery window, serve on fewer vessels, or clear in waves during service rather than after it.";
     default:
       return null;
   }
 }
+
