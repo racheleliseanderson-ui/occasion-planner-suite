@@ -1,4 +1,4 @@
-import { DISHES } from "./dishes";
+import { LIBRARY } from "./library";
 import type {
   Conditions,
   Contains,
@@ -104,7 +104,7 @@ function pick(
 }
 
 function buildMenu(c: Conditions): Dish[] {
-  const pool = DISHES.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
+  const pool = LIBRARY.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
   const taken = new Set<string>();
   const out: Dish[] = [];
   const big = c.guests >= 10;
@@ -139,7 +139,7 @@ function buildMenu(c: Conditions): Dish[] {
     const wine = pool.find((d) => d.id === "drink-wine");
     if (wine) out.push(wine);
   }
-  const kit = DISHES.find((d) => d.id === "non-food-service");
+  const kit = LIBRARY.find((d) => d.id === "non-food-service");
   if (kit) out.push(kit);
 
   return out;
