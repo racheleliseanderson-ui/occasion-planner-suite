@@ -116,6 +116,7 @@ function Index() {
             <span className="rule-label hidden sm:inline">Salty &amp; Clever</span>
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <a
               href="https://saltnotes.blog/restaurant-intelligence/"
               target="_blank"
