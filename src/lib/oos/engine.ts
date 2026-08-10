@@ -158,26 +158,26 @@ function buildMenu(c: Conditions): Dish[] {
   const big = c.guests >= 10;
 
   if (c.style === "seated") {
-    out.push(...pick(pool, "starter", 1, c, taken));
-    out.push(...pick(pool, "anchor", 1, c, taken));
-    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken));
-    out.push(...pick(pool, "bread", 1, c, taken));
-    out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "starter", 1, c, taken, out));
+    out.push(...pick(pool, "anchor", 1, c, taken, out));
+    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "bread", 1, c, taken, out));
+    out.push(...pick(pool, "sweet", 1, c, taken, out));
   } else if (c.style === "buffet") {
-    out.push(...pick(pool, "board", big ? 1 : 0, c, taken));
-    out.push(...pick(pool, "anchor", c.ambition === 3 && big ? 2 : 1, c, taken));
-    out.push(...pick(pool, "side", 2, c, taken));
-    out.push(...pick(pool, "bread", 1, c, taken));
-    out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "board", big ? 1 : 0, c, taken, out));
+    out.push(...pick(pool, "anchor", c.ambition === 3 && big ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "side", 2, c, taken, out));
+    out.push(...pick(pool, "bread", 1, c, taken, out));
+    out.push(...pick(pool, "sweet", 1, c, taken, out));
   } else if (c.style === "grazing") {
-    out.push(...pick(pool, "board", 2, c, taken));
-    out.push(...pick(pool, "starter", 1, c, taken));
-    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken));
-    out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "board", 2, c, taken, out));
+    out.push(...pick(pool, "starter", 1, c, taken, out));
+    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "sweet", 1, c, taken, out));
   } else {
-    out.push(...pick(pool, "board", 2, c, taken));
-    out.push(...pick(pool, "starter", c.ambition >= 2 ? 2 : 1, c, taken));
-    if (c.ambition >= 2) out.push(...pick(pool, "sweet", 1, c, taken));
+    out.push(...pick(pool, "board", 2, c, taken, out));
+    out.push(...pick(pool, "starter", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    if (c.ambition >= 2) out.push(...pick(pool, "sweet", 1, c, taken, out));
   }
 
   // Drinks: zero-proof is equal status and always present.
