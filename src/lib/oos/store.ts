@@ -232,19 +232,114 @@ export function deleteKitchenProfile(id: string) {
   updateConfig((c) => ({ ...c, kitchenProfiles: c.kitchenProfiles.filter((p) => p.id !== id) }));
 }
 
-export function saveScenario(name: string, note: string, conditions: Conditions) {
+/**
+ * Presets capture the whole declared state — conditions, operating conditions
+ * and the kitchen profile in force — not a partial patch.
+ */
+export function saveScenario(
+  name: string,
+  note: string,
+  conditions: Conditions,
+  kitchenProfile = "",
+): void {
   updateConfig((c) => ({
     ...c,
     savedScenarios: [
       ...c.savedScenarios.filter((s) => s.name !== name),
-      { id: `sc-${Date.now()}`, name, note, conditions: conditions as unknown as Record<string, unknown> },
-    ].slice(-40),
+      {
+        id: `sc-${Date.now().toString(36)}`,
+        name,
+        note,
+        conditions: conditions as unknown as Record<string, unknown>,
+        pinned: false,
+        kitchenProfile,
+        createdAt: Date.now(),
+      },
+    ].slice(-60),
   }));
 }
 
 export function deleteScenario(id: string) {
   updateConfig((c) => ({ ...c, savedScenarios: c.savedScenarios.filter((s) => s.id !== id) }));
 }
+
+/** Put a removed preset back exactly where it was. */
+export function restoreScenario(scenario: SavedScenario, index: number) {
+  updateConfig((c) => {
+    const next = c.savedScenarios.filter((s) => s.id !== scenario.id);
+    next.splice(Math.max(0, Math.min(index, next.length)), 0, scenario);
+    return { ...c, savedScenarios: next };
+  });
+}
+
+export function updateScenario(id: string, patch: Partial<SavedScenario>) {
+  updateConfig((c) => ({
+    ...c,
+    savedScenarios: c.savedScenarios.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+  }));
+}
+
+export function toggleScenarioPin(id: string) {
+  updateConfig((c) => ({
+    ...c,
+    savedScenarios: c.savedScenarios.map((s) => (s.id === id ? { ...s, pinned: !s.pinned } : s)),
+  }));
+}
+
+export function duplicateScenario(id: string) {
+  updateConfig((c) => {
+    const src = c.savedScenarios.find((s) => s.id === id);
+    if (!src) return c;
+    const base = `${src.name} (copy)`.slice(0, 60);
+    let name = base;
+    let n = 2;
+    while (c.savedScenarios.some((s) => s.name === name)) name = `${base} ${n++}`.slice(0, 60);
+    return {
+      ...c,
+      savedScenarios: [
+        ...c.savedScenarios,
+        { ...src, id: `sc-${Date.now().toString(36)}`, name, pinned: false, createdAt: Date.now() },
+      ].slice(-60),
+    };
+  });
+}
+
+// ---- preset packs -------------------------------------------------------
+
+const packSchema = z.object({
+  kind: z.literal("oos-preset-pack"),
+  version: z.literal(1),
+  presets: z.array(scenarioSchema).max(60),
+});
+
+export function exportScenarioPack(): string {
+  return JSON.stringify(
+    { kind: "oos-preset-pack", version: 1, presets: snapshot().savedScenarios },
+    null,
+    2,
+  );
+}
+
+/** Merge a pack in by name; nothing already saved is destroyed. */
+export function importScenarioPack(raw: string): { ok: true; added: number } | { ok: false; error: string } {
+  try {
+    const parsed = packSchema.safeParse(JSON.parse(raw));
+    if (!parsed.success) return { ok: false, error: "That file is not a preset pack." };
+    let added = 0;
+    updateConfig((c) => {
+      const byName = new Map(c.savedScenarios.map((s) => [s.name, s] as const));
+      for (const p of parsed.data.presets) {
+        byName.set(p.name, { ...p, id: `sc-${Math.random().toString(36).slice(2, 9)}` });
+        added += 1;
+      }
+      return { ...c, savedScenarios: [...byName.values()].slice(-60) };
+    });
+    return { ok: true, added };
+  } catch {
+    return { ok: false, error: "That file is not readable JSON." };
+  }
+}
+
 
 // ---- portability --------------------------------------------------------
 
