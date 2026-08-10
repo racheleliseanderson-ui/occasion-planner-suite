@@ -605,8 +605,6 @@ export function buildPlan(c: Conditions): Plan {
   };
 }
 
-}
-
 export const DEFAULT_CONDITIONS: Conditions = {
   label: "Winter table",
   shape: "dinner",
