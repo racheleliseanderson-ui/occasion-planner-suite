@@ -88,7 +88,7 @@ export const configSchema = z.object({
   dishOverrides: z.record(z.string(), dishSchema.partial()).default({}),
   hiddenDishIds: z.array(z.string()).default([]),
   kitchenProfiles: z.array(profileSchema).max(30).default([]),
-  savedScenarios: z.array(scenarioSchema).max(40).default([]),
+  savedScenarios: z.array(scenarioSchema).max(60).default([]),
 });
 
 export type OosConfig = z.infer<typeof configSchema>;
