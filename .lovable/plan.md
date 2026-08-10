@@ -1,52 +1,49 @@
-# Light / Dark Toggle + Deeper Planning Intelligence
+# Make the instrument yours: library editing, clearer options, richer presets
 
-Two upgrades to the Occasion Operating System: a proper ink/parchment theme switch, and a much deeper data and options layer behind the planner.
+Four upgrades, all client-side (no accounts, no backend), with your edits stored in the browser and portable as a JSON config file.
 
-## 1. Theme: parchment (light) and ink (dark)
+## 1. Library workshop (new route: /library)
 
-- A small toggle in the top rail, next to the brand mark. Sun/moon-free: two hairline glyphs in the existing brass/mono language, not a generic switch.
-- First visit follows the operating system preference. Once toggled, the choice is remembered on that device and wins over the system.
-- No flash of the wrong theme on load: theme is applied before first paint.
-- Dark mode is a real second art direction, not an inverted light one: deep ink field, warm paper-white type, brass raised in weight, imagery given a slightly darker grade. Signal colours (clear / controlled / tight / over) get their own dark values so gauges stay legible.
-- The printable Host Packet always prints on white regardless of the on-screen theme.
+A dedicated workspace to make the fixture data match your actual kitchen and taste.
 
-## 2. Bigger dish library
+- **Dish table** — every dish in the library, filterable by course, season, diet tags and cost. Inline status: built-in, edited, custom, or hidden.
+- **Dish editor** — a full form drawer for each dish: name, course, note, tags (contains / formats / shapes / season), oven and burner minutes, fridge units, counter footprint, active minutes, serves per batch, make-ahead days, hold minutes, cost per guest, method, temp band, kid-friendly, outdoor-safe, and the ingredient lines (item, per-guest quantity, unit, aisle).
+- **Add / duplicate / hide / restore** — built-ins are never destroyed; overrides layer on top and can be reverted individually or in bulk.
+- **Equipment profiles** — save named kitchens (ovens, burners, grill, dishwasher, fridge, counter, seats) and load one into any plan in a click. Your default profile pre-fills new sessions.
+- **Import / export config** — download a single JSON file containing dish overrides, custom dishes, hidden IDs, equipment profiles and saved scenarios; re-upload to restore or move between devices. Validated on import with a clear diff summary before it applies; malformed files are rejected with the reason.
+- **Reset to shipped library** with a confirmation step.
 
-Expand from ~20 to 60+ dishes so menus stop repeating across occasions:
-- Broader coverage per shape (dinner, brunch, reception, cookout, aperitivo) and per service style, so grazing and cocktail stop borrowing seated-dinner logic.
-- Seasonal tagging (spring / summer / autumn / winter / year-round).
-- More non-alcoholic and batched-drink entries, more vegetable anchors, more genuinely make-ahead items.
-- Every dish keeps full resource metadata (oven, burner, cold, counter, hands-on, hold time) and a per-guest ingredient line so the shopping list and gauges stay honest.
+Persistence: browser local storage, applied as an override layer over the shipped library so the engine reads one merged list exactly as it does today.
 
-## 3. Richer inputs
+## 2. Option explainers
 
-New conditions on the panel, grouped so it does not become a form wall:
-- Season (drives dish availability and a seasonal note).
-- Budget tier (per-head ceiling; the engine trims ambition rather than silently overspending).
-- Dietary counts instead of blanket flags — e.g. 3 of 12 vegan, 2 gluten-free — so the engine can plan a parallel dish rather than converting the whole menu.
-- Kids present, outdoor space available, and a leftovers goal (none / some / deliberate).
-- Existing constraints (guests, helpers, service time, prep window, ambition, kitchen) stay as they are.
+Every input in the conditions panel gets a plain-language explainer, on hover and on tap, saying what it changes in the output — not just what it means.
 
-Dietary tags remain planning filters, not allergy guarantees — that caution stays visible.
+- Each explainer states the mechanism: e.g. Ambition raises dish count and technique difficulty, which pushes oven and hands load; Leftovers "deliberate" scales batch counts up ~25% and raises cost per head.
+- Gauges, feasibility score, balance score and each stop code get a short "what this is measuring / how to relieve it" note.
+- A compact glossary panel at the bottom of the workspace covering feasibility, balance, gauges, stops, hold time, make-ahead share and the cost model's indicative nature.
+- Dietary filters carry an explicit reminder that they are planning filters, not allergen guarantees.
 
-## 4. Smarter engine output
+## 3. Scenario presets
 
-- Menu balance scoring: penalise repeated cooking methods, repeated dominant ingredients, too many day-of dishes, and courses that all land in the same temperature band. The chosen route has to earn its place.
-- Cost estimate per head and a total, with a warning when the budget tier is exceeded.
-- Swap-a-dish: any dish in the route can be replaced from ranked alternates that fit the same slot, diets and remaining capacity. Gauges, timeline and shopping list recompute immediately.
-- Stronger corrections on hard stops: each stop proposes a specific, applicable fix (drop a dish, shift a dish to D-1, borrow an oven, move service later) rather than generic advice.
-- Coverage line for dietary counts: shows which guests are served by which dish.
+Expand from three presets to a proper library, grouped and browsable rather than a single row of chips.
 
-## 5. Editable data
+- Roughly a dozen shipped scenarios across shapes and seasons: e.g. spring seated dinner for six, summer cookout for twelve, autumn brunch for ten, winter reception for twenty, plant-only aperitivo, kids-at-the-table Sunday, tiny-kitchen supper, big-batch deliberate-leftovers cook.
+- Each card shows shape, style, guests, season, budget tier and a one-line "what this scenario stresses" note.
+- **Save current conditions as a scenario** with your own name; your scenarios live alongside the shipped ones and travel in the config export.
 
-- The host can edit a dish's name, note, servings-per-batch and ingredient quantities, and add their own dish with resource metadata.
-- Pantry staples list: mark what is already owned so it drops off the shopping list.
-- Edits are stored in the browser for that device, layered over the built-in library, with a clear reset-to-defaults control. No account or backend needed.
+## 4. Dashboard and hand-off
+
+- **Reworked plan surface**: a top summary strip (feasibility, verdict, cost per head vs ceiling, balance, hands-on minutes, make-ahead share) followed by tabs for Menu, Load, Timeline, Service and Shopping, so a long plan stops being one endless scroll.
+- **Gauges** get the relief note inline, and stops move to a prominent blocking banner with the correction path.
+- **Shopping list**: grouped by aisle with check-off state and a per-line dish attribution.
+- **Hand-offs**: copy to clipboard as markdown, download plan as JSON, download shopping list as CSV, and an .ics calendar file for the prep timeline (each task an event on the chosen date). Print packet stays as it is.
+- **Helper assignments**: timeline tasks distribute across you plus declared helpers, so the packet can be handed to another pair of hands.
 
 ## Technical notes
 
-- Theme: `dark` class on `<html>`, driven by a small pre-hydration inline script plus a `useTheme` hook; a full dark token set added under `.dark` in `src/styles.css`. All components keep using semantic tokens only.
-- Data: `src/lib/oos/dishes.ts` expanded; `Dish` gains `season`, `costPerGuest`, `method`, `tempBand`. `Conditions` gains `season`, `budgetTier`, `dietCounts`, `kids`, `outdoor`, `leftovers`.
-- Engine: selection refactored into candidate scoring (fit, balance, cost, capacity) with the existing fail-closed stop checks intact; new `swapCandidates(plan, slot)` helper for the swap control.
-- Overrides: `src/lib/oos/library.ts` merges localStorage overrides with the built-in library; the engine reads only the merged view, so variants and the packet stay consistent.
-- Print path unchanged; packet gains cost and dietary-coverage lines.
+- New route `src/routes/library.tsx` plus a `src/components/oos/library/` component group; navigation added to the masthead.
+- New `src/lib/oos/store.ts`: zod-validated schema for the config blob, local-storage read/write, and merge logic feeding `src/lib/oos/library.ts` so `buildPlan` needs no signature change.
+- Engine changes limited to accepting the merged library and exposing per-gauge relief text and helper assignment on timeline entries.
+- Export/import is one versioned JSON file; version mismatch is migrated or refused with a message, never silently dropped.
+- Everything stays local to the browser; no server, no accounts, no data leaves the device.
