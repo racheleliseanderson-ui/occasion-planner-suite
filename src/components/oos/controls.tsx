@@ -49,7 +49,7 @@ export function Segmented<T extends string | number>({
           aria-pressed={value === o.value}
           onClick={() => onSelect(o.value)}
           className={cn(
-            "min-h-11 border px-3 py-1.5 text-sm transition-colors sm:min-h-0",
+            "min-h-11 border px-3 py-1.5 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:min-h-9",
             value === o.value
               ? "border-foreground bg-foreground text-background"
               : "border-border bg-card text-foreground hover:border-foreground/40",
@@ -124,7 +124,7 @@ export function Toggle({
       aria-pressed={on}
       onClick={onToggle}
       className={cn(
-        "min-h-11 border px-3 py-1.5 text-sm transition-colors sm:min-h-0",
+        "min-h-11 border px-3 py-1.5 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:min-h-9",
         on
           ? "border-foreground bg-foreground text-background"
           : "border-border bg-card hover:border-foreground/40",

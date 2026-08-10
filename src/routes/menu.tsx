@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { takeMenu } from "@/lib/oos/handoff";
-import { menuCardPdf } from "@/lib/oos/pdf";
+import { menuCardPdf, styleForTheme } from "@/lib/oos/pdf";
+import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/menu")({
