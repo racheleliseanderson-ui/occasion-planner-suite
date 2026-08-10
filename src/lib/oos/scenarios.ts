@@ -1,4 +1,8 @@
-import type { Conditions } from "./types";
+import type { Conditions, Ops } from "./types";
+import { withDefaults } from "./ops";
+
+/** Declared limits for a scenario, with every unstated group left at its default. */
+const o = (p: Partial<Ops>): Ops => withDefaults(p);
 
 export interface Scenario {
   id: string;
