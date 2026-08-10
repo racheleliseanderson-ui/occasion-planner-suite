@@ -28,10 +28,24 @@ export function HandoffBar({ plan }: { plan: Plan }) {
           <button type="button" className={btn} onClick={() => download(`${name}-plan.json`, "application/json", planJson(plan))}>
             JSON
           </button>
+          <button type="button" className={btn} onClick={() => planPdf(plan)}>
+            Packet PDF
+          </button>
           <button type="button" className={btn} onClick={() => window.print()}>
             Print packet
           </button>
+          <button
+            type="button"
+            className={`${btn} border-foreground`}
+            onClick={() => {
+              stashMenu(plan);
+              navigate({ to: "/menu" });
+            }}
+          >
+            Send to menu builder
+          </button>
         </div>
+
         <div className="flex flex-wrap items-center gap-2">
           <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" htmlFor="oos-ics-date">
             Occasion date
