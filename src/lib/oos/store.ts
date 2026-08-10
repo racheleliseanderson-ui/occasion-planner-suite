@@ -169,7 +169,28 @@ export function saveDish(dish: Dish, isFixture: boolean) {
   );
 }
 
+/**
+ * Apply a validated bulk import. Rows matching a shipped fixture become
+ * overrides; everything else is stored as a custom dish. Nothing is destroyed.
+ */
+export function bulkApplyDishes(dishes: Dish[], fixtureIds: Set<string>) {
+  updateConfig((c) => {
+    const overrides = { ...c.dishOverrides };
+    const custom = [...c.customDishes];
+    for (const d of dishes) {
+      if (fixtureIds.has(d.id)) overrides[d.id] = d;
+      else {
+        const i = custom.findIndex((x) => x.id === d.id);
+        if (i >= 0) custom[i] = d as OosConfig["customDishes"][number];
+        else custom.push(d as OosConfig["customDishes"][number]);
+      }
+    }
+    return { ...c, dishOverrides: overrides, customDishes: custom.slice(0, 400) };
+  });
+}
+
 export function resetDish(id: string) {
+
   updateConfig((c) => {
     const next = { ...c.dishOverrides };
     delete next[id];
