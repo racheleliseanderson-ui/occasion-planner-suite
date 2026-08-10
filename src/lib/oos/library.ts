@@ -1,7 +1,11 @@
 import { DISHES } from "./dishes";
 import { EXTRA_DISHES } from "./dishes-extra";
+import { TABLE_DISHES } from "./dishes-table";
+import { CROWD_DISHES } from "./dishes-crowd";
+import { CONSTRAINT_DISHES } from "./dishes-constraint";
 import type { Dish } from "./types";
 import type { OosConfig } from "./store";
+
 
 /** Indicative planning cost when a fixture predates the cost field. */
 const DEFAULT_COST: Record<Dish["course"], number> = {
