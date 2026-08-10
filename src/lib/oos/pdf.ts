@@ -100,16 +100,24 @@ class Composer {
   }
 
   /** A row with a right-aligned figure column, kept whole. */
-  row(left: string, right: string, size = 9.5, indent = 0) {
+  row(left: string, right: string, size = 9.5, indent = 0, box = false) {
     const d = this.doc;
     const px = size * this.s.scale;
     const rightW = d.getTextWidth(right) + 4;
+    const pad = box ? px * 0.55 : 0;
     d.setFont("times", "normal").setFontSize(px);
-    const lines = d.splitTextToSize(left, PAGE.w - M * 2 - indent - rightW) as string[];
+    const lines = d.splitTextToSize(left, PAGE.w - M * 2 - indent - pad - rightW) as string[];
     this.need(lines.length * px * 0.52 + 1);
     d.setTextColor(20);
+    if (box) {
+      // A real drawn box: the tick glyph is absent from the core PDF fonts.
+      const b = px * 0.32;
+      d.setDrawColor(this.s.rule === 0 ? 0 : 120)
+        .setLineWidth(this.s.ruleWidth)
+        .rect(M + indent, this.y - b, b, b);
+    }
     lines.forEach((line, i) => {
-      d.text(line, M + indent, this.y + i * px * 0.52);
+      d.text(line, M + indent + pad, this.y + i * px * 0.52);
     });
     d.setFont("courier", "normal").setFontSize(px * 0.86).setTextColor(this.s.muted);
     d.text(right, PAGE.w - M, this.y, { align: "right" });
@@ -118,7 +126,7 @@ class Composer {
   }
 
   /** Small-caps section label. Never left orphaned: it reserves room beneath. */
-  label(text: string, reserve = 14) {
+  label(text: string, reserve = 20) {
     this.need(reserve + 8);
     const d = this.doc;
     d.setFont("courier", "normal").setFontSize(6.8 * this.s.scale).setTextColor(this.s.muted);
@@ -131,8 +139,10 @@ class Composer {
     this.need(size * this.s.scale + 6);
     const d = this.doc;
     d.setFont("times", "normal").setFontSize(size * this.s.scale).setTextColor(20);
+    // Leave room for the ascender so a large title never rides up into the label above it.
+    this.y += size * this.s.scale * 0.42;
     d.text(text, M, this.y);
-    this.y += size * this.s.scale * 0.55;
+    this.y += size * this.s.scale * 0.5;
   }
 
   rule() {
@@ -142,6 +152,11 @@ class Composer {
       .setLineWidth(this.s.ruleWidth)
       .line(M, this.y, PAGE.w - M, this.y);
     this.y += 5;
+  }
+
+  newPage() {
+    this.doc.addPage();
+    this.header();
   }
 
   gap(mm = 3) {
@@ -217,13 +232,13 @@ export async function planPdf(plan: Plan, style: PdfStyle = "standard"): Promise
   }
 
   k.rule();
-  k.label("Prep clock");
+  k.label("Prep clock", 34);
   let phase = "";
   for (const t of [...plan.timeline, ...plan.service]) {
     if (t.phase !== phase) {
       phase = t.phase;
       k.gap(2);
-      k.label(phase, 18);
+      k.label(phase, 26);
     }
     const detail = t.dish ? `${t.dish} · ${t.minutes} min · ${t.resource}` : "";
     k.need(k.measure(t.task, 9.5, 22) + (detail ? k.measure(detail, 8.5, 22) : 0));
@@ -231,9 +246,8 @@ export async function planPdf(plan: Plan, style: PdfStyle = "standard"): Promise
     if (detail) k.body(detail, 8.5, 22, true);
   }
 
-  doc.addPage();
-  k.y = M + 2;
-  k.label("Shopping list");
+  k.newPage();
+  k.label("Shopping list", 30);
   let aisle = "";
   if (spec.columns === 2) {
     // Two measured columns, aisle by aisle, so the list never splits a heading.
@@ -241,18 +255,18 @@ export async function planPdf(plan: Plan, style: PdfStyle = "standard"): Promise
       if (line.aisle !== aisle) {
         aisle = line.aisle;
         k.gap(2);
-        k.label(aisle, 16);
+        k.label(aisle, 24);
       }
-      k.row(`☐  ${line.item}`, `${line.qty}${line.unit ? ` ${line.unit}` : ""}`, 9.5, 4);
+      k.row(line.item, `${line.qty}${line.unit ? ` ${line.unit}` : ""}`, 9.5, 4, true);
     }
   } else {
     for (const line of plan.shopping) {
       if (line.aisle !== aisle) {
         aisle = line.aisle;
         k.gap(3);
-        k.label(aisle, 18);
+        k.label(aisle, 26);
       }
-      k.row(`☐  ${line.item}`, `${line.qty}${line.unit ? ` ${line.unit}` : ""}`, 11, 4);
+      k.row(line.item, `${line.qty}${line.unit ? ` ${line.unit}` : ""}`, 11, 4, true);
     }
   }
 
