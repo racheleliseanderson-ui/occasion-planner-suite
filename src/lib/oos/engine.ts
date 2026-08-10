@@ -756,6 +756,8 @@ export const DEFAULT_CONDITIONS: Conditions = {
   kids: false,
   outdoor: false,
   leftovers: "some",
+  ops: DEFAULT_OPS,
+
   kitchen: {
     ovens: 1,
     burners: 4,
