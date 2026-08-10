@@ -1,5 +1,5 @@
 import type { Conditions, DietFilter, OccasionShape, ServiceStyle } from "@/lib/oos/types";
-import { DIET_LABELS } from "@/lib/oos/engine";
+import { BUDGET_CEILING, DIET_LABELS } from "@/lib/oos/engine";
 import { cn } from "@/lib/utils";
 
 interface Props {

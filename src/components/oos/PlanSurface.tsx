@@ -16,6 +16,46 @@ export function PlanSurface({ plan }: { plan: Plan }) {
       <VerdictBlock plan={plan} />
       <StopsBlock plan={plan} />
 
+      <div className="paper grid gap-px bg-border sm:grid-cols-3">
+        <div className="bg-card px-5 py-4">
+          <span className="rule-label">Indicative cost</span>
+          <p className="mt-1 font-mono text-xl tabular-nums">
+            {plan.costPerHead.toFixed(2)}
+            <span className="ml-1 text-xs text-muted-foreground">/ head</span>
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+            {plan.costTotal} total · ceiling {plan.costCeiling}
+            {plan.costPerHead > plan.costCeiling ? " · over" : ""}
+          </p>
+        </div>
+        <div className="bg-card px-5 py-4">
+          <span className="rule-label">Menu balance</span>
+          <p className="mt-1 font-mono text-xl tabular-nums">{plan.balance}</p>
+          <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+            method, temperature and timing spread
+          </p>
+        </div>
+        <div className="bg-card px-5 py-4">
+          <span className="rule-label">Made ahead</span>
+          <p className="mt-1 font-mono text-xl tabular-nums">
+            {Math.round(plan.makeAheadShare * 100)}%
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+            {plan.handsOnMin} hands-on minutes
+          </p>
+        </div>
+      </div>
+
+      {plan.balanceNotes.length > 0 && (
+        <ul className="space-y-2">
+          {plan.balanceNotes.map((n) => (
+            <li key={n} className="border-l-2 border-signal-tight bg-card px-4 py-3 text-sm text-muted-foreground">
+              {n}
+            </li>
+          ))}
+        </ul>
+      )}
+
       {plan.advisories.length > 0 && (
         <ul className="space-y-2">
           {plan.advisories.map((a) => (
@@ -25,6 +65,7 @@ export function PlanSurface({ plan }: { plan: Plan }) {
           ))}
         </ul>
       )}
+
 
       <div className="paper">
         <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border px-6 py-3">
