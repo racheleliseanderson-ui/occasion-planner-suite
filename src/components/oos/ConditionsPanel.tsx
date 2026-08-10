@@ -413,6 +413,9 @@ export function ConditionsPanel({ value, onChange }: Props) {
         </Field>
 
       </div>
+
+      <OpsPanel value={value} onChange={onChange} />
     </div>
   );
 }
+
