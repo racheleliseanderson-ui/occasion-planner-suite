@@ -5,7 +5,7 @@ import type { Conditions, LoadGauge } from "./types";
  * changes inside the engine — no hidden mechanics, no unexplained scoring.
  */
 
-export const EXPLAIN: Record<string, string> = {
+export const EXPLAIN = {
   shape:
     "Sets the character of the occasion. Each fixture dish declares the shapes it reads correctly in, so a brunch route and a reception route draw from different halves of the library.",
   style:
@@ -30,7 +30,7 @@ export const EXPLAIN: Record<string, string> = {
   room: "Children shift scoring towards reliably-eaten dishes. Outdoor space allows grill routes and adds a two-hour cold-holding warning for anything that should not sit in warm air.",
   diets:
     "Planning filters. They remove conflicting fixture dishes from selection. They do not verify labels, cross-contact or supplier changes, and they are never an allergy guarantee.",
-};
+} as const satisfies Record<string, string>;
 
 export const GLOSSARY: { term: string; body: string }[] = [
   {
