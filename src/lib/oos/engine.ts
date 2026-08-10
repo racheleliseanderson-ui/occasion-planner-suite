@@ -158,11 +158,15 @@ function buildMenu(c: Conditions, library: Dish[]): Dish[] {
   const big = c.guests >= 10;
 
   if (c.style === "seated") {
-    out.push(...pick(pool, "starter", 1, c, taken, out));
+    // Declared course count decides how many plates actually reach the table.
+    const courses = c.ops?.table.courses ?? 3;
+    if (courses >= 5) out.push(...pick(pool, "board", 1, c, taken, out));
+    if (courses >= 3) out.push(...pick(pool, "starter", 1, c, taken, out));
     out.push(...pick(pool, "anchor", 1, c, taken, out));
-    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "side", courses >= 4 || c.ambition >= 2 ? 2 : 1, c, taken, out));
     out.push(...pick(pool, "bread", 1, c, taken, out));
-    out.push(...pick(pool, "sweet", 1, c, taken, out));
+    if (courses >= 2) out.push(...pick(pool, "sweet", 1, c, taken, out));
+
   } else if (c.style === "buffet") {
     out.push(...pick(pool, "board", big ? 1 : 0, c, taken, out));
     out.push(...pick(pool, "anchor", c.ambition === 3 && big ? 2 : 1, c, taken, out));
