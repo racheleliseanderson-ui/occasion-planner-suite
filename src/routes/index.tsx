@@ -237,7 +237,19 @@ function Index() {
             </div>
 
             {built ? (
-              <PlanSurface plan={plan} />
+              <>
+                <p role="status" aria-live="polite" className="sr-only">
+                  {plan.stops.length ? t("work.stopsPresent") : t("work.rebuilt")}
+                </p>
+                {/* Small screens keep the verdict in view while the conditions scroll. */}
+                <div className="no-print sticky top-14 z-10 mb-4 flex items-center justify-between gap-3 border border-border bg-background/95 px-4 py-2 backdrop-blur lg:hidden">
+                  <span className="rule-label">{t("tbl.feasibility")}</span>
+                  <span className={cn("font-mono text-sm tabular-nums", signalClass(plan.verdict))}>
+                    {plan.feasibility}/100 · {plan.stops.length} {t("tbl.stops").toLowerCase()}
+                  </span>
+                </div>
+                <PlanSurface plan={plan} />
+              </>
             ) : (
               <div className="paper grain overflow-hidden">
                 <img
@@ -276,8 +288,7 @@ function Index() {
             <span className="rule-label">{t("work.section03")}</span>
             <h2 className="mt-1 text-2xl tracking-tight">{t("work.variations")}</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Saved assumptions held side by side. Compare the cost of one more guest, one fewer
-              burner, or one lost helper before you commit.
+              {t("work.variations.body")}
             </p>
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[42rem] border-collapse text-sm">
@@ -333,9 +344,7 @@ function Index() {
               <div>
                 <span className="rule-label">{t("work.section04")}</span>
                 <h2 className="mt-1 text-2xl tracking-tight">{t("work.packet")}</h2>
-                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                  One document to carry into the kitchen. Prints clean on paper.
-                </p>
+                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("work.packet.body")}</p>
               </div>
               <button
                 type="button"
