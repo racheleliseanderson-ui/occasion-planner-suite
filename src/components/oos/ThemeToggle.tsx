@@ -1,37 +1,39 @@
-import { useTheme } from "@/hooks/use-theme";
+import { THEME_LABELS, useTheme, type Theme } from "@/hooks/use-theme";
+
+const SHORT: Record<Theme, string> = { light: "Parchment", dark: "Ink", contrast: "Contrast" };
 
 /**
- * Parchment / ink switch. Two hairline glyphs in the house mono-and-brass
- * language rather than a generic pill switch.
+ * Three art directions in the house mono-and-hairline language: parchment, ink,
+ * and a colour-blind-safe high-contrast field. No generic pill switch.
  */
 export function ThemeToggle() {
-  const { theme, ready, toggle } = useTheme();
-  const dark = theme === "dark";
+  const { theme, ready, setTheme, themes } = useTheme();
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-label={dark ? "Switch to parchment" : "Switch to ink"}
-      title={dark ? "Parchment" : "Ink"}
-      className="group inline-flex items-stretch border border-border transition-colors hover:border-foreground"
+    <div
+      role="group"
+      aria-label="Visual theme"
+      className="inline-flex items-stretch border border-border"
     >
-      <span
-        className={
-          "px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors " +
-          (ready && !dark ? "bg-foreground text-background" : "text-muted-foreground")
-        }
-      >
-        Parchment
-      </span>
-      <span
-        className={
-          "border-l border-border px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors " +
-          (ready && dark ? "bg-foreground text-background" : "text-muted-foreground")
-        }
-      >
-        Ink
-      </span>
-    </button>
+      {themes.map((t, i) => {
+        const on = ready && theme === t;
+        return (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTheme(t)}
+            aria-pressed={on}
+            title={THEME_LABELS[t]}
+            className={
+              "px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors " +
+              (i > 0 ? "border-l border-border " : "") +
+              (on ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            {SHORT[t]}
+          </button>
+        );
+      })}
+    </div>
   );
 }
