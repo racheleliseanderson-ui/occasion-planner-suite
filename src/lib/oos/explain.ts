@@ -30,7 +30,18 @@ export const EXPLAIN = {
   room: "Children shift scoring towards reliably-eaten dishes. Outdoor space allows grill routes and adds a two-hour cold-holding warning for anything that should not sit in warm air.",
   diets:
     "Planning filters. They remove conflicting fixture dishes from selection. They do not verify labels, cross-contact or supplier changes, and they are never an allergy guarantee.",
+  table:
+    "Tables and seats per table set real seated capacity, which is a hard stop. Course count decides how many plates the engine builds. Plated service costs about 2.6 hands-on minutes per guest, family style 1.5, passed 3.2 — and table-side finishing adds more on top.",
+  crowd:
+    "How a standing room actually flows. Standing share sets seating pressure, arrival spread is checked against how long each dish holds, and stations cap throughput at roughly fourteen guests each. Refill cadence adds host labour.",
+  constraint:
+    "Declared limits that tighten the kitchen before anything is modelled: single-burner and no-oven modes override the equipment above, limited power caps concurrent heat, cool boxes add cold capacity, sink size scales wash-up throughput, and a hard per-head cap becomes a stop rather than a warning.",
+  outdoorOps:
+    "Grill, smoker and fire pit each count as outdoor heat and open grill routes. Transport minutes are checked against how long hot dishes hold. Weather risk, shade, water and insect pressure change the service advice and the order things come out.",
+  general:
+    "Skill scales every hands-on estimate (cautious 1.3x, practised 0.85x). Turning alcohol off applies the alcohol-free filter to the whole route. Cleanup window becomes its own gauge, and strict dietary avoidance adds separate-equipment guidance.",
 } as const satisfies Record<string, string>;
+
 
 export const GLOSSARY: { term: string; body: string }[] = [
   {
@@ -83,7 +94,12 @@ export function relief(g: LoadGauge, c: Conditions): string | null {
         : "Hand-wash only: soak bin from the start, serve on fewer vessels, and clear between courses rather than at the end.";
     case "table":
       return "Reduce guests, add real seats, or move to buffet or grazing service.";
+    case "stations":
+      return "Add a second serving point, or stage the release so the queue never forms in one place.";
+    case "cleanup":
+      return "Extend the recovery window, serve on fewer vessels, or clear in waves during service rather than after it.";
     default:
       return null;
   }
 }
+

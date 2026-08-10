@@ -1,4 +1,6 @@
 import { LIBRARY } from "./library";
+import { DEFAULT_OPS, SINK_FACTOR, SKILL_FACTOR, coldBonus, normaliseConditions } from "./ops";
+
 import type {
   Conditions,
   Contains,
@@ -156,11 +158,15 @@ function buildMenu(c: Conditions, library: Dish[]): Dish[] {
   const big = c.guests >= 10;
 
   if (c.style === "seated") {
-    out.push(...pick(pool, "starter", 1, c, taken, out));
+    // Declared course count decides how many plates actually reach the table.
+    const courses = c.ops?.table.courses ?? 3;
+    if (courses >= 5) out.push(...pick(pool, "board", 1, c, taken, out));
+    if (courses >= 3) out.push(...pick(pool, "starter", 1, c, taken, out));
     out.push(...pick(pool, "anchor", 1, c, taken, out));
-    out.push(...pick(pool, "side", c.ambition >= 2 ? 2 : 1, c, taken, out));
+    out.push(...pick(pool, "side", courses >= 4 || c.ambition >= 2 ? 2 : 1, c, taken, out));
     out.push(...pick(pool, "bread", 1, c, taken, out));
-    out.push(...pick(pool, "sweet", 1, c, taken, out));
+    if (courses >= 2) out.push(...pick(pool, "sweet", 1, c, taken, out));
+
   } else if (c.style === "buffet") {
     out.push(...pick(pool, "board", big ? 1 : 0, c, taken, out));
     out.push(...pick(pool, "anchor", c.ambition === 3 && big ? 2 : 1, c, taken, out));
@@ -195,10 +201,23 @@ function courseOrder(d: Dish): number {
   return ["board", "starter", "anchor", "side", "bread", "sweet", "drink"].indexOf(d.course);
 }
 
-export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
+/** How many ingredient lines on the route come from the given aisles. */
+function shoppingAisleCount(menu: PlannedDish[], aisles: string[]): number {
+  return menu.reduce(
+    (n, m) => n + m.dish.ingredients.filter((i) => aisles.includes(i.aisle)).length,
+    0,
+  );
+}
+
+
+export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
+  // Declared operating conditions are folded in before anything is modelled.
+  const c = normaliseConditions(input);
+  const ops = c.ops!;
   const stops: Stop[] = [];
   const advisories: string[] = [];
   const dishes = buildMenu(c, library).sort((a, b) => courseOrder(a) - courseOrder(b));
+
 
   // Leftovers are a stated goal, not an accident: deliberate leftovers buy volume,
   // "none" trims to the tightest honest batch count.
@@ -228,17 +247,27 @@ export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
   const fridgeUsed =
     menu.reduce((s, m) => s + m.dish.fridgeUnits * Math.min(m.batches, 2), 0) +
     Math.ceil(c.guests / 8);
-  const fridgeCap = FRIDGE_CAP[c.kitchen.fridge];
+  const fridgeCap = FRIDGE_CAP[c.kitchen.fridge] + coldBonus(ops);
   const counterUsed = dayOf.reduce((s, m) => s + m.dish.counter, 0);
   const counterCap = COUNTER_CAP[c.kitchen.counter];
-  const handsUsed =
-    menu.reduce((s, m) => s + m.dish.activeMin * Math.min(m.batches, 3), 0) +
-    dayOf.length * 6 +
-    Math.round(c.guests * 1.5);
+  // Plated service asks more of the host at the pass; family style asks less.
+  const modeLoad = { plated: 2.6, family: 1.5, passed: 3.2 }[ops.table.serviceMode];
+  const handsUsed = Math.round(
+    (menu.reduce((s, m) => s + m.dish.activeMin * Math.min(m.batches, 3), 0) +
+      dayOf.length * 6 +
+      c.guests * modeLoad +
+      (ops.table.tablesideFinishing ? c.guests * 1.2 : 0) +
+      (c.style !== "seated" ? Math.max(0, ops.crowd.arrivalSpreadMin / ops.crowd.refillCadenceMin) * 8 : 0)) *
+      SKILL_FACTOR[ops.general.skill],
+  );
   const handsCap = windowMin * (1 + c.helpers * 0.85) + (c.prepWindowH > 6 ? 60 : 0);
   const styleWash = { seated: 4.2, buffet: 2.8, grazing: 2.1, cocktail: 1.6 }[c.style];
-  const washUsed = Math.round(c.guests * styleWash + dayOf.length * 3);
-  const washCap = (c.kitchen.dishwasher ? 90 : 45) + c.helpers * 25;
+  const washUsed = Math.round(
+    c.guests * styleWash * (1 + (ops.table.courses - 3) * 0.12) + dayOf.length * 3,
+  );
+  const washCap = Math.round(
+    ((c.kitchen.dishwasher ? 90 : 45) + c.helpers * 25) * SINK_FACTOR[ops.constraint.sink],
+  );
 
   const gauge = (
     key: string,
@@ -255,17 +284,25 @@ export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
   const gauges: LoadGauge[] = [
     gauge("oven", "Oven", ovenUsed, ovenCap, "min", `${c.kitchen.ovens} oven${c.kitchen.ovens === 1 ? "" : "s"} across a ${c.prepWindowH}h day-of window.`),
     gauge("burner", "Stovetop", burnerUsed, burnerCap, "burner-min", `${c.kitchen.burners} usable burners.`),
-    gauge("cold", "Cold storage", fridgeUsed, fridgeCap, "shelf units", `Fridge described as ${c.kitchen.fridge}; make-ahead dishes must live somewhere.`),
+    gauge("cold", "Cold storage", fridgeUsed, fridgeCap, "shelf units", `Fridge described as ${c.kitchen.fridge}${coldBonus(ops) ? `, plus ${coldBonus(ops)} declared cool-box units` : ""}; make-ahead dishes must live somewhere.`),
     gauge("counter", "Counter & landing", counterUsed, counterCap, "zones", `${c.kitchen.counter} working surface with ${dayOf.length} day-of dishes.`),
-    gauge("hands", "Host labour", handsUsed, handsCap, "min", `${c.helpers === 0 ? "Solo host" : `${c.helpers} helper${c.helpers === 1 ? "" : "s"}`} inside the prep window.`),
-    gauge("wash", "Wash-up throughput", washUsed, washCap, "items", c.kitchen.dishwasher ? "Dishwasher available." : "Hand-wash only — this is usually the hidden failure."),
+    gauge("hands", "Host labour", handsUsed, handsCap, "min", `${c.helpers === 0 ? "Solo host" : `${c.helpers} helper${c.helpers === 1 ? "" : "s"}`} at ${["cautious", "confident", "practised"][ops.general.skill - 1]} pace, ${ops.table.serviceMode} service.`),
+    gauge("wash", "Wash-up throughput", washUsed, washCap, "items", `${c.kitchen.dishwasher ? "Dishwasher available" : "Hand-wash only"}, ${ops.constraint.sink} sink across ${ops.table.courses} courses.`),
+    gauge("cleanup", "Recovery window", Math.round(c.guests * styleWash * 0.9), ops.general.cleanupWindowMin, "min", "Clearing, cooling and covering after the last plate."),
   ];
 
   if (c.style === "seated") {
     gauges.push(
-      gauge("table", "Table capacity", c.guests, c.kitchen.seats, "seats", "Seated service cannot exceed real seats."),
+      gauge("table", "Table capacity", c.guests, c.kitchen.seats, "seats", `${ops.table.tables} table${ops.table.tables === 1 ? "" : "s"} at ${ops.table.seatsPerTable} seats. Seated service cannot exceed real seats.`),
+    );
+  } else {
+    const seatedShare = Math.round(c.guests * (1 - ops.crowd.standingShare));
+    gauges.push(
+      gauge("table", "Seating pressure", seatedShare, Math.max(c.kitchen.seats, 1), "seats", `${Math.round(ops.crowd.standingShare * 100)}% of the room is expected to stand.`),
+      gauge("stations", "Serving stations", c.guests, Math.max(1, ops.crowd.stations) * 14, "guests", `${ops.crowd.stations} serving point${ops.crowd.stations === 1 ? "" : "s"}, ${ops.crowd.selfServe ? "self-serve" : "hosted"}, refilled every ${ops.crowd.refillCadenceMin} min.`),
     );
   }
+
 
   // ---- Hard stops (fail closed) ----------------------------------------
   if (c.style === "seated" && c.guests > c.kitchen.seats) {
@@ -316,6 +353,81 @@ export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
       correction: "Relax one filter, or declare more equipment. Nothing will be substituted silently.",
     });
   }
+
+  // ---- Declared-condition stops ----------------------------------------
+  if (c.style === "cocktail" || c.style === "grazing") {
+    const shortHold = menu.filter(
+      (m) => m.dish.course !== "drink" && m.dish.holdMin > 0 && m.dish.holdMin < ops.crowd.arrivalSpreadMin,
+    );
+    if (shortHold.length >= 2) {
+      stops.push({
+        code: "FLOW-01",
+        title: "Arrivals are spread wider than the food holds",
+        detail: `${shortHold.length} dishes hold for less time than the ${ops.crowd.arrivalSpreadMin}-minute arrival spread.`,
+        correction: "Tighten the arrival window, add a station and stagger the release, or choose dishes that hold.",
+      });
+    }
+  }
+  if (ops.crowd.stations * 14 < c.guests && c.style !== "seated") {
+    advisories.push(
+      `${c.guests} guests against ${ops.crowd.stations} serving station${ops.crowd.stations === 1 ? "" : "s"}: expect a queue. One station comfortably serves about fourteen.`,
+    );
+  }
+  if (ops.constraint.pantryOnly) {
+    const fresh = shoppingAisleCount(menu, ["produce", "protein", "bakery"]);
+    advisories.push(
+      `Pantry-only mode declared, but this route still needs ${fresh} fresh line${fresh === 1 ? "" : "s"}. Substitute deliberately or accept one trip.`,
+    );
+  }
+  if (ops.constraint.shoppingTrips <= 0) {
+    stops.push({
+      code: "SUP-01",
+      title: "No shopping trip declared",
+      detail: "The route requires ingredients that are not stated as already in the house.",
+      correction: "Declare at least one trip, switch on pantry-only mode, or reduce the route.",
+    });
+  }
+  if (ops.constraint.hardCapPerHead !== null && ops.constraint.hardCapPerHead <= 0) {
+    stops.push({
+      code: "BUD-01",
+      title: "Hard per-head cap set to zero",
+      detail: "A route cannot be costed against a zero ceiling.",
+      correction: "Raise the cap or clear it and use the budget tier.",
+    });
+  }
+  if (ops.constraint.curfew && c.prepWindowH > 6) {
+    advisories.push("A curfew is declared against a long prep window. Front-load noisy work and finish the loud stages early.");
+  }
+  if (c.outdoor && ops.outdoor.weatherRisk === "high") {
+    advisories.push("High weather risk outdoors: keep an indoor landing for every hot dish and do not commit the anchor to the grill alone.");
+  }
+  if (ops.outdoor.transportMin > 0) {
+    const fragile = menu.filter((m) => m.dish.tempBand === "hot" && m.dish.holdMin < ops.outdoor.transportMin + 20);
+    if (fragile.length)
+      advisories.push(
+        `${ops.outdoor.transportMin} minutes of transport: ${fragile.map((m) => m.dish.name).join(", ")} will not survive the journey hot. Finish them at the serving point.`,
+      );
+  }
+  if (c.outdoor && !ops.outdoor.shade && ops.outdoor.weatherRisk !== "low") {
+    advisories.push("No shade declared: cold dishes come out in relays, not all at once, and nothing sits in sun for more than an hour.");
+  }
+  if (ops.outdoor.insectPressure) {
+    advisories.push("Insect pressure declared: everything sweet or exposed needs a cover, and the sweet course lands late rather than early.");
+  }
+  if (c.outdoor && !ops.outdoor.water) {
+    advisories.push("No outdoor water: stage a rinse bin and a bin bag at the serving point before guests arrive.");
+  }
+  if (ops.general.dietStrictness === "strict" && c.diets.length > 0) {
+    advisories.push("Strict avoidance declared: separate boards, separate utensils and separate serving spoons. Read every label yourself; this tool cannot verify one.");
+  }
+  if (!ops.general.alcohol) {
+    advisories.push("Alcohol-free house: the zero-proof pour is the only pour, and it is treated as the main drink, not a fallback.");
+  }
+  if (ops.table.tablesideFinishing) {
+    advisories.push("Table-side finishing costs you the room for the length of the finish. Assign it to a helper or drop it.");
+  }
+
+
 
   // ---- Advisories -------------------------------------------------------
   if (!c.kitchen.dishwasher && c.guests >= 8)
@@ -509,12 +621,23 @@ export function buildPlan(c: Conditions, library: Dish[] = LIBRARY): Plan {
   const costPerHead =
     Math.round(foodMenu.reduce((s, m) => s + cost(m.dish) * volume, 0) * 100) / 100;
   const costTotal = Math.round(costPerHead * c.guests);
-  const costCeiling = BUDGET_CEILING[c.budgetTier];
+  const hardCap = ops.constraint.hardCapPerHead;
+  const costCeiling = hardCap && hardCap > 0 ? hardCap : BUDGET_CEILING[c.budgetTier];
   if (costPerHead > costCeiling) {
-    advisories.push(
-      `Indicative cost is about ${costPerHead.toFixed(2)} per head against a ${BUDGET_LABELS[c.budgetTier].toLowerCase()} ceiling of ${costCeiling}. Drop the most expensive dish, or raise the tier deliberately rather than by accident.`,
-    );
+    if (hardCap && hardCap > 0) {
+      stops.push({
+        code: "BUD-02",
+        title: "Route breaks the declared hard cap",
+        detail: `About ${costPerHead.toFixed(2)} per head against a stated cap of ${hardCap}.`,
+        correction: "Drop the most expensive dish, cut a course, or raise the cap deliberately.",
+      });
+    } else {
+      advisories.push(
+        `Indicative cost is about ${costPerHead.toFixed(2)} per head against a ${BUDGET_LABELS[c.budgetTier].toLowerCase()} ceiling of ${costCeiling}. Drop the most expensive dish, or raise the tier deliberately rather than by accident.`,
+      );
+    }
   }
+
 
   // ---- Menu balance -----------------------------------------------------
   const balanceNotes: string[] = [];
@@ -633,6 +756,8 @@ export const DEFAULT_CONDITIONS: Conditions = {
   kids: false,
   outdoor: false,
   leftovers: "some",
+  ops: DEFAULT_OPS,
+
   kitchen: {
     ovens: 1,
     burners: 4,

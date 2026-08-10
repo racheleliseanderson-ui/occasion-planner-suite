@@ -128,6 +128,83 @@ export interface Conditions {
   outdoor: boolean;
   /** deliberate leftovers goal */
   leftovers: "none" | "some" | "deliberate";
+  /** extended operating conditions; optional so older saved files still load */
+  ops?: Ops;
+}
+
+/** Seating and course choreography for a table-led occasion. */
+export interface TableOps {
+  tables: number;
+  seatsPerTable: number;
+  /** courses actually served at the table */
+  courses: number;
+  serviceMode: "plated" | "family" | "passed";
+  /** finishing a dish in front of guests costs service attention */
+  tablesideFinishing: boolean;
+}
+
+/** Flow control for a standing or self-service crowd. */
+export interface CrowdOps {
+  /** share of guests who will be standing, 0–1 */
+  standingShare: number;
+  /** minutes between the first and last arrival */
+  arrivalSpreadMin: number;
+  /** separate serving points */
+  stations: number;
+  selfServe: boolean;
+  /** minutes between refills of a station */
+  refillCadenceMin: number;
+}
+
+/** Hard limits of the room, the sink, the money and the shopping. */
+export interface ConstraintOps {
+  sink: "scarce" | "single" | "double";
+  /** usable prep surfaces */
+  prepSurfaces: number;
+  singleBurnerMode: boolean;
+  noOvenMode: boolean;
+  /** extra cold boxes or coolers beyond the fridge */
+  coldBoxes: number;
+  powerLimited: boolean;
+  /** a noise or finish-by curfew applies */
+  curfew: boolean;
+  shoppingTrips: number;
+  pantryOnly: boolean;
+  /** absolute per-head ceiling that overrides the budget tier */
+  hardCapPerHead: number | null;
+}
+
+/** What is actually available outside. */
+export interface OutdoorOps {
+  grillType: "none" | "gas" | "charcoal" | "kamado";
+  smoker: boolean;
+  firePit: boolean;
+  power: boolean;
+  water: boolean;
+  shade: boolean;
+  weatherRisk: "low" | "medium" | "high";
+  /** minutes of transport between kitchen and serving point */
+  transportMin: number;
+  /** cooler capacity in the same shelf units as the fridge gauge */
+  coolerCapacity: number;
+  insectPressure: boolean;
+}
+
+/** Host-level conditions that colour the whole route. */
+export interface GeneralOps {
+  skill: 1 | 2 | 3;
+  alcohol: boolean;
+  serviceDurationMin: number;
+  cleanupWindowMin: number;
+  dietStrictness: "preference" | "strict";
+}
+
+export interface Ops {
+  table: TableOps;
+  crowd: CrowdOps;
+  constraint: ConstraintOps;
+  outdoor: OutdoorOps;
+  general: GeneralOps;
 }
 
 

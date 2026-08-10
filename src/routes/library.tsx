@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
+import { BulkImport } from "@/components/oos/BulkImport";
 import { DishEditor } from "@/components/oos/DishEditor";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { GLOSSARY } from "@/lib/oos/explain";
-import { isFixture, resolveLibrary } from "@/lib/oos/library";
+import { FIXTURE_IDS, isFixture, resolveLibrary } from "@/lib/oos/library";
 import {
   blankDish,
   clearConfig,
@@ -453,6 +454,17 @@ function LibraryWorkshop() {
             </button>
           </div>
         </section>
+
+        {/* Bulk import */}
+        <section>
+          <span className="rule-label">Section 03b</span>
+          <h2 className="mt-1 text-2xl tracking-tight">Bulk import</h2>
+          <div className="mt-4">
+            <BulkImport fixtureIds={FIXTURE_IDS} />
+          </div>
+        </section>
+
+
 
         {/* Glossary */}
         <section>

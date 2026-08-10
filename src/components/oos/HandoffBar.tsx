@@ -1,15 +1,20 @@
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import type { Plan } from "@/lib/oos/types";
 import { download, planIcs, planJson, planMarkdown, shoppingCsv, slug, timelineCsv } from "@/lib/oos/export";
+import { stashMenu } from "@/lib/oos/handoff";
+import { planPdf } from "@/lib/oos/pdf";
 
 const btn =
-  "border border-border bg-card px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground";
+  "min-h-11 border border-border bg-card px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground sm:min-h-0";
 
 /** Everything the host needs to carry the plan out of the browser. */
 export function HandoffBar({ plan }: { plan: Plan }) {
+  const navigate = useNavigate();
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(today);
   const name = slug(plan.conditions.label);
+
 
   return (
     <div className="no-print border border-border bg-secondary px-5 py-4">
@@ -28,10 +33,24 @@ export function HandoffBar({ plan }: { plan: Plan }) {
           <button type="button" className={btn} onClick={() => download(`${name}-plan.json`, "application/json", planJson(plan))}>
             JSON
           </button>
+          <button type="button" className={btn} onClick={() => planPdf(plan)}>
+            Packet PDF
+          </button>
           <button type="button" className={btn} onClick={() => window.print()}>
             Print packet
           </button>
+          <button
+            type="button"
+            className={`${btn} border-foreground`}
+            onClick={() => {
+              stashMenu(plan);
+              navigate({ to: "/menu" });
+            }}
+          >
+            Send to menu builder
+          </button>
         </div>
+
         <div className="flex flex-wrap items-center gap-2">
           <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" htmlFor="oos-ics-date">
             Occasion date

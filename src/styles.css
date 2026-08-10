@@ -122,6 +122,60 @@
   filter: saturate(0.92) brightness(0.86) contrast(1.04);
 }
 
+/* Third art direction: maximum contrast, colour-blind-safe signals.
+   Red/green is abandoned entirely — the four states run blue → teal → amber →
+   near-black, which stay distinct under deuteranopia, protanopia and tritanopia,
+   and are also separable by lightness alone for monochrome print. */
+.contrast {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.14 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.14 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.14 0 0);
+  --primary: oklch(0.14 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.955 0 0);
+  --secondary-foreground: oklch(0.14 0 0);
+  --muted: oklch(0.945 0 0);
+  --muted-foreground: oklch(0.34 0 0);
+  --accent: oklch(0.47 0.16 258);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.3 0.09 30);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.44 0 0);
+  --input: oklch(0.36 0 0);
+  --ring: oklch(0.47 0.16 258);
+
+  --ink: oklch(0.14 0 0);
+  --ink-foreground: oklch(1 0 0);
+  --ink-muted: oklch(0.82 0 0);
+  --brass: oklch(0.47 0.16 258);
+  --signal-clear: oklch(0.5 0.14 258);
+  --signal-controlled: oklch(0.45 0.09 200);
+  --signal-tight: oklch(0.56 0.14 72);
+  --signal-over: oklch(0.22 0.06 30);
+}
+
+/* Hairlines carry more weight when contrast is the point. */
+.contrast .rule-label,
+.contrast [aria-pressed="true"] {
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+
 
 @layer base {
   * {

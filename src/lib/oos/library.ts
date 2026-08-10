@@ -1,7 +1,11 @@
 import { DISHES } from "./dishes";
 import { EXTRA_DISHES } from "./dishes-extra";
+import { TABLE_DISHES } from "./dishes-table";
+import { CROWD_DISHES } from "./dishes-crowd";
+import { CONSTRAINT_DISHES } from "./dishes-constraint";
 import type { Dish } from "./types";
 import type { OosConfig } from "./store";
+
 
 /** Indicative planning cost when a fixture predates the cost field. */
 const DEFAULT_COST: Record<Dish["course"], number> = {
@@ -25,16 +29,27 @@ export function normalise(d: Dish): Dish {
 }
 
 /** The untouched first-party fixture set, de-duplicated by id (first wins). */
-export const FIXTURES: Dish[] = [...DISHES, ...EXTRA_DISHES]
+export const FIXTURES: Dish[] = [
+  ...DISHES,
+  ...EXTRA_DISHES,
+  ...TABLE_DISHES,
+  ...CROWD_DISHES,
+  ...CONSTRAINT_DISHES,
+]
   .filter((d, i, arr) => arr.findIndex((x) => x.id === d.id) === i)
   .map(normalise);
+
 
 /** Back-compatible default library (no personal overrides applied). */
 export const LIBRARY: Dish[] = FIXTURES;
 
+/** Ids shipped with the instrument; anything else is the host's own. */
+export const FIXTURE_IDS = new Set(FIXTURES.map((d) => d.id));
+
 export function isFixture(id: string): boolean {
-  return FIXTURES.some((d) => d.id === id);
+  return FIXTURE_IDS.has(id);
 }
+
 
 /**
  * The library the engine actually plans against: fixtures, with the host's
