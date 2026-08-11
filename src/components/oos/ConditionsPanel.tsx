@@ -413,6 +413,41 @@ export function ConditionsPanel({ value, onChange }: Props) {
           </p>
         </Field>
 
+        <Field
+          label="Culinary traditions"
+          hint="attribution, not an authenticity claim"
+        >
+          <div className="flex flex-wrap gap-1.5">
+            {CUISINES.map((c) => {
+              const on = (value.cuisines ?? []).includes(c);
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => {
+                    const cur = value.cuisines ?? [];
+                    set({ cuisines: on ? cur.filter((x) => x !== c) : [...cur, c] });
+                  }}
+                  className={cn(
+                    "min-h-11 border px-3 py-1.5 text-sm transition-colors",
+                    on
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border bg-card hover:border-foreground/40",
+                  )}
+                >
+                  {CUISINE_LABELS[c]}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-3 border-l-2 border-accent pl-3 text-xs leading-relaxed text-muted-foreground">
+            No selection means no restriction. Selecting traditions narrows the library the engine
+            may draw from; it does not make a dish regionally authoritative.
+          </p>
+        </Field>
+
+
       </div>
 
       <OpsPanel value={value} onChange={onChange} />
