@@ -28,7 +28,9 @@ export function HandoffBar({ plan }: { plan: Plan }) {
     standard: t("ho.pdf.standard"),
     contrast: t("ho.pdf.contrast"),
     large: t("ho.pdf.large"),
+    avenue: t("ho.pdf.avenue"),
   };
+
 
   /** Only the dishes the route depends on that differ from the shipped fixtures travel in the link. */
   const changedDishes = plan.menu
