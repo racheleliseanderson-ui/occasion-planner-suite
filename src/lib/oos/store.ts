@@ -19,6 +19,9 @@ const shape = z.enum(["dinner", "brunch", "reception", "cookout", "aperitivo"]);
 const season = z.enum(["spring", "summer", "autumn", "winter", "year-round"]);
 const method = z.enum(["roast", "braise", "fry", "boil", "grill", "raw", "bake", "chill"]);
 const tempBand = z.enum(["cold", "ambient", "warm", "hot"]);
+const cuisine = z.enum([
+  "house","italian","aegean","levantine","persian","indian","seasia","chinese","japanese","mexican","caribbean","west-african","nordic",
+]);
 
 const ingredientSchema = z.object({
   item: z.string().trim().min(1).max(80),
@@ -51,6 +54,7 @@ export const dishSchema = z.object({
   tempBand: tempBand.optional(),
   kidFriendly: z.boolean().optional(),
   outdoorSafe: z.boolean().optional(),
+  cuisine: cuisine.optional(),
 });
 
 const kitchenSchema = z.object({
