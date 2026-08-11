@@ -32,6 +32,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-tinned-tomato-pasta",
@@ -61,6 +62,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "italian",
   },
   {
     id: "cn-chickpea-curry",
@@ -90,6 +92,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "indian",
   },
   {
     id: "cn-instant-noodle-upgrade",
@@ -119,6 +122,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "chinese",
   },
   {
     id: "cn-tuna-rice-bowl",
@@ -148,6 +152,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-egg-fried-rice",
@@ -177,6 +182,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "chinese",
   },
   {
     id: "cn-bean-chilli",
@@ -206,6 +212,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "mexican",
   },
   {
     id: "cn-tinned-fish-salad",
@@ -235,6 +242,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "italian",
   },
   {
     id: "cn-crackers-tinned-pate",
@@ -263,6 +271,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-hummus-board",
@@ -292,6 +301,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "levantine",
   },
   {
     id: "cn-peanut-noodles",
@@ -321,6 +331,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "chinese",
   },
   {
     id: "cn-pantry-slaw",
@@ -350,6 +361,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-tinned-corn-salad",
@@ -379,6 +391,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "mexican",
   },
   {
     id: "cn-boiled-potato-salad",
@@ -408,6 +421,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-lentil-salad",
@@ -437,6 +451,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-no-knead-flatbread",
@@ -466,6 +481,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "levantine",
   },
   {
     id: "cn-shop-baguette",
@@ -493,6 +509,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-tortilla-wraps",
@@ -519,6 +536,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "mexican",
   },
   {
     id: "cn-instant-mash-cake",
@@ -547,6 +565,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-no-cook-gazpacho",
@@ -576,6 +595,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "aegean",
   },
   {
     id: "cn-savoury-oats",
@@ -604,6 +624,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-pantry-frittata-mug",
@@ -632,6 +653,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-tinned-fruit-cup",
@@ -659,6 +681,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-no-bake-oat-bars",
@@ -687,6 +710,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-instant-pudding-cups",
@@ -714,6 +738,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-microwave-mug-cake",
@@ -743,6 +768,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-frozen-yoghurt-bark",
@@ -771,6 +797,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-jarred-tapenade-toast",
@@ -798,6 +825,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "aegean",
   },
   {
     id: "cn-tinned-olives-crisps",
@@ -826,6 +854,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-jarred-pepper-board",
@@ -854,6 +883,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "aegean",
   },
   {
     id: "cn-single-burner-mussels",
@@ -882,6 +912,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: false,
     outdoorSafe: false,
+    cuisine: "italian",
   },
   {
     id: "cn-fridge-pickled-veg",
@@ -911,6 +942,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-couscous-steep",
@@ -939,6 +971,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "levantine",
   },
   {
     id: "cn-pantry-tabbouleh",
@@ -968,6 +1001,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "levantine",
   },
   {
     id: "cn-jarred-curry-sauce-rice",
@@ -996,6 +1030,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "indian",
   },
   {
     id: "cn-store-bought-quiche-slice",
@@ -1022,6 +1057,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-tinned-soup-boost",
@@ -1050,6 +1086,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-cold-brew-batch",
@@ -1077,6 +1114,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-powdered-lemonade",
@@ -1104,6 +1142,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-tinned-tea-punch",
@@ -1132,6 +1171,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-cheap-house-wine",
@@ -1158,6 +1198,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-store-crisps-dip",
@@ -1185,6 +1226,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-tinned-peach-yoghurt",
@@ -1213,6 +1255,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-single-pan-rice-pudding",
@@ -1241,6 +1284,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-pantry-flapjack-nobake",
@@ -1269,6 +1313,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-dry-cereal-bar",
@@ -1296,6 +1341,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
   },
   {
     id: "cn-toast-jam-spread",
@@ -1324,6 +1370,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
   },
   {
     id: "cn-tinned-corn-fritters",
@@ -1352,6 +1399,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "mexican",
   },
   {
     id: "cn-cold-tofu-pantry",
@@ -1380,6 +1428,7 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: false,
+    cuisine: "chinese",
   },
   {
     id: "cn-single-pot-dhal-toast",
@@ -1408,5 +1457,6 @@ export const CONSTRAINT_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "indian",
   }
 ];
