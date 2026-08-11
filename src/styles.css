@@ -157,7 +157,64 @@
   --signal-over: oklch(0.22 0.06 30);
 }
 
+/* Fourth art direction — Avenue. Lacquer black, warm stone, gold leaf.
+   Maximalist: heavier rules, deeper fields, display type at poster scale. */
+.avenue {
+  --radius: 0rem;
+  --background: oklch(0.148 0.011 62);
+  --foreground: oklch(0.955 0.014 84);
+  --card: oklch(0.196 0.014 60);
+  --card-foreground: oklch(0.955 0.014 84);
+  --popover: oklch(0.196 0.014 60);
+  --popover-foreground: oklch(0.955 0.014 84);
+  --primary: oklch(0.83 0.135 82);
+  --primary-foreground: oklch(0.16 0.014 60);
+  --secondary: oklch(0.228 0.018 66);
+  --secondary-foreground: oklch(0.955 0.014 84);
+  --muted: oklch(0.24 0.016 64);
+  --muted-foreground: oklch(0.775 0.024 78);
+  --accent: oklch(0.83 0.135 82);
+  --accent-foreground: oklch(0.15 0.014 60);
+  --destructive: oklch(0.63 0.18 30);
+  --destructive-foreground: oklch(0.97 0.012 85);
+  --border: oklch(0.38 0.035 74);
+  --input: oklch(0.38 0.035 74);
+  --ring: oklch(0.83 0.135 82);
+
+  --ink: oklch(0.108 0.01 60);
+  --ink-foreground: oklch(0.965 0.014 84);
+  --ink-muted: oklch(0.79 0.026 78);
+  --brass: oklch(0.855 0.14 84);
+  --signal-clear: oklch(0.74 0.06 250);
+  --signal-controlled: oklch(0.79 0.105 158);
+  --signal-tight: oklch(0.845 0.145 78);
+  --signal-over: oklch(0.68 0.18 28);
+}
+
+.avenue img {
+  filter: saturate(0.94) brightness(0.82) contrast(1.08);
+}
+
+/* Avenue speaks louder: rules thicken, labels widen, numerals take the stage. */
+.avenue .rule-label {
+  color: var(--color-brass);
+  letter-spacing: 0.26em;
+  font-weight: 500;
+}
+
+.avenue .paper {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-brass) 22%, transparent),
+    0 24px 60px -32px oklch(0 0 0 / 0.9);
+}
+
+.avenue h1,
+.avenue h2 {
+  letter-spacing: -0.03em;
+}
+
 /* Hairlines carry more weight when contrast is the point. */
+
 .contrast .rule-label,
 .contrast [aria-pressed="true"] {
   font-weight: 600;
