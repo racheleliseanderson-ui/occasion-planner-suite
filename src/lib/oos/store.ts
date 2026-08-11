@@ -86,6 +86,19 @@ const profileSchema = z.object({
   kitchen: kitchenSchema,
 });
 
+const runRecordSchema = z.object({
+  id: z.string(),
+  at: z.number(),
+  label: z.string().max(80),
+  signature: z.string().max(40),
+  feasibility: z.number(),
+  balance: z.number(),
+  verdict: z.string().max(24),
+  stops: z.number(),
+  binding: z.string().max(80),
+  conditions: z.record(z.string(), z.unknown()),
+});
+
 export const configSchema = z.object({
   version: z.literal(1).default(1),
   customDishes: z.array(dishSchema).max(400).default([]),
@@ -93,6 +106,8 @@ export const configSchema = z.object({
   hiddenDishIds: z.array(z.string()).default([]),
   kitchenProfiles: z.array(profileSchema).max(30).default([]),
   savedScenarios: z.array(scenarioSchema).max(60).default([]),
+  /** completed build runs, newest first, capped so the store stays small */
+  runHistory: z.array(runRecordSchema).max(20).default([]),
 });
 
 export type OosConfig = z.infer<typeof configSchema>;
@@ -106,6 +121,7 @@ export const EMPTY_CONFIG: OosConfig = {
   hiddenDishIds: [],
   kitchenProfiles: [],
   savedScenarios: [],
+  runHistory: [],
 };
 
 let current: OosConfig = EMPTY_CONFIG;
@@ -392,4 +408,14 @@ export function blankDish(): Dish {
     method: "raw",
     tempBand: "cold",
   };
+}
+
+
+/** Record a completed build run. Newest first, oldest pruned. */
+export function recordRun(run: OosConfig["runHistory"][number]) {
+  updateConfig((c) => ({ ...c, runHistory: [run, ...c.runHistory].slice(0, 12) }));
+}
+
+export function clearRunHistory() {
+  updateConfig((c) => ({ ...c, runHistory: [] }));
 }

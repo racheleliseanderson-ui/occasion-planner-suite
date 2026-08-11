@@ -1,5 +1,6 @@
 import type { Plan } from "./types";
 import { slug } from "./export";
+import type { DecisionRecord } from "./decision";
 
 /**
  * PDF hand-offs, composed in the browser. The generator measures before it
@@ -9,9 +10,9 @@ import { slug } from "./export";
  * reading across a kitchen.
  */
 
-export type PdfStyle = "standard" | "contrast" | "large";
+export type PdfStyle = "standard" | "contrast" | "large" | "avenue";
 
-export const PDF_STYLES: PdfStyle[] = ["standard", "contrast", "large"];
+export const PDF_STYLES: PdfStyle[] = ["standard", "contrast", "large", "avenue"];
 
 interface StyleSpec {
   /** multiplier applied to every type size */
@@ -30,11 +31,15 @@ const SPECS: Record<PdfStyle, StyleSpec> = {
   standard: { scale: 1, muted: 110, rule: 170, ruleWidth: 0.2, columns: 2, leading: 1.5 },
   contrast: { scale: 1.04, muted: 0, rule: 0, ruleWidth: 0.5, columns: 2, leading: 1.55 },
   large: { scale: 1.3, muted: 60, rule: 90, ruleWidth: 0.4, columns: 1, leading: 1.7 },
+  // Avenue on paper: heavier rules, tighter grey, display-scale headings.
+  avenue: { scale: 1.08, muted: 85, rule: 40, ruleWidth: 0.6, columns: 2, leading: 1.62 },
 };
 
 /** The screen theme preselects the matching document style. */
 export function styleForTheme(theme: string): PdfStyle {
-  return theme === "contrast" ? "contrast" : "standard";
+  if (theme === "contrast") return "contrast";
+  if (theme === "avenue") return "avenue";
+  return "standard";
 }
 
 const PAGE = { w: 210, h: 297 } as const; // A4 millimetres
@@ -364,4 +369,66 @@ export async function menuCardPdf(
   }
 
   doc.save(`${slug(card.title || "menu")}-card.pdf`);
+}
+
+
+/** The decision packet: why this route, what binds it, what would change it. */
+export async function decisionPdf(d: DecisionRecord, style: PdfStyle = "standard"): Promise<void> {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const spec = SPECS[style];
+  const k = new Composer(doc, spec, `Decision packet · ${d.label} · ${d.signature}`);
+
+  k.label("Decision packet · Salty & Clever");
+  k.heading(d.label, 22);
+  k.gap(1);
+  k.body(`Verdict ${d.verdict} · feasibility ${d.feasibility}/100 · balance ${d.balance}/100`, 10);
+  k.rule();
+
+  k.label("Why");
+  k.body(d.why);
+
+  if (d.binding) {
+    k.rule();
+    k.label("Binding constraint");
+    k.row(d.binding.name, `${d.binding.used}/${d.binding.capacity} ${d.binding.unit}  ${d.binding.pct}%`, 11);
+    k.body(d.binding.margin, 9.5, 4, true);
+  }
+
+  if (d.stops.length) {
+    k.rule();
+    k.label("Hard stops");
+    for (const s of d.stops) {
+      k.need(k.measure(`${s.code} — ${s.title}`, 11) + k.measure(s.correction, 9.5, 4));
+      k.body(`${s.code} — ${s.title}`, 11);
+      k.body(`Correction: ${s.correction}`, 9.5, 4, true);
+    }
+  }
+
+  k.rule();
+  k.label("Assumptions this rests on");
+  for (const a of d.assumptions) k.row(a.label, a.value, 9.5);
+
+  k.rule();
+  k.label("What would change the verdict", 34);
+  for (const l of d.levers) {
+    k.need(k.measure(l.label, 11) + k.measure(l.change, 9.5, 4));
+    k.row(l.label, `${l.feasibility}/100  ${l.delta >= 0 ? "+" : ""}${l.delta}  ${l.stops} stops`, 11);
+    k.body(l.change, 9.5, 4, true);
+  }
+
+  k.rule();
+  k.label("Accepted by proceeding");
+  for (const a of d.accepted) k.body(`— ${a}`, 9.5, 4);
+
+  k.rule();
+  k.body(
+    "Educational planning record. Dietary categories are planning filters, not allergen guarantees. Costs are indicative, not quotes.",
+    8.5,
+    0,
+    true,
+  );
+
+  k.finish(`${d.signature} · ${d.label}`);
+  doc.save(`${slug(d.label)}-decision.pdf`);
 }
