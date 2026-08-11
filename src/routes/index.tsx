@@ -6,10 +6,13 @@ import { HostPacket } from "@/components/oos/HostPacket";
 import { signalClass } from "@/components/oos/Signals";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { ScenarioGallery } from "@/components/oos/ScenarioGallery";
+import { RunConsole } from "@/components/oos/RunConsole";
+import { DecisionPacket } from "@/components/oos/DecisionPacket";
+import { ServiceRunner } from "@/components/oos/ServiceRunner";
 import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { useT } from "@/lib/i18n";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
-import { resolveLibrary } from "@/lib/oos/library";
+import { filterByCuisine, resolveLibrary } from "@/lib/oos/library";
 import { saveScenario, useConfig } from "@/lib/oos/store";
 import type { Conditions, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
@@ -55,7 +58,8 @@ interface Variant {
 function Index() {
   const config = useConfig();
   const { t } = useT();
-  const library = useMemo(() => resolveLibrary(config), [config]);
+  const all = useMemo(() => resolveLibrary(config), [config]);
+  const library = useMemo(() => filterByCuisine(all, conditionsCuisines(conditionsRef)), []);
   const [conditions, setConditions] = useState<Conditions>(DEFAULT_CONDITIONS);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [built, setBuilt] = useState(false);
