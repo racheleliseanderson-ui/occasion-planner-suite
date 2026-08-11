@@ -185,10 +185,10 @@ export function RunConsole({ conditions, library, onCommit, onRestore, stale, co
                   <th scope="col" className="rule-label py-2 text-left">
                     {t("run.title")}
                   </th>
-                  <th scope="col" className="rule-label py-2 text-right">
+                  <th scope="col" className="rule-label px-3 py-2 text-right">
                     {t("tbl.feasibility")}
                   </th>
-                  <th scope="col" className="rule-label py-2 text-right">
+                  <th scope="col" className="rule-label px-3 py-2 text-right">
                     {t("tbl.stops")}
                   </th>
                   <th scope="col" className="rule-label py-2 text-left">
@@ -206,8 +206,8 @@ export function RunConsole({ conditions, library, onCommit, onRestore, stale, co
                         {r.signature} · {new Date(r.at).toLocaleTimeString()}
                       </span>
                     </td>
-                    <td className="py-3 text-right font-mono tabular-nums">{r.feasibility}</td>
-                    <td className="py-3 text-right font-mono tabular-nums">{r.stops}</td>
+                    <td className="px-3 py-3 text-right font-mono tabular-nums">{r.feasibility}</td>
+                    <td className="px-3 py-3 text-right font-mono tabular-nums">{r.stops}</td>
                     <td className="py-3 font-mono text-[11px] text-muted-foreground">{r.binding}</td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-2">
