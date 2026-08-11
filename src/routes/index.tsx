@@ -59,18 +59,26 @@ function Index() {
   const config = useConfig();
   const { t } = useT();
   const all = useMemo(() => resolveLibrary(config), [config]);
-  const library = useMemo(() => filterByCuisine(all, conditionsCuisines(conditionsRef)), []);
   const [conditions, setConditions] = useState<Conditions>(DEFAULT_CONDITIONS);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [built, setBuilt] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
+  /** signature of the conditions the last completed run committed */
+  const [committedSig, setCommittedSig] = useState<string | null>(null);
+
+  const library = useMemo(
+    () => filterByCuisine(all, conditions.cuisines ?? []),
+    [all, conditions.cuisines],
+  );
 
   const plan = useMemo(() => buildPlan(conditions, library), [conditions, library]);
+  const stale = committedSig !== null && committedSig !== plan.signature;
 
   const saveVariant = () =>
     setVariants((v) =>
       [...v, { id: `${Date.now()}`, label: conditions.label || plan.signature, plan }].slice(-3),
     );
+
 
   return (
     <div className="min-h-dvh">
