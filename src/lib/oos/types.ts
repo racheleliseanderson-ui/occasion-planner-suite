@@ -95,7 +95,26 @@ export interface Dish {
   kidFriendly?: boolean;
   /** true if it holds up outdoors in warm air */
   outdoorSafe?: boolean;
+  /** culinary tradition the dish is read against; "house" = unattributed */
+  cuisine?: Cuisine;
 }
+
+/** Culinary traditions carried in the library. Attribution, not authenticity claim. */
+export type Cuisine =
+  | "house"
+  | "italian"
+  | "aegean"
+  | "levantine"
+  | "persian"
+  | "indian"
+  | "seasia"
+  | "chinese"
+  | "japanese"
+  | "mexican"
+  | "caribbean"
+  | "west-african"
+  | "nordic";
+
 
 export interface Kitchen {
   ovens: number;
