@@ -32,6 +32,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Basil", perGuest: 0.05, unit: "bunch", aisle: "produce" },
       { item: "Olive oil", perGuest: 10, unit: "ml", aisle: "pantry" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-leek-vinaigrette",
@@ -59,6 +60,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Sherry vinegar", perGuest: 5, unit: "ml", aisle: "pantry" },
       { item: "Egg", perGuest: 0.3, unit: "ea", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-carrot-ginger-soup",
@@ -87,6 +89,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Onion", perGuest: 0.2, unit: "ea", aisle: "produce" },
       { item: "Vegetable stock", perGuest: 0.3, unit: "L", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-scallop-crudo",
@@ -114,6 +117,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Red chilli", perGuest: 0.1, unit: "ea", aisle: "produce" },
       { item: "Olive oil", perGuest: 8, unit: "ml", aisle: "pantry" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-mushroom-tart-starter",
@@ -141,6 +145,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Crème fraîche", perGuest: 30, unit: "g", aisle: "dairy" },
       { item: "Thyme", perGuest: 0.05, unit: "bunch", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-beetroot-goat-cheese",
@@ -168,6 +173,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Walnuts", perGuest: 15, unit: "g", aisle: "pantry" },
       { item: "Honey", perGuest: 6, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-pea-mint-soup",
@@ -195,6 +201,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Mint", perGuest: 0.05, unit: "bunch", aisle: "produce" },
       { item: "Crème fraîche", perGuest: 15, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-terrine-country",
@@ -222,6 +229,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Pickled cornichons", perGuest: 15, unit: "g", aisle: "pantry" },
       { item: "Thyme", perGuest: 0.02, unit: "bunch", aisle: "produce" },
     ],
+    cuisine: "house",
   },
 
   // ---- Anchors ------------------------------------------------------------
@@ -251,6 +259,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Mushroom duxelles", perGuest: 0.08, unit: "kg", aisle: "produce" },
       { item: "Egg wash", perGuest: 0.15, unit: "ea", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-duck-breast-cherry",
@@ -278,6 +287,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Red wine", perGuest: 0.05, unit: "L", aisle: "drinks" },
       { item: "Shallot", perGuest: 0.2, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-halibut-beurre-blanc",
@@ -305,6 +315,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "White wine", perGuest: 0.04, unit: "L", aisle: "drinks" },
       { item: "Shallot", perGuest: 0.2, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-mushroom-wellington",
@@ -332,6 +343,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Puff pastry", perGuest: 0.1, unit: "kg", aisle: "bakery" },
       { item: "Egg wash", perGuest: 0.1, unit: "ea", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-osso-buco",
@@ -359,6 +371,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Carrot", perGuest: 0.4, unit: "ea", aisle: "produce" },
       { item: "Lemon zest", perGuest: 2, unit: "g", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-stuffed-squash",
@@ -387,6 +400,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Sage", perGuest: 0.03, unit: "bunch", aisle: "produce" },
       { item: "Parmesan", perGuest: 15, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-rack-of-lamb",
@@ -414,6 +428,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Rosemary", perGuest: 0.02, unit: "bunch", aisle: "produce" },
       { item: "Dijon mustard", perGuest: 6, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-cassoulet",
@@ -441,6 +456,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Toulouse sausage", perGuest: 0.1, unit: "kg", aisle: "protein" },
       { item: "Breadcrumbs", perGuest: 15, unit: "g", aisle: "bakery" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-eggplant-involtini",
@@ -469,6 +485,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Basil", perGuest: 0.04, unit: "bunch", aisle: "produce" },
       { item: "Passata", perGuest: 0.1, unit: "kg", aisle: "pantry" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-salmon-en-croute",
@@ -496,6 +513,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Spinach", perGuest: 0.05, unit: "kg", aisle: "produce" },
       { item: "Egg wash", perGuest: 0.1, unit: "ea", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-lentil-mushroom-wellington",
@@ -524,6 +542,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Onion", perGuest: 0.2, unit: "ea", aisle: "produce" },
       { item: "Oats", perGuest: 20, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
 
   // ---- Sides ---------------------------------------------------------------
@@ -554,6 +573,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Garlic", perGuest: 0.5, unit: "clove", aisle: "produce" },
       { item: "Nutmeg", perGuest: 0.2, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-glazed-carrots",
@@ -581,6 +601,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Butter", perGuest: 12, unit: "g", aisle: "dairy" },
       { item: "Honey", perGuest: 5, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-braised-red-cabbage",
@@ -608,6 +629,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Apple", perGuest: 0.15, unit: "ea", aisle: "produce" },
       { item: "Red wine vinegar", perGuest: 6, unit: "ml", aisle: "pantry" },
     ],
+    cuisine: "nordic",
   },
   {
     id: "tb-green-beans-almond",
@@ -635,6 +657,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Flaked almonds", perGuest: 10, unit: "g", aisle: "pantry" },
       { item: "Butter", perGuest: 10, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-celeriac-puree",
@@ -662,6 +685,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Butter", perGuest: 20, unit: "g", aisle: "dairy" },
       { item: "Cream", perGuest: 20, unit: "ml", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-roast-cauliflower-tahini",
@@ -688,6 +712,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Tahini", perGuest: 15, unit: "g", aisle: "pantry" },
       { item: "Pomegranate seeds", perGuest: 10, unit: "g", aisle: "produce" },
     ],
+    cuisine: "levantine",
   },
   {
     id: "tb-buttered-peas-lettuce",
@@ -715,6 +740,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Baby gem lettuce", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Butter", perGuest: 10, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
 
   // ---- Breads ---------------------------------------------------------------
@@ -743,6 +769,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Brioche dough", perGuest: 0.08, unit: "kg", aisle: "bakery" },
       { item: "Butter", perGuest: 10, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-grissini",
@@ -765,6 +792,7 @@ export const TABLE_DISHES: Dish[] = [
     method: "bake",
     tempBand: "ambient",
     outdoorSafe: true,
+    cuisine: "italian",
     ingredients: [
       { item: "Bread flour", perGuest: 30, unit: "g", aisle: "pantry" },
       { item: "Rosemary", perGuest: 0.02, unit: "bunch", aisle: "produce" },
@@ -797,6 +825,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Buttermilk", perGuest: 40, unit: "ml", aisle: "dairy" },
       { item: "Egg", perGuest: 0.2, unit: "ea", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-focaccia-rosemary",
@@ -820,6 +849,7 @@ export const TABLE_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "italian",
     ingredients: [
       { item: "Focaccia dough", perGuest: 0.12, unit: "kg", aisle: "bakery" },
       { item: "Rosemary", perGuest: 0.02, unit: "bunch", aisle: "produce" },
@@ -855,6 +885,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Gelatine", perGuest: 1.5, unit: "g", aisle: "pantry" },
       { item: "Mixed berries", perGuest: 40, unit: "g", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-tarte-tatin",
@@ -883,6 +914,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Butter", perGuest: 15, unit: "g", aisle: "dairy" },
       { item: "Sugar", perGuest: 15, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-lemon-posset",
@@ -910,6 +942,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Lemon", perGuest: 0.4, unit: "ea", aisle: "produce" },
       { item: "Sugar", perGuest: 25, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-pavlova",
@@ -938,6 +971,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Cream", perGuest: 50, unit: "ml", aisle: "dairy" },
       { item: "Passionfruit", perGuest: 0.5, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-gf-flourless-chocolate-cake",
@@ -966,6 +1000,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Eggs", perGuest: 0.6, unit: "ea", aisle: "dairy" },
       { item: "Sugar", perGuest: 25, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-vegan-poached-pear",
@@ -993,6 +1028,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Cinnamon stick", perGuest: 0.2, unit: "ea", aisle: "pantry" },
       { item: "Sugar", perGuest: 20, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-affogato",
@@ -1019,6 +1055,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Espresso", perGuest: 30, unit: "ml", aisle: "pantry" },
       { item: "Amaretti biscuits", perGuest: 10, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "italian",
   },
 
   // ---- More starters/sides/anchors for spread -------------------------------
@@ -1048,6 +1085,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Gruyère", perGuest: 30, unit: "g", aisle: "dairy" },
       { item: "Baguette", perGuest: 0.1, unit: "ea", aisle: "bakery" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-crab-avocado-starter",
@@ -1074,6 +1112,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Avocado", perGuest: 0.4, unit: "ea", aisle: "produce" },
       { item: "Lime", perGuest: 0.3, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-nogluten-risotto",
@@ -1102,6 +1141,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Parmesan", perGuest: 25, unit: "g", aisle: "dairy" },
       { item: "White wine", perGuest: 0.03, unit: "L", aisle: "drinks" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-nut-free-stuffed-peppers",
@@ -1125,6 +1165,7 @@ export const TABLE_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Bell peppers", perGuest: 1, unit: "ea", aisle: "produce" },
       { item: "Rice", perGuest: 0.06, unit: "kg", aisle: "pantry" },
@@ -1152,6 +1193,7 @@ export const TABLE_DISHES: Dish[] = [
     method: "raw",
     tempBand: "cold",
     outdoorSafe: true,
+    cuisine: "italian",
     ingredients: [
       { item: "Fennel bulb", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Orange", perGuest: 0.5, unit: "ea", aisle: "produce" },
@@ -1184,6 +1226,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "White wine", perGuest: 0.03, unit: "L", aisle: "drinks" },
       { item: "Garlic", perGuest: 1, unit: "clove", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-gf-polenta-side",
@@ -1211,6 +1254,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Parmesan", perGuest: 20, unit: "g", aisle: "dairy" },
       { item: "Butter", perGuest: 10, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-braised-fennel-side",
@@ -1237,6 +1281,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Parmesan", perGuest: 15, unit: "g", aisle: "dairy" },
       { item: "Vegetable stock", perGuest: 0.1, unit: "L", aisle: "pantry" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-heirloom-tomato-tart",
@@ -1264,6 +1309,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Heirloom tomato", perGuest: 0.15, unit: "kg", aisle: "produce" },
       { item: "Goat's cheese", perGuest: 30, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-braised-short-rib-single",
@@ -1291,6 +1337,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Onion", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Thyme", perGuest: 0.02, unit: "bunch", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "tb-charred-corn-side",
@@ -1314,6 +1361,7 @@ export const TABLE_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "mexican",
     ingredients: [
       { item: "Corn kernels", perGuest: 0.12, unit: "kg", aisle: "produce" },
       { item: "Lime", perGuest: 0.2, unit: "ea", aisle: "produce" },
@@ -1346,6 +1394,7 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Onion", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Olive oil", perGuest: 8, unit: "ml", aisle: "pantry" },
     ],
+    cuisine: "italian",
   },
   {
     id: "tb-vegan-mushroom-broth",
@@ -1372,5 +1421,6 @@ export const TABLE_DISHES: Dish[] = [
       { item: "Vegetable stock", perGuest: 0.3, unit: "L", aisle: "pantry" },
       { item: "Chives", perGuest: 0.02, unit: "bunch", aisle: "produce" },
     ],
+    cuisine: "house",
   },
 ];

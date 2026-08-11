@@ -32,6 +32,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Fennel seed", perGuest: 2, unit: "g", aisle: "pantry" },
       { item: "Orange", perGuest: 0.3, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
   {
     id: "whole-fish-tray",
@@ -58,6 +59,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Waxy potatoes", perGuest: 0.2, unit: "kg", aisle: "produce" },
       { item: "Lemon", perGuest: 0.3, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "aegean",
   },
   {
     id: "aubergine-parmigiana",
@@ -85,6 +87,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Passata", perGuest: 0.18, unit: "kg", aisle: "pantry" },
       { item: "Parmesan", perGuest: 25, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "italian",
   },
   {
     id: "dal-makhani",
@@ -112,6 +115,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Tinned tomatoes", perGuest: 0.12, unit: "kg", aisle: "pantry" },
       { item: "Ginger", perGuest: 10, unit: "g", aisle: "produce" },
     ],
+    cuisine: "indian",
   },
   {
     id: "grill-butterflied-lamb",
@@ -135,6 +139,7 @@ export const EXTRA_DISHES: Dish[] = [
     method: "grill",
     tempBand: "hot",
     outdoorSafe: true,
+    cuisine: "levantine",
     ingredients: [
       { item: "Butterflied lamb leg", perGuest: 0.28, unit: "kg", aisle: "protein" },
       { item: "Yoghurt", perGuest: 40, unit: "g", aisle: "dairy" },
@@ -164,6 +169,7 @@ export const EXTRA_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "levantine",
     ingredients: [
       { item: "Chicken thigh", perGuest: 0.22, unit: "kg", aisle: "protein" },
       { item: "Skewers", perGuest: 2, unit: "ea", aisle: "non-food" },
@@ -195,6 +201,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Peppers", perGuest: 0.6, unit: "ea", aisle: "produce" },
       { item: "Tinned tomatoes", perGuest: 0.15, unit: "kg", aisle: "pantry" },
     ],
+    cuisine: "levantine",
   },
   {
     id: "porridge-bar",
@@ -222,6 +229,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Seasonal fruit", perGuest: 0.7, unit: "ea", aisle: "produce" },
       { item: "Honey", perGuest: 12, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
 
   // ---- Boards & starters ----------------------------------------------
@@ -250,6 +258,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Quince paste", perGuest: 15, unit: "g", aisle: "pantry" },
       { item: "Walnuts", perGuest: 20, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "board-crudite",
@@ -273,6 +282,7 @@ export const EXTRA_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Raw vegetables", perGuest: 0.15, unit: "kg", aisle: "produce" },
       { item: "Tahini", perGuest: 20, unit: "g", aisle: "pantry" },
@@ -304,6 +314,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Rye bread", perGuest: 0.15, unit: "ea", aisle: "bakery" },
       { item: "Cornichons", perGuest: 20, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "nordic",
   },
   {
     id: "olives-almonds",
@@ -326,6 +337,7 @@ export const EXTRA_DISHES: Dish[] = [
     method: "fry",
     tempBand: "warm",
     outdoorSafe: true,
+    cuisine: "aegean",
     ingredients: [
       { item: "Olives", perGuest: 40, unit: "g", aisle: "pantry" },
       { item: "Almonds", perGuest: 25, unit: "g", aisle: "pantry" },
@@ -356,6 +368,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Plain flour", perGuest: 25, unit: "g", aisle: "pantry" },
       { item: "Eggs", perGuest: 0.4, unit: "ea", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "chilled-soup",
@@ -382,6 +395,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Blanched almonds", perGuest: 20, unit: "g", aisle: "pantry" },
       { item: "Sherry vinegar", perGuest: 6, unit: "ml", aisle: "pantry" },
     ],
+    cuisine: "aegean",
   },
   {
     id: "citrus-fennel-salad",
@@ -408,6 +422,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Fennel bulb", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Olives", perGuest: 20, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "aegean",
   },
   {
     id: "devilled-eggs",
@@ -435,6 +450,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Shallots", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Mustard", perGuest: 5, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
 
   // ---- Sides -----------------------------------------------------------
@@ -463,6 +479,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Root vegetables", perGuest: 0.2, unit: "kg", aisle: "produce" },
       { item: "Honey", perGuest: 8, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "charred-greens",
@@ -488,6 +505,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Greens", perGuest: 0.15, unit: "kg", aisle: "produce" },
       { item: "Chilli", perGuest: 0.2, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "grain-herb-salad",
@@ -510,6 +528,7 @@ export const EXTRA_DISHES: Dish[] = [
     method: "boil",
     tempBand: "ambient",
     outdoorSafe: true,
+    cuisine: "levantine",
     ingredients: [
       { item: "Bulgur wheat", perGuest: 60, unit: "g", aisle: "pantry" },
       { item: "Herbs", perGuest: 0.3, unit: "bunch", aisle: "produce" },
@@ -541,6 +560,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Potatoes", perGuest: 0.25, unit: "kg", aisle: "produce" },
       { item: "Cream", perGuest: 70, unit: "ml", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "slaw-vinegar",
@@ -563,6 +583,7 @@ export const EXTRA_DISHES: Dish[] = [
     method: "raw",
     tempBand: "cold",
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Cabbage", perGuest: 0.12, unit: "kg", aisle: "produce" },
       { item: "Cider vinegar", perGuest: 12, unit: "ml", aisle: "pantry" },
@@ -592,6 +613,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Dried white beans", perGuest: 70, unit: "g", aisle: "pantry" },
       { item: "Greens", perGuest: 0.1, unit: "kg", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
 
   // ---- Bread -----------------------------------------------------------
@@ -620,6 +642,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Strong flour", perGuest: 80, unit: "g", aisle: "pantry" },
       { item: "Yoghurt", perGuest: 30, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "levantine",
   },
   {
     id: "bought-sourdough",
@@ -646,6 +669,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Sourdough loaf", perGuest: 0.18, unit: "ea", aisle: "bakery" },
       { item: "Cultured butter", perGuest: 20, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
 
   // ---- Sweets ----------------------------------------------------------
@@ -675,6 +699,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Olive oil", perGuest: 25, unit: "ml", aisle: "pantry" },
       { item: "Lemon", perGuest: 0.25, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
   {
     id: "poached-fruit",
@@ -700,6 +725,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Pears", perGuest: 0.8, unit: "ea", aisle: "produce" },
       { item: "Sugar", perGuest: 30, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "berries-cream",
@@ -726,6 +752,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Berries", perGuest: 0.12, unit: "kg", aisle: "produce" },
       { item: "Double cream", perGuest: 50, unit: "ml", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "chocolate-pots",
@@ -751,6 +778,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Dark chocolate", perGuest: 45, unit: "g", aisle: "pantry" },
       { item: "Double cream", perGuest: 60, unit: "ml", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
 
   // ---- Drinks ----------------------------------------------------------
@@ -778,6 +806,7 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Bitter aperitif", perGuest: 40, unit: "ml", aisle: "drinks" },
       { item: "Vermouth", perGuest: 40, unit: "ml", aisle: "drinks" },
     ],
+    cuisine: "italian",
   },
   {
     id: "drink-shrub",
@@ -801,6 +830,7 @@ export const EXTRA_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Seasonal fruit", perGuest: 0.15, unit: "ea", aisle: "produce" },
       { item: "Soda water", perGuest: 0.25, unit: "bottle", aisle: "drinks" },
@@ -832,5 +862,6 @@ export const EXTRA_DISHES: Dish[] = [
       { item: "Apple juice", perGuest: 0.25, unit: "L", aisle: "drinks" },
       { item: "Whole spices", perGuest: 3, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
 ];

@@ -6,10 +6,13 @@ import { HostPacket } from "@/components/oos/HostPacket";
 import { signalClass } from "@/components/oos/Signals";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { ScenarioGallery } from "@/components/oos/ScenarioGallery";
+import { RunConsole } from "@/components/oos/RunConsole";
+import { DecisionPacket } from "@/components/oos/DecisionPacket";
+import { ServiceRunner } from "@/components/oos/ServiceRunner";
 import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { useT } from "@/lib/i18n";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
-import { resolveLibrary } from "@/lib/oos/library";
+import { filterByCuisine, resolveLibrary } from "@/lib/oos/library";
 import { saveScenario, useConfig } from "@/lib/oos/store";
 import type { Conditions, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
@@ -55,18 +58,27 @@ interface Variant {
 function Index() {
   const config = useConfig();
   const { t } = useT();
-  const library = useMemo(() => resolveLibrary(config), [config]);
+  const all = useMemo(() => resolveLibrary(config), [config]);
   const [conditions, setConditions] = useState<Conditions>(DEFAULT_CONDITIONS);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [built, setBuilt] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
+  /** signature of the conditions the last completed run committed */
+  const [committedSig, setCommittedSig] = useState<string | null>(null);
+
+  const library = useMemo(
+    () => filterByCuisine(all, conditions.cuisines ?? []),
+    [all, conditions.cuisines],
+  );
 
   const plan = useMemo(() => buildPlan(conditions, library), [conditions, library]);
+  const stale = committedSig !== null && committedSig !== plan.signature;
 
   const saveVariant = () =>
     setVariants((v) =>
       [...v, { id: `${Date.now()}`, label: conditions.label || plan.signature, plan }].slice(-3),
     );
+
 
   return (
     <div className="min-h-dvh">
@@ -281,6 +293,32 @@ function Index() {
             )}
           </div>
         </div>
+
+        {/* Run control */}
+        <div className="mt-16">
+          <RunConsole
+            conditions={conditions}
+            library={library}
+            stale={stale}
+            committed={built}
+            onCommit={(p) => {
+              setBuilt(true);
+              setCommittedSig(p.signature);
+            }}
+            onRestore={(c) => {
+              setConditions(c);
+              setBuilt(true);
+            }}
+          />
+        </div>
+
+        {/* Decision packet and live service */}
+        {built && (
+          <div className="mt-16 space-y-16">
+            <DecisionPacket plan={plan} library={library} />
+            <ServiceRunner plan={plan} />
+          </div>
+        )}
 
         {/* Variations */}
         {built && variants.length > 0 && (

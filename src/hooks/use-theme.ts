@@ -1,26 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Theme = "light" | "dark" | "contrast";
+export type Theme = "avenue" | "light" | "dark" | "contrast";
 
 const KEY = "oos-theme";
-const ORDER: Theme[] = ["light", "dark", "contrast"];
+const ORDER: Theme[] = ["avenue", "light", "dark", "contrast"];
 
 export const THEME_LABELS: Record<Theme, string> = {
+  avenue: "Avenue",
   light: "Parchment",
   dark: "Ink",
   contrast: "High contrast",
 };
 
 function resolve(): Theme {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "avenue";
   try {
     const stored = window.localStorage.getItem(KEY);
-    if (stored === "light" || stored === "dark" || stored === "contrast") return stored;
+    if (stored === "avenue" || stored === "light" || stored === "dark" || stored === "contrast") return stored;
   } catch {
     /* storage unavailable */
   }
+  // A declared contrast preference always wins over the house default.
   if (window.matchMedia("(prefers-contrast: more)").matches) return "contrast";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "avenue";
 }
 
 /**
@@ -29,7 +31,7 @@ function resolve(): Theme {
  * The pre-hydration script in __root applies the class before first paint.
  */
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>("avenue");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -41,7 +43,8 @@ export function useTheme() {
     const root = document.documentElement;
     root.classList.toggle("dark", t === "dark");
     root.classList.toggle("contrast", t === "contrast");
-    root.style.colorScheme = t === "dark" ? "dark" : "light";
+    root.classList.toggle("avenue", t === "avenue");
+    root.style.colorScheme = t === "dark" || t === "avenue" ? "dark" : "light";
     try {
       window.localStorage.setItem(KEY, t);
     } catch {

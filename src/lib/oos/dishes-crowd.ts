@@ -28,6 +28,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "italian",
     ingredients: [
       { item: "Cured meats", perGuest: 0.05, unit: "kg", aisle: "protein" },
       { item: "Hard cheese", perGuest: 0.04, unit: "kg", aisle: "dairy" },
@@ -58,6 +59,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Hummus", perGuest: 0.05, unit: "kg", aisle: "pantry" },
       { item: "Mixed olives", perGuest: 0.03, unit: "kg", aisle: "pantry" },
@@ -88,6 +90,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Mixed pickles", perGuest: 0.05, unit: "kg", aisle: "pantry" },
       { item: "Pickled onions", perGuest: 0.02, unit: "kg", aisle: "pantry" },
@@ -117,6 +120,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Beef brisket", perGuest: 0.3, unit: "kg", aisle: "protein" },
       { item: "Dry rub", perGuest: 4, unit: "g", aisle: "pantry" },
@@ -148,6 +152,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Tinned jackfruit", perGuest: 0.18, unit: "kg", aisle: "pantry" },
       { item: "BBQ sauce", perGuest: 25, unit: "ml", aisle: "pantry" },
@@ -177,6 +182,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Pork loin", perGuest: 0.28, unit: "kg", aisle: "protein" },
       { item: "Apple", perGuest: 0.2, unit: "ea", aisle: "produce" },
@@ -205,6 +211,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "mexican",
     ingredients: [
       { item: "Beef mince", perGuest: 0.12, unit: "kg", aisle: "protein" },
       { item: "Kidney beans", perGuest: 0.08, unit: "kg", aisle: "pantry" },
@@ -234,6 +241,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Paella rice", perGuest: 0.09, unit: "kg", aisle: "pantry" },
       { item: "Prawns", perGuest: 0.08, unit: "kg", aisle: "protein" },
@@ -264,6 +272,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Macaroni", perGuest: 0.1, unit: "kg", aisle: "pantry" },
       { item: "Cheddar", perGuest: 0.07, unit: "kg", aisle: "dairy" },
@@ -293,6 +302,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Green lentils", perGuest: 0.08, unit: "kg", aisle: "pantry" },
       { item: "Potato", perGuest: 0.2, unit: "kg", aisle: "produce" },
@@ -325,6 +335,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Beef mince", perGuest: 0.07, unit: "kg", aisle: "protein" },
       { item: "Slider buns", perGuest: 1, unit: "ea", aisle: "bakery" },
@@ -354,6 +365,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "italian",
     ingredients: [
       { item: "Cooked risotto rice", perGuest: 0.08, unit: "kg", aisle: "pantry" },
       { item: "Mozzarella", perGuest: 15, unit: "g", aisle: "dairy" },
@@ -384,6 +396,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "aegean",
     ingredients: [
       { item: "Halloumi", perGuest: 0.06, unit: "kg", aisle: "dairy" },
       { item: "Bell pepper", perGuest: 0.15, unit: "ea", aisle: "produce" },
@@ -413,6 +426,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "indian",
     ingredients: [
       { item: "Frozen samosas", perGuest: 2, unit: "ea", aisle: "frozen" },
       { item: "Tamarind chutney", perGuest: 15, unit: "g", aisle: "pantry" },
@@ -440,6 +454,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Cooked prawns", perGuest: 0.06, unit: "kg", aisle: "protein" },
       { item: "Cocktail sauce", perGuest: 20, unit: "g", aisle: "pantry" },
@@ -468,6 +483,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Puff pastry", perGuest: 0.05, unit: "kg", aisle: "frozen" },
       { item: "Meat-free mince", perGuest: 0.05, unit: "kg", aisle: "frozen" },
@@ -497,6 +513,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "mexican",
     ingredients: [
       { item: "Corn on the cob", perGuest: 0.6, unit: "ea", aisle: "produce" },
       { item: "Chilli lime butter", perGuest: 10, unit: "g", aisle: "dairy" },
@@ -524,6 +541,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Mini biscuits", perGuest: 2, unit: "ea", aisle: "bakery" },
       { item: "Sliced ham", perGuest: 0.03, unit: "kg", aisle: "protein" },
@@ -554,6 +572,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "New potatoes", perGuest: 0.2, unit: "kg", aisle: "produce" },
       { item: "Mayonnaise", perGuest: 25, unit: "g", aisle: "pantry" },
@@ -583,6 +602,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "aegean",
     ingredients: [
       { item: "Watermelon", perGuest: 0.25, unit: "kg", aisle: "produce" },
       { item: "Feta", perGuest: 0.03, unit: "kg", aisle: "dairy" },
@@ -612,6 +632,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "mexican",
     ingredients: [
       { item: "Corn kernels", perGuest: 0.1, unit: "kg", aisle: "frozen" },
       { item: "Black beans", perGuest: 0.06, unit: "kg", aisle: "pantry" },
@@ -641,6 +662,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Shredded cabbage mix", perGuest: 0.09, unit: "kg", aisle: "produce" },
       { item: "Mayonnaise", perGuest: 20, unit: "g", aisle: "pantry" },
@@ -669,6 +691,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "levantine",
     ingredients: [
       { item: "Basmati rice", perGuest: 0.08, unit: "kg", aisle: "pantry" },
       { item: "Parsley", perGuest: 0.03, unit: "bunch", aisle: "produce" },
@@ -700,6 +723,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Cornmeal", perGuest: 0.04, unit: "kg", aisle: "pantry" },
       { item: "Butter", perGuest: 15, unit: "g", aisle: "dairy" },
@@ -728,6 +752,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Lemon", perGuest: 0.15, unit: "ea", aisle: "produce" },
       { item: "Butter", perGuest: 10, unit: "g", aisle: "dairy" },
@@ -757,6 +782,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Ground almonds", perGuest: 20, unit: "g", aisle: "pantry" },
       { item: "Dark chocolate", perGuest: 25, unit: "g", aisle: "pantry" },
@@ -787,6 +813,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Marshmallows", perGuest: 2, unit: "ea", aisle: "pantry" },
       { item: "Digestive biscuits", perGuest: 2, unit: "ea", aisle: "bakery" },
@@ -815,6 +842,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Melon", perGuest: 0.1, unit: "kg", aisle: "produce" },
       { item: "Pineapple", perGuest: 0.08, unit: "kg", aisle: "produce" },
@@ -845,6 +873,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "caribbean",
     ingredients: [
       { item: "Dark rum", perGuest: 40, unit: "ml", aisle: "drinks" },
       { item: "Pineapple juice", perGuest: 80, unit: "ml", aisle: "drinks" },
@@ -873,6 +902,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Mixed berries", perGuest: 0.03, unit: "kg", aisle: "produce" },
       { item: "Sparkling water", perGuest: 0.2, unit: "L", aisle: "drinks" },
@@ -901,6 +931,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Black tea bags", perGuest: 0.5, unit: "ea", aisle: "pantry" },
       { item: "Lemon", perGuest: 0.1, unit: "ea", aisle: "produce" },
@@ -929,6 +960,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "mexican",
     ingredients: [
       { item: "Tequila", perGuest: 40, unit: "ml", aisle: "drinks" },
       { item: "Lime juice", perGuest: 30, unit: "ml", aisle: "drinks" },
@@ -957,6 +989,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Red wine", perGuest: 0.15, unit: "L", aisle: "drinks" },
       { item: "Orange", perGuest: 0.1, unit: "ea", aisle: "produce" },
@@ -985,6 +1018,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Apple cider", perGuest: 0.2, unit: "L", aisle: "drinks" },
       { item: "Cinnamon stick", perGuest: 0.1, unit: "ea", aisle: "pantry" },
@@ -1013,6 +1047,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "italian",
     ingredients: [
       { item: "Aperitif liqueur", perGuest: 60, unit: "ml", aisle: "drinks" },
       { item: "Prosecco", perGuest: 90, unit: "ml", aisle: "drinks" },
@@ -1044,6 +1079,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Pastries", perGuest: 1, unit: "ea", aisle: "bakery" },
       { item: "Scrambled eggs", perGuest: 0.12, unit: "kg", aisle: "dairy" },
@@ -1073,6 +1109,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Assorted cheese", perGuest: 0.06, unit: "kg", aisle: "dairy" },
       { item: "Crackers", perGuest: 4, unit: "ea", aisle: "bakery" },
@@ -1102,6 +1139,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Carrot", perGuest: 0.1, unit: "ea", aisle: "produce" },
       { item: "Cucumber", perGuest: 0.15, unit: "ea", aisle: "produce" },
@@ -1132,6 +1170,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Veggie patties", perGuest: 1, unit: "ea", aisle: "frozen" },
       { item: "Burger buns", perGuest: 1, unit: "ea", aisle: "bakery" },
@@ -1162,6 +1201,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Hot dogs", perGuest: 1.2, unit: "ea", aisle: "protein" },
       { item: "Hot dog buns", perGuest: 1.2, unit: "ea", aisle: "bakery" },
@@ -1192,6 +1232,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: false,
     outdoorSafe: true,
+    cuisine: "caribbean",
     ingredients: [
       { item: "Chicken thighs", perGuest: 0.3, unit: "kg", aisle: "protein" },
       { item: "Jerk marinade", perGuest: 20, unit: "g", aisle: "pantry" },
@@ -1220,6 +1261,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "indian",
     ingredients: [
       { item: "Coconut milk", perGuest: 0.1, unit: "L", aisle: "pantry" },
       { item: "Mixed vegetables", perGuest: 0.2, unit: "kg", aisle: "produce" },
@@ -1249,6 +1291,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "italian",
     ingredients: [
       { item: "Cherry tomatoes", perGuest: 0.06, unit: "kg", aisle: "produce" },
       { item: "Mini mozzarella", perGuest: 0.04, unit: "kg", aisle: "dairy" },
@@ -1277,6 +1320,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Chicken thigh pieces", perGuest: 0.12, unit: "kg", aisle: "protein" },
       { item: "Seasoned flour", perGuest: 30, unit: "g", aisle: "pantry" },
@@ -1305,6 +1349,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Tinned haricot beans", perGuest: 0.1, unit: "kg", aisle: "pantry" },
       { item: "Bacon lardons", perGuest: 0.02, unit: "kg", aisle: "protein" },
@@ -1334,6 +1379,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "aegean",
     ingredients: [
       { item: "Courgette", perGuest: 0.15, unit: "ea", aisle: "produce" },
       { item: "Aubergine", perGuest: 0.15, unit: "ea", aisle: "produce" },
@@ -1363,6 +1409,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "warm",
     kidFriendly: true,
     outdoorSafe: false,
+    cuisine: "house",
     ingredients: [
       { item: "Frozen mini quiche shells", perGuest: 2, unit: "ea", aisle: "frozen" },
       { item: "Egg", perGuest: 0.2, unit: "ea", aisle: "dairy" },
@@ -1391,6 +1438,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "ambient",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "italian",
     ingredients: [
       { item: "Baguette", perGuest: 0.3, unit: "ea", aisle: "bakery" },
       { item: "Chopped tomato", perGuest: 0.08, unit: "kg", aisle: "produce" },
@@ -1420,6 +1468,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "cold",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Lemon", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Sugar", perGuest: 15, unit: "g", aisle: "pantry" },
@@ -1448,6 +1497,7 @@ export const CROWD_DISHES: Dish[] = [
     tempBand: "hot",
     kidFriendly: true,
     outdoorSafe: true,
+    cuisine: "house",
     ingredients: [
       { item: "Tinned haricot beans", perGuest: 0.1, unit: "kg", aisle: "pantry" },
       { item: "Smoked paprika", perGuest: 2, unit: "g", aisle: "pantry" },

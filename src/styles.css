@@ -157,7 +157,64 @@
   --signal-over: oklch(0.22 0.06 30);
 }
 
+/* Fourth art direction — Avenue. Lacquer black, warm stone, gold leaf.
+   Maximalist: heavier rules, deeper fields, display type at poster scale. */
+.avenue {
+  --radius: 0rem;
+  --background: oklch(0.148 0.011 62);
+  --foreground: oklch(0.955 0.014 84);
+  --card: oklch(0.196 0.014 60);
+  --card-foreground: oklch(0.955 0.014 84);
+  --popover: oklch(0.196 0.014 60);
+  --popover-foreground: oklch(0.955 0.014 84);
+  --primary: oklch(0.83 0.135 82);
+  --primary-foreground: oklch(0.16 0.014 60);
+  --secondary: oklch(0.228 0.018 66);
+  --secondary-foreground: oklch(0.955 0.014 84);
+  --muted: oklch(0.24 0.016 64);
+  --muted-foreground: oklch(0.775 0.024 78);
+  --accent: oklch(0.83 0.135 82);
+  --accent-foreground: oklch(0.15 0.014 60);
+  --destructive: oklch(0.63 0.18 30);
+  --destructive-foreground: oklch(0.97 0.012 85);
+  --border: oklch(0.38 0.035 74);
+  --input: oklch(0.38 0.035 74);
+  --ring: oklch(0.83 0.135 82);
+
+  --ink: oklch(0.108 0.01 60);
+  --ink-foreground: oklch(0.965 0.014 84);
+  --ink-muted: oklch(0.79 0.026 78);
+  --brass: oklch(0.855 0.14 84);
+  --signal-clear: oklch(0.74 0.06 250);
+  --signal-controlled: oklch(0.79 0.105 158);
+  --signal-tight: oklch(0.845 0.145 78);
+  --signal-over: oklch(0.68 0.18 28);
+}
+
+.avenue img {
+  filter: saturate(0.94) brightness(0.82) contrast(1.08);
+}
+
+/* Avenue speaks louder: rules thicken, labels widen, numerals take the stage. */
+.avenue .rule-label {
+  color: var(--color-brass);
+  letter-spacing: 0.26em;
+  font-weight: 500;
+}
+
+.avenue .paper {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-brass) 22%, transparent),
+    0 24px 60px -32px oklch(0 0 0 / 0.9);
+}
+
+.avenue h1,
+.avenue h2 {
+  letter-spacing: -0.03em;
+}
+
 /* Hairlines carry more weight when contrast is the point. */
+
 .contrast .rule-label,
 .contrast [aria-pressed="true"] {
   font-weight: 600;
@@ -227,6 +284,27 @@
   }
 }
 
+/* Oversized instrument numerals: gauges and verdicts read from across the room. */
+@utility figure-xl {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+}
+
+/* Marquee opener: a heavy top rule with a small-caps label riding it. */
+@utility marquee {
+  border-top: 3px solid var(--color-foreground);
+  padding-top: 0.75rem;
+}
+
+@utility hairline-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-foreground) 7%, transparent) 1px, transparent 1px);
+  background-size: 2.5rem 100%;
+}
+
 @media print {
   @page {
     margin: 14mm;
@@ -267,5 +345,21 @@
   }
   .dark img {
     filter: none;
+  }
+  .avenue {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.18 0.014 58);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.18 0.014 58);
+    --muted-foreground: oklch(0.42 0.018 62);
+    --border: oklch(0.72 0.02 80);
+    --accent: oklch(0.55 0.12 76);
+    --brass: oklch(0.5 0.12 76);
+    --signal-over: oklch(0.5 0.17 32);
+  }
+  .avenue img,
+  .avenue .paper {
+    filter: none;
+    box-shadow: none;
   }
 }

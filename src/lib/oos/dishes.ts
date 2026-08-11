@@ -27,6 +27,7 @@ export const DISHES: Dish[] = [
       { item: "Carrot", perGuest: 0.7, unit: "ea", aisle: "produce" },
       { item: "Tomato paste", perGuest: 15, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "roast-chicken",
@@ -50,6 +51,7 @@ export const DISHES: Dish[] = [
       { item: "Olive oil", perGuest: 12, unit: "ml", aisle: "pantry" },
       { item: "Garlic", perGuest: 1, unit: "clove", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "baked-pasta",
@@ -73,6 +75,7 @@ export const DISHES: Dish[] = [
       { item: "Mozzarella", perGuest: 60, unit: "g", aisle: "dairy" },
       { item: "Basil", perGuest: 0.1, unit: "bunch", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
   {
     id: "chickpea-tagine",
@@ -96,6 +99,7 @@ export const DISHES: Dish[] = [
       { item: "Onion", perGuest: 0.4, unit: "ea", aisle: "produce" },
       { item: "Ras el hanout", perGuest: 4, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "grill-skewers",
@@ -119,6 +123,7 @@ export const DISHES: Dish[] = [
       { item: "Lemon", perGuest: 0.5, unit: "ea", aisle: "produce" },
       { item: "Yoghurt marinade", perGuest: 60, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "levantine",
   },
   {
     id: "frittata",
@@ -141,6 +146,7 @@ export const DISHES: Dish[] = [
       { item: "Potato", perGuest: 0.12, unit: "kg", aisle: "produce" },
       { item: "Spring onion", perGuest: 0.5, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "italian",
   },
   {
     id: "soup-white-bean",
@@ -163,6 +169,7 @@ export const DISHES: Dish[] = [
       { item: "Kale", perGuest: 0.08, unit: "kg", aisle: "produce" },
       { item: "Stock", perGuest: 0.35, unit: "L", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "roast-roots",
@@ -185,6 +192,7 @@ export const DISHES: Dish[] = [
       { item: "Parsnip", perGuest: 0.6, unit: "ea", aisle: "produce" },
       { item: "Honey", perGuest: 8, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "green-salad",
@@ -207,6 +215,7 @@ export const DISHES: Dish[] = [
       { item: "Lemon", perGuest: 0.2, unit: "ea", aisle: "produce" },
       { item: "Olive oil", perGuest: 10, unit: "ml", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "grain-salad",
@@ -229,6 +238,7 @@ export const DISHES: Dish[] = [
       { item: "Parsley", perGuest: 0.15, unit: "bunch", aisle: "produce" },
       { item: "Cucumber", perGuest: 0.3, unit: "ea", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "potato-gratin",
@@ -251,6 +261,7 @@ export const DISHES: Dish[] = [
       { item: "Cream", perGuest: 70, unit: "ml", aisle: "dairy" },
       { item: "Garlic", perGuest: 0.5, unit: "clove", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "bread-warm",
@@ -272,6 +283,7 @@ export const DISHES: Dish[] = [
       { item: "Sourdough loaf", perGuest: 0.18, unit: "ea", aisle: "bakery" },
       { item: "Butter", perGuest: 15, unit: "g", aisle: "dairy" },
     ],
+    cuisine: "house",
   },
   {
     id: "board-cured",
@@ -294,6 +306,7 @@ export const DISHES: Dish[] = [
       { item: "Hard cheese", perGuest: 50, unit: "g", aisle: "dairy" },
       { item: "Crackers", perGuest: 0.15, unit: "pack", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "board-vegetable",
@@ -316,6 +329,7 @@ export const DISHES: Dish[] = [
       { item: "Hummus", perGuest: 70, unit: "g", aisle: "pantry" },
       { item: "Olives", perGuest: 40, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "starter-soup-shot",
@@ -338,6 +352,7 @@ export const DISHES: Dish[] = [
       { item: "Cucumber", perGuest: 0.2, unit: "ea", aisle: "produce" },
       { item: "Sherry vinegar", perGuest: 5, unit: "ml", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "starter-shellfish",
@@ -360,6 +375,7 @@ export const DISHES: Dish[] = [
       { item: "Shallot", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Crushed ice", perGuest: 0.4, unit: "kg", aisle: "frozen" },
     ],
+    cuisine: "house",
   },
   {
     id: "starter-toast",
@@ -381,6 +397,7 @@ export const DISHES: Dish[] = [
       { item: "Baguette", perGuest: 0.2, unit: "ea", aisle: "bakery" },
       { item: "Seasonal topping", perGuest: 60, unit: "g", aisle: "produce" },
     ],
+    cuisine: "house",
   },
   {
     id: "sweet-fridge-tart",
@@ -403,6 +420,7 @@ export const DISHES: Dish[] = [
       { item: "Cream", perGuest: 60, unit: "ml", aisle: "dairy" },
       { item: "Dark chocolate", perGuest: 35, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "sweet-fruit",
@@ -425,6 +443,7 @@ export const DISHES: Dish[] = [
       { item: "Citrus", perGuest: 0.3, unit: "ea", aisle: "produce" },
       { item: "Sugar", perGuest: 10, unit: "g", aisle: "pantry" },
     ],
+    cuisine: "house",
   },
   {
     id: "drink-zero",
@@ -447,6 +466,7 @@ export const DISHES: Dish[] = [
       { item: "Sparkling water", perGuest: 0.25, unit: "L", aisle: "drinks" },
       { item: "Ice", perGuest: 0.35, unit: "kg", aisle: "frozen" },
     ],
+    cuisine: "house",
   },
   {
     id: "drink-wine",
@@ -468,6 +488,7 @@ export const DISHES: Dish[] = [
       { item: "Wine", perGuest: 0.42, unit: "bottle", aisle: "drinks" },
       { item: "Glassware hire or wash", perGuest: 1.4, unit: "glass", aisle: "non-food" },
     ],
+    cuisine: "house",
   },
   {
     id: "non-food-service",
@@ -490,5 +511,6 @@ export const DISHES: Dish[] = [
       { item: "Serving vessel", perGuest: 0.25, unit: "ea", aisle: "non-food" },
       { item: "Bin liners", perGuest: 0.2, unit: "ea", aisle: "non-food" },
     ],
+    cuisine: "house",
   },
 ];

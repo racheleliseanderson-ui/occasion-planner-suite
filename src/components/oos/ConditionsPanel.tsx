@@ -5,6 +5,25 @@ import { useConfig } from "@/lib/oos/store";
 import { Explain } from "./Explain";
 import { OpsPanel } from "./OpsPanel";
 import { cn } from "@/lib/utils";
+import { CUISINES } from "@/lib/oos/library";
+import type { Cuisine } from "@/lib/oos/types";
+
+/** Attribution labels for the traditions carried in the library. */
+const CUISINE_LABELS: Record<Cuisine, string> = {
+  house: "House",
+  italian: "Italian",
+  aegean: "Greek & Turkish",
+  levantine: "Levantine",
+  persian: "Persian",
+  indian: "Indian",
+  seasia: "Thai & Vietnamese",
+  chinese: "Chinese",
+  japanese: "Japanese",
+  mexican: "Mexican",
+  caribbean: "Caribbean",
+  "west-african": "West African",
+  nordic: "Nordic",
+};
 
 interface Props {
   value: Conditions;
@@ -412,6 +431,41 @@ export function ConditionsPanel({ value, onChange }: Props) {
             labels, cross-contact, or supplier changes. Confirm every ingredient yourself.
           </p>
         </Field>
+
+        <Field
+          label="Culinary traditions"
+          hint="attribution, not an authenticity claim"
+        >
+          <div className="flex flex-wrap gap-1.5">
+            {CUISINES.map((c) => {
+              const on = (value.cuisines ?? []).includes(c);
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => {
+                    const cur = value.cuisines ?? [];
+                    set({ cuisines: on ? cur.filter((x) => x !== c) : [...cur, c] });
+                  }}
+                  className={cn(
+                    "min-h-11 border px-3 py-1.5 text-sm transition-colors",
+                    on
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border bg-card hover:border-foreground/40",
+                  )}
+                >
+                  {CUISINE_LABELS[c]}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-3 border-l-2 border-accent pl-3 text-xs leading-relaxed text-muted-foreground">
+            No selection means no restriction. Selecting traditions narrows the library the engine
+            may draw from; it does not make a dish regionally authoritative.
+          </p>
+        </Field>
+
 
       </div>
 
