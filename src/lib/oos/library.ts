@@ -3,7 +3,10 @@ import { EXTRA_DISHES } from "./dishes-extra";
 import { TABLE_DISHES } from "./dishes-table";
 import { CROWD_DISHES } from "./dishes-crowd";
 import { CONSTRAINT_DISHES } from "./dishes-constraint";
-import type { Dish } from "./types";
+import { WORLD_A_DISHES } from "./dishes-world-a";
+import { WORLD_B_DISHES } from "./dishes-world-b";
+import type { Cuisine, Dish } from "./types";
+
 import type { OosConfig } from "./store";
 
 
