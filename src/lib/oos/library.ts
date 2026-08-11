@@ -24,6 +24,7 @@ const DEFAULT_COST: Record<Dish["course"], number> = {
 export function normalise(d: Dish): Dish {
   return {
     ...d,
+    cuisine: d.cuisine ?? "house",
     season: d.season ?? ["year-round"],
     costPerGuest: d.costPerGuest ?? DEFAULT_COST[d.course],
     method: d.method ?? (d.ovenMin > 0 ? "roast" : d.burnerMin > 0 ? "boil" : "raw"),
@@ -38,6 +39,8 @@ export const FIXTURES: Dish[] = [
   ...TABLE_DISHES,
   ...CROWD_DISHES,
   ...CONSTRAINT_DISHES,
+  ...WORLD_A_DISHES,
+  ...WORLD_B_DISHES,
 ]
   .filter((d, i, arr) => arr.findIndex((x) => x.id === d.id) === i)
   .map(normalise);
@@ -68,4 +71,29 @@ export function resolveLibrary(config: OosConfig): Dish[] {
     .filter((d) => !hidden.has(d.id))
     .map(normalise);
   return [...merged, ...custom];
+}
+
+
+/** Traditions actually represented in a library, in catalogue order. */
+export const CUISINES: Cuisine[] = [
+  "house",
+  "italian",
+  "aegean",
+  "levantine",
+  "persian",
+  "indian",
+  "seasia",
+  "chinese",
+  "japanese",
+  "mexican",
+  "caribbean",
+  "west-african",
+  "nordic",
+];
+
+/** Narrow a library to the declared traditions. Empty selection = no restriction. */
+export function filterByCuisine(library: Dish[], cuisines: Cuisine[]): Dish[] {
+  if (cuisines.length === 0) return library;
+  const want = new Set<Cuisine>(cuisines);
+  return library.filter((d) => want.has(d.cuisine ?? "house"));
 }
