@@ -294,6 +294,32 @@ function Index() {
           </div>
         </div>
 
+        {/* Run control */}
+        <div className="mt-16">
+          <RunConsole
+            conditions={conditions}
+            library={library}
+            stale={stale}
+            committed={built}
+            onCommit={(p) => {
+              setBuilt(true);
+              setCommittedSig(p.signature);
+            }}
+            onRestore={(c) => {
+              setConditions(c);
+              setBuilt(true);
+            }}
+          />
+        </div>
+
+        {/* Decision packet and live service */}
+        {built && (
+          <div className="mt-16 space-y-16">
+            <DecisionPacket plan={plan} library={library} />
+            <ServiceRunner plan={plan} />
+          </div>
+        )}
+
         {/* Variations */}
         {built && variants.length > 0 && (
           <section className="no-print mt-16">
