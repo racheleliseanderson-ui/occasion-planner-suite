@@ -5,6 +5,25 @@ import { useConfig } from "@/lib/oos/store";
 import { Explain } from "./Explain";
 import { OpsPanel } from "./OpsPanel";
 import { cn } from "@/lib/utils";
+import { CUISINES } from "@/lib/oos/library";
+import type { Cuisine } from "@/lib/oos/types";
+
+/** Attribution labels for the traditions carried in the library. */
+const CUISINE_LABELS: Record<Cuisine, string> = {
+  house: "House",
+  italian: "Italian",
+  aegean: "Greek & Turkish",
+  levantine: "Levantine",
+  persian: "Persian",
+  indian: "Indian",
+  seasia: "Thai & Vietnamese",
+  chinese: "Chinese",
+  japanese: "Japanese",
+  mexican: "Mexican",
+  caribbean: "Caribbean",
+  "west-african": "West African",
+  nordic: "Nordic",
+};
 
 interface Props {
   value: Conditions;
