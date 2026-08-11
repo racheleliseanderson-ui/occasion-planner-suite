@@ -136,6 +136,9 @@ export interface Conditions {
   prepWindowH: number; // hours available on the day
   ambition: 1 | 2 | 3;
   diets: DietFilter[];
+  /** culinary traditions the host wants on the table; empty = no restriction */
+  cuisines?: Cuisine[];
+
   kitchen: Kitchen;
   /** season drives dish availability and a seasonal note */
   season: Season;
