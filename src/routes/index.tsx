@@ -1,17 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConditionsPanel } from "@/components/oos/ConditionsPanel";
 import { PlanSurface } from "@/components/oos/PlanSurface";
 import { HostPacket } from "@/components/oos/HostPacket";
 import { signalClass } from "@/components/oos/Signals";
-import { ThemeToggle } from "@/components/oos/ThemeToggle";
+import { HostChrome } from "@/components/oos/HostChrome";
 import { ScenarioGallery } from "@/components/oos/ScenarioGallery";
 import { RunConsole } from "@/components/oos/RunConsole";
 import { DecisionPacket } from "@/components/oos/DecisionPacket";
 import { ServiceRunner } from "@/components/oos/ServiceRunner";
-import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { useT } from "@/lib/i18n";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
+import { takeApply } from "@/lib/architecture/apply";
 import { filterByCuisine, resolveLibrary } from "@/lib/oos/library";
 import { saveScenario, useConfig } from "@/lib/oos/store";
 import type { Conditions, Plan } from "@/lib/oos/types";
@@ -65,6 +65,22 @@ function Index() {
   const [scenarioName, setScenarioName] = useState("");
   /** signature of the conditions the last completed run committed */
   const [committedSig, setCommittedSig] = useState<string | null>(null);
+  const [architectureNote, setArchitectureNote] = useState<string | null>(null);
+
+  // Consume Architecture → Plan handoff (explicit, one-shot session payload).
+  useEffect(() => {
+    const applied = takeApply();
+    if (!applied) return;
+    setConditions(applied.conditions);
+    setBuilt(false);
+    setCommittedSig(null);
+    setArchitectureNote(
+      applied.thesis
+        ? `Architecture applied: ${applied.label}. ${applied.thesis}`
+        : `Architecture applied: ${applied.label}. Rebuild the route to sequence the night.`,
+    );
+  }, []);
+
 
   const library = useMemo(
     () => filterByCuisine(all, conditions.cuisines ?? []),
@@ -82,40 +98,16 @@ function Index() {
 
   return (
     <div className="min-h-dvh">
-      {/* Masthead */}
-      <header className="no-print sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
-          <div className="flex items-baseline gap-3">
-            <span className="font-display text-lg tracking-tight">{t("app.name")}</span>
-            <span className="rule-label hidden sm:inline">{t("app.house")}</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <LanguageToggle />
-            <ThemeToggle />
-            <Link
-              to="/library"
-              className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              {t("nav.library")}
-            </Link>
-            <a
-              href="https://saltnotes.blog/restaurant-intelligence/"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              {t("nav.restaurant")}
-            </a>
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="border border-foreground px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
-            >
-              {t("action.print")}
-            </button>
+      {/* Masthead — layer switch Plan | Architecture | Card */}
+      <HostChrome showPrint />
+      {architectureNote && (
+        <div role="status" className="no-print border-b border-border bg-secondary">
+          <div className="mx-auto max-w-6xl px-5 py-3 text-sm leading-relaxed">
+            <span className="rule-label">Architecture → Plan</span>
+            <p className="mt-1">{architectureNote}</p>
           </div>
         </div>
-      </header>
+      )}
 
       {/* Hero */}
       <section className="no-print relative isolate bg-ink text-ink-foreground">

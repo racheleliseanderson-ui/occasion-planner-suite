@@ -1,9 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { BulkImport } from "@/components/oos/BulkImport";
 import { DishEditor } from "@/components/oos/DishEditor";
-import { ThemeToggle } from "@/components/oos/ThemeToggle";
-import { LanguageToggle } from "@/components/oos/LanguageToggle";
+import { HostChrome } from "@/components/oos/HostChrome";
 import { GLOSSARY } from "@/lib/oos/explain";
 import { FIXTURE_IDS, isFixture, resolveLibrary } from "@/lib/oos/library";
 import {
@@ -84,26 +83,7 @@ function LibraryWorkshop() {
 
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
-          <div className="flex items-baseline gap-3">
-            <Link to="/" className="font-display text-lg tracking-tight">
-              Occasion Operating System
-            </Link>
-            <span className="rule-label hidden sm:inline">Library workshop</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <LanguageToggle />
-            <ThemeToggle />
-            <Link
-              to="/"
-              className="border border-foreground px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
-            >
-              Back to planning
-            </Link>
-          </div>
-        </div>
-      </header>
+      <HostChrome />
 
       <section className="border-b border-border bg-ink text-ink-foreground">
         <div className="mx-auto max-w-6xl px-5 py-14">

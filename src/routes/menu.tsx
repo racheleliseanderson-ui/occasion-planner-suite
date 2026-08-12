@@ -1,7 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ThemeToggle } from "@/components/oos/ThemeToggle";
-import { LanguageToggle } from "@/components/oos/LanguageToggle";
+import { HostChrome } from "@/components/oos/HostChrome";
 import { takeMenu } from "@/lib/oos/handoff";
 import { menuCardPdf, styleForTheme } from "@/lib/oos/pdf";
 import { useTheme } from "@/hooks/use-theme";
@@ -10,13 +9,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/menu")({
   head: () => ({
     meta: [
-      { title: "Menu builder — set the card that goes on the table" },
+      { title: "Card — set the card that goes on the table" },
       {
         name: "description",
         content:
           "Turn a finished plan into a printed menu card: reorder courses, rewrite each line in your own words, and export a typographic PDF for the table.",
       },
-      { property: "og:title", content: "Menu builder — Occasion Operating System" },
+      { property: "og:title", content: "Card — Occasion Operating System" },
       {
         property: "og:description",
         content:
@@ -85,26 +84,7 @@ function MenuBuilder() {
 
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 sm:flex sm:flex-wrap sm:justify-between">
-          <div className="flex min-w-0 items-baseline gap-3">
-            <Link to="/" className="truncate font-display text-lg tracking-tight">
-              Occasion Operating System
-            </Link>
-            <span className="rule-label hidden sm:inline">Menu builder</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <ThemeToggle />
-            <Link
-              to="/"
-              className="border border-foreground px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
-            >
-              Back to planning
-            </Link>
-          </div>
-        </div>
-      </header>
+      <HostChrome />
 
       <section className="border-b border-border bg-ink text-ink-foreground">
         <div className="mx-auto max-w-6xl px-5 py-14">
@@ -125,7 +105,7 @@ function MenuBuilder() {
         {loaded && lines.length === 0 && (
           <p className="border-l-2 border-accent bg-card px-5 py-4 text-sm leading-relaxed">
             Nothing has been handed over yet. Build a route on the planner, then use{" "}
-            <span className="font-mono text-xs uppercase tracking-widest">Send to menu builder</span>{" "}
+            <span className="font-mono text-xs uppercase tracking-widest">Send to card</span>{" "}
             on the plan — or write the card from scratch below.
           </p>
         )}
