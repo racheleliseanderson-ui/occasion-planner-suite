@@ -10,9 +10,9 @@ import type { DecisionRecord } from "./decision";
  * reading across a kitchen.
  */
 
-export type PdfStyle = "standard" | "contrast" | "large" | "avenue";
+export type PdfStyle = "standard" | "contrast" | "large";
 
-export const PDF_STYLES: PdfStyle[] = ["standard", "contrast", "large", "avenue"];
+export const PDF_STYLES: PdfStyle[] = ["standard", "contrast", "large"];
 
 interface StyleSpec {
   /** multiplier applied to every type size */
@@ -31,14 +31,12 @@ const SPECS: Record<PdfStyle, StyleSpec> = {
   standard: { scale: 1, muted: 110, rule: 170, ruleWidth: 0.2, columns: 2, leading: 1.5 },
   contrast: { scale: 1.04, muted: 0, rule: 0, ruleWidth: 0.5, columns: 2, leading: 1.55 },
   large: { scale: 1.3, muted: 60, rule: 90, ruleWidth: 0.4, columns: 1, leading: 1.7 },
-  // Avenue on paper: heavier rules, tighter grey, display-scale headings.
-  avenue: { scale: 1.08, muted: 85, rule: 40, ruleWidth: 0.6, columns: 2, leading: 1.62 },
 };
 
 /** The screen theme preselects the matching document style. */
 export function styleForTheme(theme: string): PdfStyle {
   if (theme === "contrast") return "contrast";
-  if (theme === "avenue") return "avenue";
+  if (theme === "avenue") return "standard";
   return "standard";
 }
 

@@ -1,6 +1,6 @@
 /**
- * English is the source catalogue. Every other locale is typed against it, so a
- * missing or stray key is a build error rather than a half-translated screen.
+ * English catalogue for Occasion Operating System.
+ * Spanish locale support was removed.
  */
 export const en = {
   // ---- chrome
@@ -229,7 +229,6 @@ export const en = {
   "cui.caribbean": "Caribbean",
   "cui.west-african": "West African",
   "cui.nordic": "Nordic",
-  "ho.pdf.avenue": "Avenue",
 
   // ---- architecture layer (SC-MB-001 under OOS chrome)
   "arch.hero.eyebrow": "Menu architecture instrument · layered",

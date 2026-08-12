@@ -44,7 +44,7 @@ function ArchitecturePage() {
       </section>
 
       <main className="mx-auto max-w-6xl px-5 py-14">
-        <ArchitectureSurface initialToken={p} />
+        <ArchitectureSurface initialToken={p ?? null} />
       </main>
     </div>
   );

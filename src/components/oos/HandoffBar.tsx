@@ -28,7 +28,6 @@ export function HandoffBar({ plan }: { plan: Plan }) {
     standard: t("ho.pdf.standard"),
     contrast: t("ho.pdf.contrast"),
     large: t("ho.pdf.large"),
-    avenue: t("ho.pdf.avenue"),
   };
 
 

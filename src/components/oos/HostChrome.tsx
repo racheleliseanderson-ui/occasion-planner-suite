@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LanguageToggle } from "./LanguageToggle";
 import { ThemeToggle } from "./ThemeToggle";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -73,7 +72,6 @@ export function HostChrome({
         </nav>
 
         <div className="flex flex-wrap items-center gap-3">
-          <LanguageToggle />
           <ThemeToggle />
           <Link
             to="/library"

@@ -1,16 +1,12 @@
 import { THEME_LABELS, useTheme, type Theme } from "@/hooks/use-theme";
 
 const SHORT: Record<Theme, string> = {
-  avenue: "Avenue",
   light: "Parchment",
   dark: "Ink",
   contrast: "Contrast",
 };
 
-/**
- * Three art directions in the house mono-and-hairline language: parchment, ink,
- * and a colour-blind-safe high-contrast field. No generic pill switch.
- */
+/** Parchment · Ink · Contrast — Avenue removed. */
 export function ThemeToggle() {
   const { theme, ready, setTheme, themes } = useTheme();
 

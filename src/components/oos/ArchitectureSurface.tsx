@@ -42,12 +42,12 @@ function bandClass(band: string) {
   return "text-signal-over";
 }
 
-export function ArchitectureSurface({ initialToken }: { initialToken?: string | null }) {
+export function ArchitectureSurface({ initialToken = null }: { initialToken?: string | null }) {
   const { t } = useT();
   const navigate = useNavigate();
   const [input, setInput] = useState<MenuBuilderInput>(DEFAULT_INPUT);
   const [result, setResult] = useState<MenuBuilderResult | null>(null);
-  const [status, setStatus] = useState(t("arch.status.idle"));
+  const [status, setStatus] = useState<string>(t("arch.status.idle"));
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
   const [linkMsg, setLinkMsg] = useState<string | null>(null);
   const [applyMsg, setApplyMsg] = useState<string | null>(null);

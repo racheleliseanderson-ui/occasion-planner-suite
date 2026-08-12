@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const THEME_BOOT = `(function(){try{var s=localStorage.getItem('oos-theme');var t=(s==='avenue'||s==='light'||s==='dark'||s==='contrast')?s:(window.matchMedia('(prefers-contrast: more)').matches?'contrast':'avenue');var r=document.documentElement;if(t==='dark'){r.classList.add('dark');}if(t==='contrast'){r.classList.add('contrast');}if(t==='avenue'){r.classList.add('avenue');}r.style.colorScheme=(t==='dark'||t==='avenue')?'dark':'light';}catch(e){}})();`;
+const THEME_BOOT = `(function(){try{var s=localStorage.getItem('oos-theme');var t=(s==='light'||s==='dark'||s==='contrast')?s:(s==='avenue'?'dark':(window.matchMedia('(prefers-contrast: more)').matches?'contrast':'dark'));var r=document.documentElement;r.classList.remove('avenue');if(t==='dark'){r.classList.add('dark');}if(t==='contrast'){r.classList.add('contrast');}r.style.colorScheme=t==='dark'?'dark':'light';}catch(e){}})();`;
 
 function RootShell({ children }: { children: ReactNode }) {
   return (

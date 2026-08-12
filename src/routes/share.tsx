@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { PlanSurface } from "@/components/oos/PlanSurface";
 import { HostPacket } from "@/components/oos/HostPacket";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
-import { LanguageToggle } from "@/components/oos/LanguageToggle";
 import { buildPlan, DEFAULT_CONDITIONS } from "@/lib/oos/engine";
 import { normalise, resolveLibrary } from "@/lib/oos/library";
 import { decodeShare, type SharePayload } from "@/lib/oos/share";
@@ -78,7 +77,6 @@ function SharePage() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
           <span className="font-display text-lg tracking-tight">{t("app.name")}</span>
           <div className="flex flex-wrap items-center gap-3">
-            <LanguageToggle />
             <ThemeToggle />
             <Link
               to="/"
