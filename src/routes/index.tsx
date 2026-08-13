@@ -401,7 +401,7 @@ function Index() {
               Salty &amp; Clever ↗
             </a>
             <a
-              href="https://saltnotes.blog/restaurant-intelligence/"
+              href="https://deepdish.saltnotes.blog"
               target="_blank"
               rel="noreferrer noopener"
               className="block hover:text-ink-foreground"

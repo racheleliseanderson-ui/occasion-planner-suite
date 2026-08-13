@@ -517,7 +517,7 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
                   {t("arch.action.link")}
                 </button>
                 <a
-                  href="https://salty-menu-builder.vercel.app/"
+                  href="https://occasion.saltnotes.blog/architecture"
                   target="_blank"
                   rel="noreferrer noopener"
                   className={cn(btn, "inline-flex items-center")}

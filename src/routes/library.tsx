@@ -28,7 +28,7 @@ export const Route = createFileRoute("/library")({
       {
         name: "description",
         content:
-          "Edit or hide fixture dishes, add your own, save kitchen equipment profiles, and carry the whole configuration between devices as one portable JSON file.",
+          "Edit or hide fixture dishes, add your own, save kitchen equipment profiles, and keep the whole configuration on this device — or export it as one portable JSON file.",
       },
       { property: "og:title", content: "Library workshop — Occasion Operating System" },
       {

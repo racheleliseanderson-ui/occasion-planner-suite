@@ -144,7 +144,6 @@ export const APP_VERSION = "0.6.0";
 export const ENGINE_VERSION = "0.4.3";
 
 export const OCCASION_OS_PLAN_URL = "/";
-  "https://occasion-planner-suite.vercel.app/";
 
 export const OCCASION_OPTIONS = [
   "Dinner with friends",

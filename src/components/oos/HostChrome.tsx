@@ -4,7 +4,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const TANGLED_THISTLE_URL = "https://tangled-thistle-arc-0806.vercel.app/";
+const TANGLED_THISTLE_URL = "https://tangledthistle.blog";
 
 type Layer = "plan" | "architecture" | "card" | "library";
 
@@ -93,7 +93,7 @@ export function HostChrome({
             {t("nav.thistle")}
           </a>
           <a
-            href="https://saltnotes.blog/restaurant-intelligence/"
+            href="https://deepdish.saltnotes.blog"
             target="_blank"
             rel="noreferrer noopener"
             className="hidden font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline lg:inline"

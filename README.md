@@ -6,7 +6,7 @@ Use the current live version as the baseline. Do not start from scratch — elev
 
 Git Hub https://github.com/racheleliseanderson-ui/occasion-operating-system
 
-Current Vercel Application: https://occasion-operating-system-u9cd.vercel.app/
+Current application: https://occasion.saltnotes.blog
 
 Upgrade the Occasion Operating System (Salty & Clever) into a high-end, standalone host-planning instrument. Strengthen it as the primary tool for planning a night at home.
 
@@ -78,7 +78,7 @@ Make the experience smoother and more valuable:
 
 Keep the precise, honest, slightly dry intelligence voice. Avoid hype, lifestyle fluff, or false certainty. The tool should feel like a sharp, trustworthy planning analyst that respects real kitchen constraints.
 
-Start from the current live application[](https://occasion-operating-system-u9cd.vercel.app/) as the baseline. Elevate the intelligence, visual quality, and workflow so Occasion Operating System stands strongly on its own as the host-planning tool. Please complete full GitHub handoff
+Start from the current live application[](https://occasion.saltnotes.blog/) as the baseline. Elevate the intelligence, visual quality, and workflow so Occasion Operating System stands strongly on its own as the host-planning tool. Please complete full GitHub handoff
 
 This project was built with [Lovable](https://lovable.dev).
 

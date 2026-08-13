@@ -33,7 +33,7 @@ export const en = {
   "scen.eyebrow": "Starting conditions",
   "scen.title": "Real situations, ready to load",
   "scen.body":
-    "Load one, then move a single input to see what it costs you. Your own conditions can be saved, pinned, renamed and carried between devices.",
+    "Load one, then move a single input to see what it costs you. Your own conditions can be saved, pinned and renamed on this device.",
   "scen.tune": "Tune the library →",
   "scen.search": "Search situations",
   "scen.searchPlaceholder": "Search by name, note or constraint",
@@ -277,7 +277,7 @@ export const en = {
   "arch.apply.ready": "Review, build if needed, then apply to Plan.",
   "arch.link.copied": "Proposal link copied. Nothing was uploaded.",
   "arch.boundary":
-    "Educational planning only. Dietary categories are filters — never allergen safety. Contract 1.1.0 applies only when you choose Apply to plan.",
+    "Educational planning only. Dietary categories are filters — never allergen safety. The architecture packet applies only when you choose Apply to plan.",
 } as const;
 
 export type Catalogue = Record<keyof typeof en, string>;

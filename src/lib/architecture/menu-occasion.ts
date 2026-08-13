@@ -131,8 +131,8 @@ export function validateMenuOccasionHandoff(value) {
   for (const field of REQUIRED_FIELDS) {
     if (!(field in value)) errors.push(`Missing required handoff field: ${field}.`);
   }
-  if (value.applicationId !== 'SC-MB-001') errors.push('applicationId must be SC-MB-001.');
-  if (value.contractVersion !== MENU_OCCASION_HANDOFF_VERSION) errors.push('Unsupported handoff contractVersion.');
+  if (value.applicationId !== 'SC-MB-001') errors.push('This architecture packet is not from this instrument.');
+  if (value.contractVersion !== MENU_OCCASION_HANDOFF_VERSION) errors.push('This architecture packet is from an unsupported version.');
   if (!Number.isSafeInteger(value.guestCount) || value.guestCount <= 0) errors.push('guestCount must be a positive integer.');
   if (!['seated', 'buffet', 'grazing'].includes(value.serviceStyle)) errors.push('serviceStyle is unsupported.');
   if (!value.menuRoles || typeof value.menuRoles !== 'object' || Array.isArray(value.menuRoles)) errors.push('menuRoles must be an object.');
