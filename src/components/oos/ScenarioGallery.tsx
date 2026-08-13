@@ -10,6 +10,7 @@ import {
   toggleScenarioPin,
   updateScenario,
   useConfig,
+  formatMergeReport,
   type SavedScenario,
 } from "@/lib/oos/store";
 import { diffConditions } from "@/lib/oos/diff";
@@ -45,6 +46,7 @@ export function ScenarioGallery({
   const [family, setFamily] = useState<"all" | Scenario["family"]>("all");
   const [pending, setPending] = useState<{ name: string; patch: Partial<Conditions> } | null>(null);
   const [undo, setUndo] = useState<{ scenario: SavedScenario; index: number } | null>(null);
+  const [packNotice, setPackNotice] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const q = query.trim().toLowerCase();
@@ -166,12 +168,24 @@ export function ScenarioGallery({
               className="hidden"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) importScenarioPack(await file.text());
                 e.target.value = "";
+                if (!file) return;
+                const result = importScenarioPack(await file.text());
+                if (!result.ok) {
+                  setPackNotice(t("scen.importRefused"));
+                  return;
+                }
+                setPackNotice(
+                  result.report.restored
+                    ? t("scen.importRestored")
+                    : formatMergeReport(result.report, "pack"),
+                );
               }}
             />
           </div>
         </div>
+
+        {packNotice && <p className="mt-3 text-sm text-muted-foreground">{packNotice}</p>}
 
         {saved.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">{t("scen.savedNone")}</p>

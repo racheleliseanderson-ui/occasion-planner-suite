@@ -50,6 +50,8 @@ export const en = {
   "scen.removed": "Removed",
   "scen.exportPack": "Export preset pack",
   "scen.importPack": "Import preset pack",
+  "scen.importRestored": "Preset pack restored from file.",
+  "scen.importRefused": "That file is not a preset pack.",
   "scen.savedBy": "saved by you",
   "scen.load": "Load",
   "scen.diffTitle": "What loading this changes",

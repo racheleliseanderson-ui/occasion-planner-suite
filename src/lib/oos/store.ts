@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { z } from "zod";
+import { mergeConfigLww, mergeScenarioPackLww } from "./lww";
 import type { Conditions, Dish, Kitchen } from "./types";
 
 /**
@@ -7,6 +8,7 @@ import type { Conditions, Dish, Kitchen } from "./types";
  * Everything the host personalises — dish overrides, custom dishes, hidden
  * fixtures, kitchen profiles and saved scenarios — lives in localStorage and
  * travels as a single portable JSON file. No backend, no account, no upload.
+ * Import merges last-write-wins; newer `updatedAt` wins. Deletes are tombstones.
  */
 
 const KEY = "oos-config-v1";
@@ -55,6 +57,7 @@ export const dishSchema = z.object({
   kidFriendly: z.boolean().optional(),
   outdoorSafe: z.boolean().optional(),
   cuisine: cuisine.optional(),
+  updatedAt: z.number().int().nonnegative().optional(),
 });
 
 const kitchenSchema = z.object({
@@ -77,6 +80,7 @@ const scenarioSchema = z.object({
   /** the kitchen profile in force when the preset was captured */
   kitchenProfile: z.string().max(60).default(""),
   createdAt: z.number().default(0),
+  updatedAt: z.number().int().nonnegative().optional(),
 });
 
 
@@ -84,6 +88,7 @@ const profileSchema = z.object({
   id: z.string(),
   name: z.string().trim().min(1).max(60),
   kitchen: kitchenSchema,
+  updatedAt: z.number().int().nonnegative().optional(),
 });
 
 const runRecordSchema = z.object({
@@ -101,13 +106,17 @@ const runRecordSchema = z.object({
 
 export const configSchema = z.object({
   version: z.literal(1).default(1),
+  updatedAt: z.number().int().nonnegative().optional(),
   customDishes: z.array(dishSchema).max(400).default([]),
   dishOverrides: z.record(z.string(), dishSchema.partial()).default({}),
   hiddenDishIds: z.array(z.string()).default([]),
+  hiddenClocks: z.record(z.string(), z.number()).default({}),
   kitchenProfiles: z.array(profileSchema).max(30).default([]),
   savedScenarios: z.array(scenarioSchema).max(60).default([]),
   /** completed build runs, newest first, capped so the store stays small */
   runHistory: z.array(runRecordSchema).max(20).default([]),
+  /** id → time-of-delete; a newer tombstone beats a live record on merge */
+  removed: z.record(z.string(), z.number()).default({}),
 });
 
 export type OosConfig = z.infer<typeof configSchema>;
@@ -119,9 +128,11 @@ export const EMPTY_CONFIG: OosConfig = {
   customDishes: [],
   dishOverrides: {},
   hiddenDishIds: [],
+  hiddenClocks: {},
   kitchenProfiles: [],
   savedScenarios: [],
   runHistory: [],
+  removed: {},
 };
 
 let current: OosConfig = EMPTY_CONFIG;
@@ -163,10 +174,10 @@ function snapshot(): OosConfig {
 }
 
 export function writeConfig(next: OosConfig) {
-  current = next;
+  current = { ...next, updatedAt: Date.now() };
   loaded = true;
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(next));
+    window.localStorage.setItem(KEY, JSON.stringify(current));
   } catch {
     /* storage unavailable — the session still works, it just will not persist */
   }
@@ -184,13 +195,29 @@ export function useConfig(): OosConfig {
 
 // ---- mutations ----------------------------------------------------------
 
+function forgetRemoved(removed: Record<string, number>, id: string): Record<string, number> {
+  if (!(id in removed)) return removed;
+  const next = { ...removed };
+  delete next[id];
+  return next;
+}
+
 export function saveDish(dish: Dish, isFixture: boolean) {
+  const stamped = { ...dish, updatedAt: Date.now() };
   updateConfig((c) =>
     isFixture
-      ? { ...c, dishOverrides: { ...c.dishOverrides, [dish.id]: dish } }
+      ? {
+          ...c,
+          dishOverrides: { ...c.dishOverrides, [dish.id]: stamped },
+          removed: forgetRemoved(c.removed, dish.id),
+        }
       : {
           ...c,
-          customDishes: [...c.customDishes.filter((d) => d.id !== dish.id), dish as OosConfig["customDishes"][number]],
+          customDishes: [
+            ...c.customDishes.filter((d) => d.id !== dish.id),
+            stamped as OosConfig["customDishes"][number],
+          ],
+          removed: forgetRemoved(c.removed, dish.id),
         },
   );
 }
@@ -198,25 +225,30 @@ export function saveDish(dish: Dish, isFixture: boolean) {
 /**
  * Apply a validated bulk import. Rows matching a shipped fixture become
  * overrides; everything else is stored as a custom dish. Nothing is destroyed.
+ * Each row is stamped now so a later merge treats the import as the newer write.
  */
 export function bulkApplyDishes(dishes: Dish[], fixtureIds: Set<string>) {
+  const when = Date.now();
   updateConfig((c) => {
     const overrides = { ...c.dishOverrides };
     const custom = [...c.customDishes];
+    let removed = c.removed;
     for (const d of dishes) {
-      if (fixtureIds.has(d.id)) overrides[d.id] = d;
+      const stamped = { ...d, updatedAt: when };
+      removed = forgetRemoved(removed, d.id);
+      if (fixtureIds.has(d.id)) overrides[d.id] = stamped;
       else {
         const i = custom.findIndex((x) => x.id === d.id);
-        if (i >= 0) custom[i] = d as OosConfig["customDishes"][number];
-        else custom.push(d as OosConfig["customDishes"][number]);
+        if (i >= 0) custom[i] = stamped as OosConfig["customDishes"][number];
+        else custom.push(stamped as OosConfig["customDishes"][number]);
       }
     }
-    return { ...c, dishOverrides: overrides, customDishes: custom.slice(0, 400) };
+    return { ...c, dishOverrides: overrides, customDishes: custom.slice(0, 400), removed };
   });
 }
 
 export function resetDish(id: string) {
-
+  const when = Date.now();
   updateConfig((c) => {
     const next = { ...c.dishOverrides };
     delete next[id];
@@ -225,31 +257,46 @@ export function resetDish(id: string) {
       dishOverrides: next,
       customDishes: c.customDishes.filter((d) => d.id !== id),
       hiddenDishIds: c.hiddenDishIds.filter((x) => x !== id),
+      hiddenClocks: { ...c.hiddenClocks, [id]: when },
+      removed: { ...c.removed, [id]: when },
     };
   });
 }
 
 export function toggleHidden(id: string) {
+  const when = Date.now();
   updateConfig((c) => ({
     ...c,
     hiddenDishIds: c.hiddenDishIds.includes(id)
       ? c.hiddenDishIds.filter((x) => x !== id)
       : [...c.hiddenDishIds, id],
+    hiddenClocks: { ...c.hiddenClocks, [id]: when },
   }));
 }
 
 export function saveKitchenProfile(name: string, kitchen: Kitchen) {
-  updateConfig((c) => ({
-    ...c,
-    kitchenProfiles: [
-      ...c.kitchenProfiles.filter((p) => p.name !== name),
-      { id: `kp-${Date.now()}`, name, kitchen },
-    ].slice(-30),
-  }));
+  const when = Date.now();
+  updateConfig((c) => {
+    const existing = c.kitchenProfiles.find((p) => p.name === name);
+    const id = existing?.id ?? `kp-${when}`;
+    return {
+      ...c,
+      kitchenProfiles: [
+        ...c.kitchenProfiles.filter((p) => p.name !== name),
+        { id, name, kitchen, updatedAt: when },
+      ].slice(-30),
+      removed: forgetRemoved(c.removed, id),
+    };
+  });
 }
 
 export function deleteKitchenProfile(id: string) {
-  updateConfig((c) => ({ ...c, kitchenProfiles: c.kitchenProfiles.filter((p) => p.id !== id) }));
+  const when = Date.now();
+  updateConfig((c) => ({
+    ...c,
+    kitchenProfiles: c.kitchenProfiles.filter((p) => p.id !== id),
+    removed: { ...c.removed, [id]: when },
+  }));
 }
 
 /**
@@ -262,51 +309,69 @@ export function saveScenario(
   conditions: Conditions,
   kitchenProfile = "",
 ): void {
-  updateConfig((c) => ({
-    ...c,
-    savedScenarios: [
-      ...c.savedScenarios.filter((s) => s.name !== name),
-      {
-        id: `sc-${Date.now().toString(36)}`,
-        name,
-        note,
-        conditions: conditions as unknown as Record<string, unknown>,
-        pinned: false,
-        kitchenProfile,
-        createdAt: Date.now(),
-      },
-    ].slice(-60),
-  }));
+  const when = Date.now();
+  updateConfig((c) => {
+    const existing = c.savedScenarios.find((s) => s.name === name);
+    const id = existing?.id ?? `sc-${when.toString(36)}`;
+    return {
+      ...c,
+      savedScenarios: [
+        ...c.savedScenarios.filter((s) => s.name !== name),
+        {
+          id,
+          name,
+          note,
+          conditions: conditions as unknown as Record<string, unknown>,
+          pinned: existing?.pinned ?? false,
+          kitchenProfile,
+          createdAt: existing?.createdAt ?? when,
+          updatedAt: when,
+        },
+      ].slice(-60),
+      removed: forgetRemoved(c.removed, id),
+    };
+  });
 }
 
 export function deleteScenario(id: string) {
-  updateConfig((c) => ({ ...c, savedScenarios: c.savedScenarios.filter((s) => s.id !== id) }));
+  const when = Date.now();
+  updateConfig((c) => ({
+    ...c,
+    savedScenarios: c.savedScenarios.filter((s) => s.id !== id),
+    removed: { ...c.removed, [id]: when },
+  }));
 }
 
 /** Put a removed preset back exactly where it was. */
 export function restoreScenario(scenario: SavedScenario, index: number) {
+  const when = Date.now();
   updateConfig((c) => {
     const next = c.savedScenarios.filter((s) => s.id !== scenario.id);
-    next.splice(Math.max(0, Math.min(index, next.length)), 0, scenario);
-    return { ...c, savedScenarios: next };
+    next.splice(Math.max(0, Math.min(index, next.length)), 0, { ...scenario, updatedAt: when });
+    return { ...c, savedScenarios: next, removed: forgetRemoved(c.removed, scenario.id) };
   });
 }
 
 export function updateScenario(id: string, patch: Partial<SavedScenario>) {
+  const when = Date.now();
   updateConfig((c) => ({
     ...c,
-    savedScenarios: c.savedScenarios.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+    savedScenarios: c.savedScenarios.map((s) => (s.id === id ? { ...s, ...patch, updatedAt: when } : s)),
   }));
 }
 
 export function toggleScenarioPin(id: string) {
+  const when = Date.now();
   updateConfig((c) => ({
     ...c,
-    savedScenarios: c.savedScenarios.map((s) => (s.id === id ? { ...s, pinned: !s.pinned } : s)),
+    savedScenarios: c.savedScenarios.map((s) =>
+      s.id === id ? { ...s, pinned: !s.pinned, updatedAt: when } : s,
+    ),
   }));
 }
 
 export function duplicateScenario(id: string) {
+  const when = Date.now();
   updateConfig((c) => {
     const src = c.savedScenarios.find((s) => s.id === id);
     if (!src) return c;
@@ -314,12 +379,14 @@ export function duplicateScenario(id: string) {
     let name = base;
     let n = 2;
     while (c.savedScenarios.some((s) => s.name === name)) name = `${base} ${n++}`.slice(0, 60);
+    const newId = `sc-${when.toString(36)}`;
     return {
       ...c,
       savedScenarios: [
         ...c.savedScenarios,
-        { ...src, id: `sc-${Date.now().toString(36)}`, name, pinned: false, createdAt: Date.now() },
+        { ...src, id: newId, name, pinned: false, createdAt: when, updatedAt: when },
       ].slice(-60),
+      removed: forgetRemoved(c.removed, newId),
     };
   });
 }
@@ -340,21 +407,18 @@ export function exportScenarioPack(): string {
   );
 }
 
-/** Merge a pack in by name; nothing already saved is destroyed. */
-export function importScenarioPack(raw: string): { ok: true; added: number } | { ok: false; error: string } {
+/** Merge a pack in by id (then name); last-write-wins. Nothing newer on this device is destroyed. */
+export function importScenarioPack(raw: string): { ok: true; report: MergeReport } | { ok: false; error: string } {
   try {
     const parsed = packSchema.safeParse(JSON.parse(raw));
     if (!parsed.success) return { ok: false, error: "That file is not a preset pack." };
-    let added = 0;
+    let report: MergeReport = { restored: false, added: 0, tookIncoming: 0, keptLocal: 0, stayedRemoved: 0 };
     updateConfig((c) => {
-      const byName = new Map(c.savedScenarios.map((s) => [s.name, s] as const));
-      for (const p of parsed.data.presets) {
-        byName.set(p.name, { ...p, id: `sc-${Math.random().toString(36).slice(2, 9)}` });
-        added += 1;
-      }
-      return { ...c, savedScenarios: [...byName.values()].slice(-60) };
+      const merged = mergeScenarioPackLww(c.savedScenarios, parsed.data.presets, c.removed);
+      report = merged.report;
+      return { ...c, savedScenarios: merged.items, removed: merged.removed };
     });
-    return { ok: true, added };
+    return { ok: true, report };
   } catch {
     return { ok: false, error: "That file is not readable JSON." };
   }
@@ -363,19 +427,23 @@ export function importScenarioPack(raw: string): { ok: true; added: number } | {
 
 // ---- portability --------------------------------------------------------
 
+export type { MergeReport } from "./lww";
+export { formatMergeReport } from "./lww";
+
 export function exportConfig(): string {
   return JSON.stringify(snapshot(), null, 2);
 }
 
-export function importConfig(raw: string): { ok: true } | { ok: false; error: string } {
+export function importConfig(raw: string): { ok: true; report: MergeReport } | { ok: false; error: string } {
   try {
     const parsed = configSchema.safeParse(JSON.parse(raw));
     if (!parsed.success) {
       const first = parsed.error.issues[0];
       return { ok: false, error: first ? `${first.path.join(".") || "file"}: ${first.message}` : "Invalid file" };
     }
-    writeConfig(parsed.data);
-    return { ok: true };
+    const { config, report } = mergeConfigLww(snapshot(), parsed.data);
+    writeConfig(config);
+    return { ok: true, report };
   } catch {
     return { ok: false, error: "That file is not readable JSON." };
   }

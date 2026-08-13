@@ -11,6 +11,7 @@ import {
   deleteKitchenProfile,
   exportConfig,
   importConfig,
+  formatMergeReport,
   resetDish,
   saveDish,
   saveKitchenProfile,
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/library")({
       {
         name: "description",
         content:
-          "Edit or hide fixture dishes, add your own, save kitchen equipment profiles, and keep the whole configuration on this device — or export it as one portable JSON file.",
+          "Edit or hide fixture dishes, add your own, save kitchen equipment profiles, and keep the whole configuration on this device — or export it as one portable JSON file. Import merges; the newer edit wins.",
       },
       { property: "og:title", content: "Library workshop — Occasion Operating System" },
       {
@@ -97,7 +98,8 @@ function LibraryWorkshop() {
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-ink-muted">
             Every fixture is editable. Change what a dish costs you, how long your oven really takes,
             how many it serves at your table. Hide what you would never cook. Add your own. Everything
-            stays in this browser and travels as one JSON file you own.
+            stays in this browser and travels as one JSON file you own. Import merges
+            with what is already here — the newer edit wins.
           </p>
           <dl className="mt-8 grid max-w-2xl grid-cols-2 gap-6 border-t border-ink-muted/25 pt-5 font-mono text-[11px] uppercase tracking-wider sm:grid-cols-4">
             {[
@@ -389,8 +391,9 @@ function LibraryWorkshop() {
           <span className="rule-label">Section 03</span>
           <h2 className="mt-1 text-2xl tracking-tight">Configuration file</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Your edits live in this browser only. Export to move them to another device, keep a backup,
-            or hand your kitchen model to someone else.
+            Your edits live in this browser only. Export to keep a backup or move a file.
+            Import merges with what is already here — the newer edit wins. Run history
+            stays on this device.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
@@ -421,7 +424,9 @@ function LibraryWorkshop() {
                   return;
                 }
                 const result = importConfig(await file.text());
-                setNotice(result.ok ? "Configuration imported." : `Import refused — ${result.error}`);
+                setNotice(
+                  result.ok ? formatMergeReport(result.report) : `Import refused — ${result.error}`,
+                );
               }}
             />
             <button
