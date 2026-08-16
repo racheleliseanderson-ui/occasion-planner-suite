@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { z } from "zod";
-import { mergeConfigLww, mergeScenarioPackLww } from "./lww";
+import { mergeConfigLww, mergeScenarioPackLww, type MergeReport } from "./lww";
 import type { Conditions, Dish, Kitchen } from "./types";
 
 /**

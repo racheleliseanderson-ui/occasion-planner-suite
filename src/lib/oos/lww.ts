@@ -49,9 +49,9 @@ export function formatMergeReport(r: MergeReport, scope: "config" | "pack" = "co
   return `Merged. ${bits.join(" ")}`;
 }
 
-type Clocked = { id: string; name?: string; updatedAt?: number };
+type Clocked = { id: string; name?: string | undefined; updatedAt?: number | undefined };
 
-function clockOf(item: { updatedAt?: number } | undefined, fallback: number): number {
+function clockOf(item: { updatedAt?: number | undefined } | undefined, fallback: number): number {
   return item?.updatedAt ?? fallback;
 }
 
@@ -119,7 +119,7 @@ function mergeCollection<T extends Clocked>(
   const incByName = indexByName(incoming);
 
   const seen = new Set<string>();
-  const keys: { local?: T; incoming?: T }[] = [];
+  const keys: { local?: T | undefined; incoming?: T | undefined }[] = [];
 
   const pushPair = (a?: T, b?: T) => {
     const id = a?.id ?? b?.id;
@@ -177,8 +177,8 @@ function mergeOverrides(
     const l = local[id];
     const i = incoming[id];
     const picked = pickRecord(
-      l ? { id, ...l } : undefined,
-      i ? { id, ...i } : undefined,
+      l ? { ...l, id } : undefined,
+      i ? { ...i, id } : undefined,
       localFb,
       incFb,
     );
