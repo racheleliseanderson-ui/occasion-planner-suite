@@ -3,6 +3,15 @@ import type { Conditions, Dish, Plan } from "@/lib/oos/types";
 import { STAGES, executeStage, runRecord, type StageId, type StageReport } from "@/lib/oos/run";
 import { diffConditions } from "@/lib/oos/diff";
 import { recordRun, clearRunHistory, useConfig } from "@/lib/oos/store";
+import {
+  clearLog,
+  installGlobalErrorCapture,
+  log,
+  logError,
+  logText,
+  subscribeLog,
+  type LogEntry,
+} from "@/lib/oos/log";
 import { useT, type Key } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -40,21 +49,50 @@ export function RunConsole({ conditions, library, onCommit, onRestore, stale, co
   const [index, setIndex] = useState(0); // next stage to execute
   const [auto, setAuto] = useState(false);
   const [compare, setCompare] = useState<string | null>(null);
+  const [entries, setEntries] = useState<LogEntry[]>([]);
+  const [showLog, setShowLog] = useState(false);
+  const [copied, setCopied] = useState(false);
   const planRef = useRef<Plan | null>(null);
+
+  // The run log observes the flow in production as well as development.
+  useEffect(() => {
+    installGlobalErrorCapture();
+    return subscribeLog(setEntries);
+  }, []);
 
   const runOne = useCallback(() => {
     const id = STAGES[index];
     if (!id) return;
-    const { report, plan } = executeStage(id, conditions, library);
-    planRef.current = plan;
-    setReports((r) => ({ ...r, [id]: report }));
-    setIndex((i) => i + 1);
-    if (index === STAGES.length - 1) {
+    try {
+      const { report, plan } = executeStage(id, conditions, library);
+      planRef.current = plan;
+      setReports((r) => ({ ...r, [id]: report }));
+      setIndex((i) => i + 1);
+      log("info", `run.${id}`, report.headline, {
+        ms: report.ms,
+        detail: { label: conditions.label, guests: conditions.guests, library: library.length },
+      });
+      if (index === STAGES.length - 1) {
+        setAuto(false);
+        onCommit(plan);
+        recordRun(runRecord(plan) as never);
+        log("info", "run.commit", `Committed ${plan.signature} · feasibility ${plan.feasibility}/100`, {
+          detail: { stops: plan.stops.length, verdict: plan.verdict },
+        });
+      }
+    } catch (error) {
       setAuto(false);
-      onCommit(plan);
-      recordRun(runRecord(plan) as never);
+      logError(`run.${id}`, error, {
+        stage: id,
+        label: conditions.label,
+        guests: conditions.guests,
+        library: library.length,
+      });
+      setShowLog(true);
     }
   }, [conditions, index, library, onCommit]);
+
+  const errorCount = entries.filter((e) => e.level === "error").length;
 
   // Automatic mode advances one stage per frame-ish tick so each stage is visible.
   useEffect(() => {
@@ -249,6 +287,88 @@ export function RunConsole({ conditions, library, onCommit, onRestore, stale, co
                   </li>
                 ))}
               </ul>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Run log — timings in the ordinary case, stack traces when a run fails */}
+      <div className="mt-8 border-t border-border pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-baseline gap-3">
+            <span className="rule-label">Run log</span>
+            <span
+              className={cn(
+                "font-mono text-[10px] uppercase tracking-widest tabular-nums",
+                errorCount > 0 ? "text-signal-over" : "text-muted-foreground",
+              )}
+            >
+              {entries.length} entries · {errorCount} errors
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowLog((s) => !s)}
+              aria-expanded={showLog}
+              className="min-h-11 px-2 font-mono text-[10px] uppercase tracking-widest underline-offset-4 hover:underline"
+            >
+              {showLog ? "Hide" : "Show"}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(logText());
+                  setCopied(true);
+                  window.setTimeout(() => setCopied(false), 2000);
+                } catch (error) {
+                  logError("log.copy", error);
+                }
+              }}
+              className="min-h-11 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {copied ? "Copied" : "Copy trace"}
+            </button>
+            <button
+              type="button"
+              onClick={() => clearLog()}
+              className="min-h-11 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Clear log
+            </button>
+          </div>
+        </div>
+
+        {showLog && (
+          <div className="mt-3 max-h-80 overflow-auto border border-border bg-card p-3">
+            {entries.length === 0 ? (
+              <p className="font-mono text-[10px] text-muted-foreground">Nothing recorded yet.</p>
+            ) : (
+              <ol className="space-y-2">
+                {entries
+                  .slice()
+                  .reverse()
+                  .map((e) => (
+                    <li key={e.id} className="border-l-2 pl-2 border-border">
+                      <p
+                        className={cn(
+                          "font-mono text-[10px] leading-relaxed",
+                          e.level === "error" ? "text-signal-over" : "text-muted-foreground",
+                        )}
+                      >
+                        {new Date(e.at).toLocaleTimeString()} · {e.level.toUpperCase()} · {e.scope}
+                        {e.ms !== undefined ? ` · ${e.ms} ms` : ""}
+                      </p>
+                      <p className="text-xs leading-relaxed">{e.message}</p>
+                      {e.stack && (
+                        <pre className="mt-1 overflow-x-auto whitespace-pre-wrap font-mono text-[10px] leading-relaxed text-muted-foreground">
+                          {e.stack}
+                        </pre>
+                      )}
+                    </li>
+                  ))}
+              </ol>
             )}
           </div>
         )}

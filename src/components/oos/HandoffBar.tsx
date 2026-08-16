@@ -8,6 +8,7 @@ import { encodeShare, shareUrl, SAFE_LINK_LENGTH } from "@/lib/oos/share";
 import { FIXTURE_IDS } from "@/lib/oos/library";
 import { useTheme } from "@/hooks/use-theme";
 import { useT } from "@/lib/i18n";
+import { logError } from "@/lib/oos/log";
 
 const btn =
   "min-h-11 border border-border bg-card px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:min-h-11";
@@ -72,7 +73,7 @@ export function HandoffBar({ plan }: { plan: Plan }) {
           <button type="button" className={btn} onClick={() => download(`${name}-plan.json`, "application/json", planJson(plan))}>
             {t("ho.json")}
           </button>
-          <button type="button" className={btn} onClick={() => planPdf(plan, pdfStyle)}>
+          <button type="button" className={btn} onClick={() => planPdf(plan, pdfStyle).catch((e) => logError("pdf.packet", e))}>
             {t("ho.pdf")}
           </button>
           <button type="button" className={btn} onClick={() => window.print()}>
