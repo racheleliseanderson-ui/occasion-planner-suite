@@ -177,8 +177,8 @@ function mergeOverrides(
     const l = local[id];
     const i = incoming[id];
     const picked = pickRecord(
-      l ? { id, ...l } : undefined,
-      i ? { id, ...i } : undefined,
+      l ? { ...l, id } : undefined,
+      i ? { ...i, id } : undefined,
       localFb,
       incFb,
     );
