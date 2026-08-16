@@ -115,6 +115,15 @@ export const configSchema = z.object({
   savedScenarios: z.array(scenarioSchema).max(60).default([]),
   /** completed build runs, newest first, capped so the store stays small */
   runHistory: z.array(runRecordSchema).max(20).default([]),
+  /** how packet PDFs are laid out on paper; remembered between sessions */
+  printLayout: z
+    .object({
+      page: z.enum(["a4", "letter", "legal"]).default("a4"),
+      margin: z.enum(["narrow", "standard", "wide"]).default("standard"),
+      header: z.boolean().default(true),
+      footer: z.boolean().default(true),
+    })
+    .default({ page: "a4", margin: "standard", header: true, footer: true }),
   /** id → time-of-delete; a newer tombstone beats a live record on merge */
   removed: z.record(z.string(), z.number()).default({}),
 });
@@ -132,6 +141,7 @@ export const EMPTY_CONFIG: OosConfig = {
   kitchenProfiles: [],
   savedScenarios: [],
   runHistory: [],
+  printLayout: { page: "a4", margin: "standard", header: true, footer: true },
   removed: {},
 };
 
@@ -482,6 +492,11 @@ export function blankDish(): Dish {
 /** Record a completed build run. Newest first, oldest pruned. */
 export function recordRun(run: OosConfig["runHistory"][number]) {
   updateConfig((c) => ({ ...c, runHistory: [run, ...c.runHistory].slice(0, 12) }));
+}
+
+/** Persist the paper settings used by every packet and decision PDF. */
+export function setPrintLayout(layout: OosConfig["printLayout"]) {
+  updateConfig((c) => ({ ...c, printLayout: layout }));
 }
 
 export function clearRunHistory() {
