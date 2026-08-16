@@ -3,6 +3,15 @@ import type { Conditions, Dish, Plan } from "@/lib/oos/types";
 import { STAGES, executeStage, runRecord, type StageId, type StageReport } from "@/lib/oos/run";
 import { diffConditions } from "@/lib/oos/diff";
 import { recordRun, clearRunHistory, useConfig } from "@/lib/oos/store";
+import {
+  clearLog,
+  installGlobalErrorCapture,
+  log,
+  logError,
+  logText,
+  subscribeLog,
+  type LogEntry,
+} from "@/lib/oos/log";
 import { useT, type Key } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
