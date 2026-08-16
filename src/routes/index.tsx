@@ -10,6 +10,9 @@ import { RunConsole } from "@/components/oos/RunConsole";
 import { DecisionPacket } from "@/components/oos/DecisionPacket";
 import { ServiceRunner } from "@/components/oos/ServiceRunner";
 import { useT } from "@/lib/i18n";
+import { useTheme } from "@/hooks/use-theme";
+import { planPdf, styleForTheme } from "@/lib/oos/pdf";
+import { log, logError } from "@/lib/oos/log";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
 import { takeApply } from "@/lib/architecture/apply";
 import { filterByCuisine, resolveLibrary } from "@/lib/oos/library";
@@ -66,6 +69,8 @@ function Index() {
   /** signature of the conditions the last completed run committed */
   const [committedSig, setCommittedSig] = useState<string | null>(null);
   const [architectureNote, setArchitectureNote] = useState<string | null>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const { theme } = useTheme();
 
   // Consume Architecture → Plan handoff (explicit, one-shot session payload).
   useEffect(() => {
