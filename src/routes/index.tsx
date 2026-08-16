@@ -376,13 +376,33 @@ function Index() {
                 <h2 className="mt-1 text-2xl tracking-tight">{t("work.packet")}</h2>
                 <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("work.packet.body")}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="bg-foreground px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-90"
-              >
-                {t("action.print")}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={pdfBusy}
+                  onClick={async () => {
+                    setPdfBusy(true);
+                    try {
+                      await planPdf(plan, styleForTheme(theme));
+                      log("info", "pdf.packet", `Host packet PDF written for ${plan.signature}`);
+                    } catch (error) {
+                      logError("pdf.packet", error, { signature: plan.signature });
+                    } finally {
+                      setPdfBusy(false);
+                    }
+                  }}
+                  className="bg-foreground px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {pdfBusy ? "…" : t("ho.pdf")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="border border-border bg-card px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors hover:border-foreground"
+                >
+                  {t("action.print")}
+                </button>
+              </div>
             </div>
             <HostPacket plan={plan} />
           </section>
