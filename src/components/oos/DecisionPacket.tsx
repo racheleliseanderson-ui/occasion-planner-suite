@@ -18,6 +18,7 @@ const btn =
 export function DecisionPacket({ plan, library }: { plan: Plan; library: Dish[] }) {
   const { t } = useT();
   const { theme } = useTheme();
+  const config = useConfig();
   const [busy, setBusy] = useState(false);
   const d = useMemo(() => buildDecision(plan, library), [plan, library]);
 
