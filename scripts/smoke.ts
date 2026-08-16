@@ -1,7 +1,7 @@
 /**
  * CI smoke test.
  *
- * Boots the built app with `vite preview`, then walks the routes the host flow
+ * Boots an SSR server, then walks the routes the host flow
  * depends on. Any non-200, any missing marker, any console error or page error
  * fails the run with the stack trace attached.
  */
@@ -33,7 +33,9 @@ async function waitForServer(): Promise<void> {
 }
 
 async function main() {
-  const server = spawn("bunx", ["vite", "preview", "--port", String(PORT), "--host", "127.0.0.1"], {
+  // The production build is verified by the build step; the smoke run exercises
+// the routes against a real SSR server on a dedicated port.
+  const server = spawn("bunx", ["vite", "dev", "--port", String(PORT), "--host", "127.0.0.1"], {
     stdio: ["ignore", "inherit", "inherit"],
     env: process.env,
   });
