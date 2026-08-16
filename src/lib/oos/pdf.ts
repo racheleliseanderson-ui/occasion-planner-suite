@@ -44,29 +44,80 @@ const PAGE = { w: 210, h: 297 } as const; // A4 millimetres
 const M = 18;
 const FOOT = 14;
 
+/** Real-world print settings, so a packet lands the same on any tray. */
+export type PageSize = "a4" | "letter" | "legal";
+export type MarginSize = "narrow" | "standard" | "wide";
+
+export interface PrintLayout {
+  page: PageSize;
+  margin: MarginSize;
+  /** running head: occasion, service time and guest count on every page */
+  header: boolean;
+  /** foot rule with the route signature and "page n of m" */
+  footer: boolean;
+}
+
+export const PAGE_SIZES: PageSize[] = ["a4", "letter", "legal"];
+export const MARGIN_SIZES: MarginSize[] = ["narrow", "standard", "wide"];
+
+/** Trim sizes in millimetres — jsPDF measures in mm throughout this file. */
+const PAGE_MM: Record<PageSize, { w: number; h: number }> = {
+  a4: { w: 210, h: 297 },
+  letter: { w: 215.9, h: 279.4 },
+  legal: { w: 215.9, h: 355.6 },
+};
+
+/** Margins wide enough to clear the unprintable edge on domestic printers. */
+const MARGIN_MM: Record<MarginSize, number> = { narrow: 12, standard: 18, wide: 25 };
+
+export const DEFAULT_PRINT_LAYOUT: PrintLayout = {
+  page: "a4",
+  margin: "standard",
+  header: true,
+  footer: true,
+};
+
 type Doc = import("jspdf").jsPDF;
 
 class Composer {
   y = M;
+  readonly pw: number;
+  readonly ph: number;
+  readonly m: number;
+  readonly foot: number;
   constructor(
     readonly doc: Doc,
     readonly s: StyleSpec,
     readonly runningHead: string,
+    readonly layout: PrintLayout = DEFAULT_PRINT_LAYOUT,
   ) {
+    const trim = PAGE_MM[layout.page];
+    this.pw = trim.w;
+    this.ph = trim.h;
+    this.m = MARGIN_MM[layout.margin];
+    // A suppressed footer still keeps a short quiet zone at the foot.
+    this.foot = layout.footer ? 14 : 8;
     this.header();
   }
 
   private header() {
     const d = this.doc;
+    if (!this.layout.header) {
+      d.setTextColor(20);
+      this.y = this.m + 2;
+      return;
+    }
     d.setFont("courier", "normal").setFontSize(6.5 * this.s.scale).setTextColor(this.s.muted);
-    d.text(this.runningHead.toUpperCase(), M, M - 6, { charSpace: 0.5 });
-    d.setDrawColor(this.s.rule).setLineWidth(this.s.ruleWidth).line(M, M - 4, PAGE.w - M, M - 4);
+    d.text(this.runningHead.toUpperCase(), this.m, this.m - 6, { charSpace: 0.5 });
+    d.setDrawColor(this.s.rule)
+      .setLineWidth(this.s.ruleWidth)
+      .line(this.m, this.m - 4, this.pw - this.m, this.m - 4);
     d.setTextColor(20);
-    this.y = M + 2;
+    this.y = this.m + 2;
   }
 
   get bottom() {
-    return PAGE.h - FOOT - 4;
+    return this.ph - this.foot - 4;
   }
 
   /** Start a new page if the next block cannot fit whole. */
@@ -80,7 +131,7 @@ class Composer {
   measure(text: string, size: number, indent = 0): number {
     const d = this.doc;
     d.setFont("times", "normal").setFontSize(size * this.s.scale);
-    const lines = d.splitTextToSize(text, PAGE.w - M * 2 - indent) as string[];
+    const lines = d.splitTextToSize(text, this.pw - this.m * 2 - indent) as string[];
     return lines.length * size * this.s.scale * 0.52 + this.s.leading;
   }
 
@@ -89,14 +140,14 @@ class Composer {
     const d = this.doc;
     const px = size * this.s.scale;
     d.setFont("times", "normal").setFontSize(px).setTextColor(muted ? this.s.muted : 20);
-    const lines = d.splitTextToSize(text, PAGE.w - M * 2 - indent) as string[];
+    const lines = d.splitTextToSize(text, this.pw - this.m * 2 - indent) as string[];
     for (const line of lines) {
       if (this.y + px * 0.52 > this.bottom) {
         d.addPage();
         this.header();
         d.setFont("times", "normal").setFontSize(px).setTextColor(muted ? this.s.muted : 20);
       }
-      d.text(line, M + indent, this.y);
+      d.text(line, this.m + indent, this.y);
       this.y += px * 0.52;
     }
     this.y += this.s.leading;
@@ -109,7 +160,7 @@ class Composer {
     const rightW = d.getTextWidth(right) + 4;
     const pad = box ? px * 0.55 : 0;
     d.setFont("times", "normal").setFontSize(px);
-    const lines = d.splitTextToSize(left, PAGE.w - M * 2 - indent - pad - rightW) as string[];
+    const lines = d.splitTextToSize(left, this.pw - this.m * 2 - indent - pad - rightW) as string[];
     this.need(lines.length * px * 0.52 + 1);
     d.setTextColor(20);
     if (box) {
@@ -117,13 +168,13 @@ class Composer {
       const b = px * 0.32;
       d.setDrawColor(this.s.rule === 0 ? 0 : 120)
         .setLineWidth(this.s.ruleWidth)
-        .rect(M + indent, this.y - b, b, b);
+        .rect(this.m + indent, this.y - b, b, b);
     }
     lines.forEach((line, i) => {
-      d.text(line, M + indent + pad, this.y + i * px * 0.52);
+      d.text(line, this.m + indent + pad, this.y + i * px * 0.52);
     });
     d.setFont("courier", "normal").setFontSize(px * 0.86).setTextColor(this.s.muted);
-    d.text(right, PAGE.w - M, this.y, { align: "right" });
+    d.text(right, this.pw - this.m, this.y, { align: "right" });
     d.setTextColor(20);
     this.y += lines.length * px * 0.52 + 1;
   }
@@ -133,7 +184,7 @@ class Composer {
     this.need(reserve + 8);
     const d = this.doc;
     d.setFont("courier", "normal").setFontSize(6.8 * this.s.scale).setTextColor(this.s.muted);
-    d.text(text.toUpperCase(), M, this.y, { charSpace: 0.6 });
+    d.text(text.toUpperCase(), this.m, this.y, { charSpace: 0.6 });
     d.setTextColor(20);
     this.y += 4 * this.s.scale;
   }
@@ -144,7 +195,7 @@ class Composer {
     d.setFont("times", "normal").setFontSize(size * this.s.scale).setTextColor(20);
     // Leave room for the ascender so a large title never rides up into the label above it.
     this.y += size * this.s.scale * 0.42;
-    d.text(text, M, this.y);
+    d.text(text, this.m, this.y);
     this.y += size * this.s.scale * 0.5;
   }
 
@@ -153,7 +204,7 @@ class Composer {
     this.doc
       .setDrawColor(this.s.rule)
       .setLineWidth(this.s.ruleWidth)
-      .line(M, this.y, PAGE.w - M, this.y);
+      .line(this.m, this.y, this.pw - this.m, this.y);
     this.y += 5;
   }
 
@@ -168,14 +219,15 @@ class Composer {
 
   /** Page n of m, stamped once the document is fully composed. */
   finish(note: string) {
+    if (!this.layout.footer) return;
     const d = this.doc;
     const total = d.getNumberOfPages();
     for (let p = 1; p <= total; p++) {
       d.setPage(p);
-      d.setDrawColor(this.s.rule).setLineWidth(this.s.ruleWidth).line(M, PAGE.h - FOOT, PAGE.w - M, PAGE.h - FOOT);
+      d.setDrawColor(this.s.rule).setLineWidth(this.s.ruleWidth).line(M, this.ph - this.foot, this.pw - this.m, this.ph - this.foot);
       d.setFont("courier", "normal").setFontSize(6.5 * this.s.scale).setTextColor(this.s.muted);
-      d.text(note.toUpperCase(), M, PAGE.h - FOOT + 5, { charSpace: 0.4 });
-      d.text(`PAGE ${p} OF ${total}`, PAGE.w - M, PAGE.h - FOOT + 5, { align: "right", charSpace: 0.4 });
+      d.text(note.toUpperCase(), this.m, this.ph - this.foot + 5, { charSpace: 0.4 });
+      d.text(`PAGE ${p} OF ${total}`, this.pw - this.m, this.ph - this.foot + 5, { align: "right", charSpace: 0.4 });
     }
   }
 }
