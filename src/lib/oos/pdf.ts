@@ -224,7 +224,7 @@ class Composer {
     const total = d.getNumberOfPages();
     for (let p = 1; p <= total; p++) {
       d.setPage(p);
-      d.setDrawColor(this.s.rule).setLineWidth(this.s.ruleWidth).line(M, this.ph - this.foot, this.pw - this.m, this.ph - this.foot);
+      d.setDrawColor(this.s.rule).setLineWidth(this.s.ruleWidth).line(this.m, this.ph - this.foot, this.pw - this.m, this.ph - this.foot);
       d.setFont("courier", "normal").setFontSize(6.5 * this.s.scale).setTextColor(this.s.muted);
       d.text(note.toUpperCase(), this.m, this.ph - this.foot + 5, { charSpace: 0.4 });
       d.text(`PAGE ${p} OF ${total}`, this.pw - this.m, this.ph - this.foot + 5, { align: "right", charSpace: 0.4 });
@@ -239,12 +239,16 @@ function fmt(min: number): string {
 }
 
 /** The full working packet: conditions, verdict, menu, load, clock, shopping. */
-export async function planPdf(plan: Plan, style: PdfStyle = "standard"): Promise<void> {
+export async function planPdf(
+  plan: Plan,
+  style: PdfStyle = "standard",
+  layout: PrintLayout = DEFAULT_PRINT_LAYOUT,
+): Promise<void> {
   const { jsPDF } = await import("jspdf");
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const doc = new jsPDF({ unit: "mm", format: layout.page });
   const spec = SPECS[style];
   const c = plan.conditions;
-  const k = new Composer(doc, spec, `${c.label} · service ${c.serviceTime} · ${c.guests} guests`);
+  const k = new Composer(doc, spec, `${c.label} · service ${c.serviceTime} · ${c.guests} guests`, layout);
 
   k.label("Occasion Operating System · Salty & Clever");
   k.heading(c.label, 22);
@@ -423,11 +427,15 @@ export async function menuCardPdf(
 
 
 /** The decision packet: why this route, what binds it, what would change it. */
-export async function decisionPdf(d: DecisionRecord, style: PdfStyle = "standard"): Promise<void> {
+export async function decisionPdf(
+  d: DecisionRecord,
+  style: PdfStyle = "standard",
+  layout: PrintLayout = DEFAULT_PRINT_LAYOUT,
+): Promise<void> {
   const { jsPDF } = await import("jspdf");
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const doc = new jsPDF({ unit: "mm", format: layout.page });
   const spec = SPECS[style];
-  const k = new Composer(doc, spec, `Decision packet · ${d.label} · ${d.signature}`);
+  const k = new Composer(doc, spec, `Decision packet · ${d.label} · ${d.signature}`, layout);
 
   k.label("Decision packet · Salty & Clever");
   k.heading(d.label, 22);
