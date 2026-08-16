@@ -86,6 +86,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "Salty & Clever" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: "https://i0.wp.com/saltnotes.blog/wp-content/uploads/2026/07/Family-Style-Without-the-Table-Traffic-Jam.jpg?resize=1200%2C630&ssl=1" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Family-style dinner table with shared platters and plates ready for guests" },
+      { property: "og:url", content: "https://occasion.saltnotes.blog/" },
+      { name: "twitter:image", content: "https://i0.wp.com/saltnotes.blog/wp-content/uploads/2026/07/Family-Style-Without-the-Table-Traffic-Jam.jpg?resize=1200%2C630&ssl=1" },
     ],
     links: [
       {
