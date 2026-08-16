@@ -49,21 +49,50 @@ export function RunConsole({ conditions, library, onCommit, onRestore, stale, co
   const [index, setIndex] = useState(0); // next stage to execute
   const [auto, setAuto] = useState(false);
   const [compare, setCompare] = useState<string | null>(null);
+  const [entries, setEntries] = useState<LogEntry[]>([]);
+  const [showLog, setShowLog] = useState(false);
+  const [copied, setCopied] = useState(false);
   const planRef = useRef<Plan | null>(null);
+
+  // The run log observes the flow in production as well as development.
+  useEffect(() => {
+    installGlobalErrorCapture();
+    return subscribeLog(setEntries);
+  }, []);
 
   const runOne = useCallback(() => {
     const id = STAGES[index];
     if (!id) return;
-    const { report, plan } = executeStage(id, conditions, library);
-    planRef.current = plan;
-    setReports((r) => ({ ...r, [id]: report }));
-    setIndex((i) => i + 1);
-    if (index === STAGES.length - 1) {
+    try {
+      const { report, plan } = executeStage(id, conditions, library);
+      planRef.current = plan;
+      setReports((r) => ({ ...r, [id]: report }));
+      setIndex((i) => i + 1);
+      log("info", `run.${id}`, report.headline, {
+        ms: report.ms,
+        detail: { label: conditions.label, guests: conditions.guests, library: library.length },
+      });
+      if (index === STAGES.length - 1) {
+        setAuto(false);
+        onCommit(plan);
+        recordRun(runRecord(plan) as never);
+        log("info", "run.commit", `Committed ${plan.signature} · feasibility ${plan.feasibility}/100`, {
+          detail: { stops: plan.stops.length, verdict: plan.verdict },
+        });
+      }
+    } catch (error) {
       setAuto(false);
-      onCommit(plan);
-      recordRun(runRecord(plan) as never);
+      logError(`run.${id}`, error, {
+        stage: id,
+        label: conditions.label,
+        guests: conditions.guests,
+        library: library.length,
+      });
+      setShowLog(true);
     }
   }, [conditions, index, library, onCommit]);
+
+  const errorCount = entries.filter((e) => e.level === "error").length;
 
   // Automatic mode advances one stage per frame-ish tick so each stage is visible.
   useEffect(() => {
