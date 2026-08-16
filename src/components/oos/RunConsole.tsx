@@ -335,7 +335,7 @@ export function RunConsole({ conditions, library, onCommit, onRestore, stale, co
               onClick={() => clearLog()}
               className="min-h-11 px-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
-              {t("run.clearHistory")}
+              Clear log
             </button>
           </div>
         </div>
