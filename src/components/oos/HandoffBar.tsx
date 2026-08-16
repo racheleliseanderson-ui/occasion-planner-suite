@@ -3,7 +3,16 @@ import { useState } from "react";
 import type { Plan } from "@/lib/oos/types";
 import { download, planIcs, planJson, planMarkdown, shoppingCsv, slug, timelineCsv } from "@/lib/oos/export";
 import { stashMenu } from "@/lib/oos/handoff";
-import { planPdf, styleForTheme, type PdfStyle } from "@/lib/oos/pdf";
+import {
+  MARGIN_SIZES,
+  PAGE_SIZES,
+  planPdf,
+  styleForTheme,
+  type MarginSize,
+  type PageSize,
+  type PdfStyle,
+} from "@/lib/oos/pdf";
+import { setPrintLayout, useConfig } from "@/lib/oos/store";
 import { encodeShare, shareUrl, SAFE_LINK_LENGTH } from "@/lib/oos/share";
 import { FIXTURE_IDS } from "@/lib/oos/library";
 import { useTheme } from "@/hooks/use-theme";
@@ -18,12 +27,26 @@ export function HandoffBar({ plan }: { plan: Plan }) {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { t, locale } = useT();
+  const config = useConfig();
+  const paper = config.printLayout;
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(today);
   const [style, setStyle] = useState<PdfStyle | null>(null);
   const [share, setShare] = useState<{ url: string; long: boolean; copied: boolean } | null>(null);
   const name = slug(plan.conditions.label);
   const pdfStyle = style ?? styleForTheme(theme);
+
+  const PAGE_LABELS: Record<PageSize, string> = { a4: "A4", letter: "Letter", legal: "Legal" };
+  const MARGIN_LABELS: Record<MarginSize, string> = {
+    narrow: t("ho.paper.narrow"),
+    standard: t("ho.paper.standard"),
+    wide: t("ho.paper.wide"),
+  };
+
+  const seg = (active: boolean, first: boolean) =>
+    "min-h-11 px-3 font-mono text-[10px] uppercase tracking-widest transition-colors " +
+    (first ? "" : "border-l border-border ") +
+    (active ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground");
 
   const STYLE_LABELS: Record<PdfStyle, string> = {
     standard: t("ho.pdf.standard"),
@@ -73,7 +96,7 @@ export function HandoffBar({ plan }: { plan: Plan }) {
           <button type="button" className={btn} onClick={() => download(`${name}-plan.json`, "application/json", planJson(plan))}>
             {t("ho.json")}
           </button>
-          <button type="button" className={btn} onClick={() => planPdf(plan, pdfStyle).catch((e) => logError("pdf.packet", e))}>
+          <button type="button" className={btn} onClick={() => planPdf(plan, pdfStyle, paper).catch((e) => logError("pdf.packet", e))}>
             {t("ho.pdf")}
           </button>
           <button type="button" className={btn} onClick={() => window.print()}>
@@ -113,6 +136,57 @@ export function HandoffBar({ plan }: { plan: Plan }) {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Paper: how the packet lands on a real tray */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            {t("ho.paper")}
+          </span>
+          <div role="group" aria-label={t("ho.paper.page")} className="flex border border-border">
+            {PAGE_SIZES.map((size, i) => (
+              <button
+                key={size}
+                type="button"
+                aria-pressed={paper.page === size}
+                onClick={() => setPrintLayout({ ...paper, page: size })}
+                className={seg(paper.page === size, i === 0)}
+              >
+                {PAGE_LABELS[size]}
+              </button>
+            ))}
+          </div>
+          <div role="group" aria-label={t("ho.paper.margin")} className="flex border border-border">
+            {MARGIN_SIZES.map((size, i) => (
+              <button
+                key={size}
+                type="button"
+                aria-pressed={paper.margin === size}
+                onClick={() => setPrintLayout({ ...paper, margin: size })}
+                className={seg(paper.margin === size, i === 0)}
+              >
+                {MARGIN_LABELS[size]}
+              </button>
+            ))}
+          </div>
+          <label className="flex min-h-11 items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={paper.header}
+              onChange={(e) => setPrintLayout({ ...paper, header: e.target.checked })}
+              className="size-4 accent-[currentColor]"
+            />
+            {t("ho.paper.header")}
+          </label>
+          <label className="flex min-h-11 items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={paper.footer}
+              onChange={(e) => setPrintLayout({ ...paper, footer: e.target.checked })}
+              className="size-4 accent-[currentColor]"
+            />
+            {t("ho.paper.footer")}
+          </label>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -174,7 +248,7 @@ export function HandoffBar({ plan }: { plan: Plan }) {
       )}
 
       <p className="mt-3 border-l-2 border-accent pl-3 text-xs leading-relaxed text-muted-foreground">
-        {t("ho.note")} {t("ho.shareNote")}
+        {t("ho.note")} {t("ho.shareNote")} {t("ho.paper.note")}
       </p>
     </div>
   );

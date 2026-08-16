@@ -315,12 +315,16 @@ export function mergeConfigLww(
   }
 
   const runHistory = local.runHistory.length > 0 ? local.runHistory : incoming.runHistory;
+  // Paper settings are a local preference: the newer side wins outright.
+  const printLayout =
+    (incoming.updatedAt ?? 0) > (local.updatedAt ?? 0) ? incoming.printLayout : local.printLayout;
 
   return {
     config: {
       version: 1,
       updatedAt: Math.max(local.updatedAt ?? 0, incoming.updatedAt ?? 0, importedAt),
       customDishes,
+      printLayout,
       dishOverrides,
       hiddenDishIds: hidden.hiddenDishIds,
       hiddenClocks: hidden.hiddenClocks,

@@ -388,7 +388,7 @@ function Index() {
                   onClick={async () => {
                     setPdfBusy(true);
                     try {
-                      await planPdf(plan, styleForTheme(theme));
+                      await planPdf(plan, styleForTheme(theme), config.printLayout);
                       log("info", "pdf.packet", `Host packet PDF written for ${plan.signature}`);
                     } catch (error) {
                       logError("pdf.packet", error, { signature: plan.signature });

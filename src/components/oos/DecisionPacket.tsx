@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { Dish, Plan } from "@/lib/oos/types";
 import { buildDecision, decisionMarkdown } from "@/lib/oos/decision";
 import { decisionPdf, styleForTheme } from "@/lib/oos/pdf";
+import { useConfig } from "@/lib/oos/store";
 import { download, slug } from "@/lib/oos/export";
 import { useTheme } from "@/hooks/use-theme";
 import { useT } from "@/lib/i18n";
@@ -17,6 +18,7 @@ const btn =
 export function DecisionPacket({ plan, library }: { plan: Plan; library: Dish[] }) {
   const { t } = useT();
   const { theme } = useTheme();
+  const config = useConfig();
   const [busy, setBusy] = useState(false);
   const d = useMemo(() => buildDecision(plan, library), [plan, library]);
 
@@ -38,7 +40,7 @@ export function DecisionPacket({ plan, library }: { plan: Plan; library: Dish[] 
             onClick={async () => {
               setBusy(true);
               try {
-                await decisionPdf(d, styleForTheme(theme));
+                await decisionPdf(d, styleForTheme(theme), config.printLayout);
               } finally {
                 setBusy(false);
               }
