@@ -32,10 +32,13 @@ import {
   saveInput,
 } from "@/lib/architecture/persistence";
 import { buildServicePlan, stashPlan } from "@/lib/architecture/plan";
+import { takeConstraint } from "@/lib/oos/return-loop";
 import { downloadText, cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 import { DishPlan } from "./DishPlan";
 import { StressMeters } from "./StressMeters";
+import { HouseReturn } from "./HouseReturn";
+import { houseReturnUrl, returnFromArchitecture } from "@/lib/house/return";
 
 const field =
   "mt-2 w-full border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring";
@@ -111,6 +114,21 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
         setStatus("Locally saved Architecture inputs restored.");
       }
       setHistory(loadHistory());
+      const back = takeConstraint();
+      if (back) {
+        setInput((prev) => ({
+          ...prev,
+          guestCount: back.guests,
+          guestBand: guestBandFromCount(back.guests),
+          prepCapacity: back.prepWindowH <= 3 ? "limited" : back.prepWindowH >= 7 ? "generous" : "standard",
+          equipmentConstraints: [
+            ...(back.ovens === 0 ? ["no_oven"] : back.ovens === 1 ? ["limited_oven"] : []),
+            ...(back.burners <= 2 ? ["limited_burners"] : []),
+          ],
+        }));
+        setStatus(back.note);
+        setApplyMsg(back.note);
+      }
     } catch {
       setStatus("Local storage unavailable. Continuing without saved inputs.");
     } finally {
@@ -1039,8 +1057,25 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
                 <button type="button" className={btn} onClick={() => window.print()}>
                   Print
                 </button>
+                {result && result.status !== "invalid" && (
+                  <button
+                    type="button"
+                    className={cn(btn, "border-foreground")}
+                    onClick={() => {
+                      const payload = returnFromArchitecture(
+                        input,
+                        result,
+                        "https://occasion.saltnotes.blog/architecture",
+                      );
+                      if (!payload) return;
+                      window.open(houseReturnUrl(payload), "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    {t("arch.action.house")}
+                  </button>
+                )}
                 <a
-                  href="https://occasion.saltnotes.blog/architecture"
+                  href="https://saltnotes.blog/occasion-operating-system/"
                   target="_blank"
                   rel="noreferrer noopener"
                   className={cn(btn, "inline-flex items-center")}
@@ -1052,6 +1087,15 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
                 <p role="status" className="border-l-2 border-accent pl-3 text-xs">
                   {applyMsg}
                 </p>
+              )}
+              {result && result.status !== "invalid" && (
+                <HouseReturn
+                  payload={returnFromArchitecture(
+                    input,
+                    result,
+                    "https://occasion.saltnotes.blog/architecture",
+                  )}
+                />
               )}
               {review && (
                 <div

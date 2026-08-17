@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { HostChrome } from "@/components/oos/HostChrome";
 import { getRecipe } from "@/lib/architecture/recipes";
 import { catalogName } from "@/lib/architecture/bridge";
+import { editorialUrlForDish, HOUSE_ORIGIN } from "@/lib/house/atlas";
 
 export const Route = createFileRoute("/recipes/$dishId")({
   head: ({ params }) => ({
@@ -22,6 +23,7 @@ function RecipePage() {
   const { dishId } = Route.useParams();
   const recipe = getRecipe(dishId);
   const name = catalogName(dishId) ?? dishId;
+  const editorial = editorialUrlForDish(dishId, name);
 
   return (
     <div className="min-h-dvh">
@@ -90,13 +92,34 @@ function RecipePage() {
             </section>
           </>
         )}
-        <Link
-          to="/architecture"
-          search={{ p: undefined }}
-          className="inline-flex min-h-11 items-center border border-foreground px-4 py-2 font-mono text-[11px] uppercase tracking-widest hover:bg-foreground hover:text-background"
-        >
-          Return to Architecture
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to="/architecture"
+            search={{ p: undefined }}
+            className="inline-flex min-h-11 items-center border border-foreground px-4 py-2 font-mono text-[11px] uppercase tracking-widest hover:bg-foreground hover:text-background"
+          >
+            Return to Architecture
+          </Link>
+          {editorial ? (
+            <a
+              href={editorial}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex min-h-11 items-center border border-border px-4 py-2 font-mono text-[11px] uppercase tracking-widest hover:border-foreground"
+            >
+              Read the related piece on the site ↗
+            </a>
+          ) : (
+            <a
+              href={`${HOUSE_ORIGIN}/recipes/`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex min-h-11 items-center border border-border px-4 py-2 font-mono text-[11px] uppercase tracking-widest hover:border-foreground"
+            >
+              Recipes and Technique ↗
+            </a>
+          )}
+        </div>
       </main>
     </div>
   );

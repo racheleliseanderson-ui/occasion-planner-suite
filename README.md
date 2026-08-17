@@ -8,6 +8,7 @@ Salty & Clever host-planning instrument. Four layers, one visual system:
 | **Architecture** | `/architecture` | Original five-role menu builder — scenarios, lock-an-anchor, stress, service plan, recipes |
 | **Card** | `/menu` | Printable guest card |
 | **Library** | `/library` | Workshop the dish fixture library |
+| **House return** | saltnotes.blog/reading-desk | Sends the surviving menu back to the site with related essays and recipes |
 
 Live: [occasion.saltnotes.blog](https://occasion.saltnotes.blog)
 
@@ -22,6 +23,7 @@ Not a stub. The original Salty Menu Builder engine lives inside this suite:
 - A planning recipe for every catalog dish
 - Service plan: prep timeline, aisle shopping, service run
 - Review-then-apply handoff to Plan — Plan scores the locked menu and does not silently replace it
+- House return — Architecture, Plan and Card can send a brief back to [saltnotes.blog/reading-desk](https://saltnotes.blog/reading-desk/) with the dishes and the editorial pieces that belong next to them. No guest names. No invented seats.
 
 ```
 src/lib/architecture/     catalog, evaluate, recipes, plan, contract, bridge

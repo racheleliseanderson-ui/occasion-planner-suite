@@ -44,7 +44,14 @@ export function HostChrome({
           <Link to="/" className="truncate font-display text-lg tracking-tight">
             {t("app.name")}
           </Link>
-          <span className="rule-label hidden sm:inline">{t("app.house")}</span>
+          <a
+            href="https://saltnotes.blog"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="rule-label hidden sm:inline hover:text-foreground"
+          >
+            {t("app.house")} ↗
+          </a>
         </div>
 
         <nav
@@ -82,6 +89,14 @@ export function HostChrome({
           >
             {t("nav.library")}
           </Link>
+          <a
+            href="https://saltnotes.blog/reading-desk/"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {t("nav.house")}
+          </a>
           <a
             href="https://deepdish.saltnotes.blog"
             target="_blank"

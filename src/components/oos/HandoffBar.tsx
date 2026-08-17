@@ -15,6 +15,8 @@ import {
 import { setPrintLayout, useConfig } from "@/lib/oos/store";
 import { encodeShare, shareUrl, SAFE_LINK_LENGTH } from "@/lib/oos/share";
 import { ENGINE_VERSION, FIXTURE_VERSION, SCHEMA_VERSION } from "@/lib/oos/versions";
+import { houseReturnUrl, returnFromPlan } from "@/lib/house/return";
+import { HouseReturn } from "./HouseReturn";
 import { useTheme } from "@/hooks/use-theme";
 import { useT } from "@/lib/i18n";
 import { logError } from "@/lib/oos/log";
@@ -29,7 +31,7 @@ export function HandoffBar({ plan }: { plan: Plan }) {
   const { t, locale } = useT();
   const config = useConfig();
   const paper = config.printLayout;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = plan.conditions.eventDate || new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(today);
   const [style, setStyle] = useState<PdfStyle | null>(null);
   const [share, setShare] = useState<{ url: string; long: boolean; copied: boolean } | null>(null);
@@ -113,6 +115,29 @@ export function HandoffBar({ plan }: { plan: Plan }) {
             }}
           >
             {t("ho.menuBuilder")}
+          </button>
+          <button
+            type="button"
+            className={`${btn} border-foreground`}
+            onClick={async () => {
+              const snapshot = plan.menu.map((m) => m.dish);
+              const token = await encodeShare({
+                v: 3,
+                c: plan.conditions,
+                k: plan.conditions.label,
+                l: locale,
+                m: snapshot.map((d) => d.id),
+                signature: plan.signature,
+                engineVersion: ENGINE_VERSION,
+                fixtureVersion: FIXTURE_VERSION,
+                schemaVersion: SCHEMA_VERSION,
+                d: snapshot,
+              });
+              const reopen = shareUrl(token, locale);
+              window.open(houseReturnUrl(returnFromPlan(plan, reopen)), "_blank", "noopener,noreferrer");
+            }}
+          >
+            {t("ho.house")}
           </button>
         </div>
 
@@ -259,6 +284,10 @@ export function HandoffBar({ plan }: { plan: Plan }) {
       <p className="mt-3 border-l-2 border-accent pl-3 text-xs leading-relaxed text-muted-foreground">
         {t("ho.note")} {t("ho.shareNote")} {t("ho.paper.note")}
       </p>
+
+      <div className="mt-4">
+        <HouseReturn payload={returnFromPlan(plan)} compact />
+      </div>
     </div>
   );
 }

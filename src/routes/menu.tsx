@@ -1,7 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { HostChrome } from "@/components/oos/HostChrome";
 import { lastMenuReceipt, takeMenu } from "@/lib/oos/handoff";
+import { peekCardDraft, stashCardDraft } from "@/lib/oos/return-loop";
+import { returnFromCard } from "@/lib/house/return";
+import { HouseReturn } from "@/components/oos/HouseReturn";
 import { menuCardPdf, styleForTheme } from "@/lib/oos/pdf";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
@@ -44,6 +47,7 @@ const btn =
 
 function MenuBuilder() {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [lines, setLines] = useState<Line[]>([]);
   const [title, setTitle] = useState("A table for the evening");
   const [subtitle, setSubtitle] = useState("");
@@ -51,6 +55,7 @@ function MenuBuilder() {
   const [size, setSize] = useState<"a5" | "a4">("a5");
   const [loaded, setLoaded] = useState(false);
   const [receipt, setReceipt] = useState<string | null>(null);
+  const [planSignature, setPlanSignature] = useState("");
 
   useEffect(() => {
     const handoff = takeMenu();
@@ -67,7 +72,17 @@ function MenuBuilder() {
         ? ""
         : when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
       setReceipt(`Received from Plan “${handoff.planLabel || handoff.label}” at ${time}. Signature ${handoff.signature}.`);
+      setPlanSignature(handoff.signature);
     } else {
+      const draft = peekCardDraft();
+      if (draft?.lines?.length) {
+        setTitle(draft.title);
+        setSubtitle(draft.subtitle);
+        setFooter(draft.footer);
+        setLines(draft.lines);
+        setPlanSignature(draft.planSignature);
+        setReceipt("Card wording restored. Return to Plan whenever you need to revise the route.");
+      } else {
       const prior = lastMenuReceipt();
       if (prior) {
         const when = new Date(prior.receivedAt);
@@ -75,6 +90,7 @@ function MenuBuilder() {
           ? ""
           : when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
         setReceipt(`Last received from Plan “${prior.planLabel}” at ${time}. That handoff was already consumed.`);
+      }
       }
     }
     setLoaded(true);
@@ -296,6 +312,23 @@ function MenuBuilder() {
 
             <button
               type="button"
+              className="mt-4 min-h-11 w-full border border-border px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest hover:border-foreground"
+              onClick={() => {
+                stashCardDraft({
+                  savedAt: new Date().toISOString(),
+                  title,
+                  subtitle,
+                  footer,
+                  lines,
+                  planSignature,
+                });
+                navigate({ to: "/" });
+              }}
+            >
+              Return to Plan — keep card wording
+            </button>
+            <button
+              type="button"
               disabled={shown.length === 0}
               onClick={() =>
                 menuCardPdf(
@@ -323,6 +356,15 @@ function MenuBuilder() {
             </p>
           </section>
         </div>
+
+        <HouseReturn
+          payload={returnFromCard({
+            title,
+            subtitle,
+            lines: shown,
+            signature: planSignature || undefined,
+          })}
+        />
       </main>
     </div>
   );

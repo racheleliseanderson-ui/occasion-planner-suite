@@ -14,10 +14,11 @@ import { useTheme } from "@/hooks/use-theme";
 import { planPdf, styleForTheme } from "@/lib/oos/pdf";
 import { log, logError } from "@/lib/oos/log";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
+import { applyAction } from "@/lib/oos/corrections";
 import { takeApply } from "@/lib/architecture/apply";
 import { filterByCuisine, normalise, resolveLibrary } from "@/lib/oos/library";
 import { saveScenario, useConfig } from "@/lib/oos/store";
-import type { Conditions, Dish, Plan } from "@/lib/oos/types";
+import type { Conditions, Dish, Plan, StopAction } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
 import heroImage from "@/assets/oos-hero.jpg";
 import prepImage from "@/assets/oos-prep.jpg";
@@ -64,10 +65,11 @@ function Index() {
   const all = useMemo(() => resolveLibrary(config), [config]);
   const [conditions, setConditions] = useState<Conditions>(DEFAULT_CONDITIONS);
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [built, setBuilt] = useState(false);
+  const [phase, setPhase] = useState<"draft" | "evaluated" | "committed">("draft");
   const [scenarioName, setScenarioName] = useState("");
   /** signature of the conditions the last completed run committed */
   const [committedSig, setCommittedSig] = useState<string | null>(null);
+  const [actionPreview, setActionPreview] = useState<StopAction | null>(null);
   const [architectureNote, setArchitectureNote] = useState<string | null>(null);
   const [overlayDishes, setOverlayDishes] = useState<Dish[]>([]);
   const [pdfBusy, setPdfBusy] = useState(false);
@@ -79,7 +81,7 @@ function Index() {
     if (!applied) return;
     setConditions(applied.conditions);
     setOverlayDishes(applied.overlayDishes ?? []);
-    setBuilt(true);
+    setPhase("evaluated");
     setCommittedSig(null);
     const locked = applied.conditions.lockedMenu;
     const seatNote =
@@ -104,6 +106,8 @@ function Index() {
 
   const plan = useMemo(() => buildPlan(conditions, library), [conditions, library]);
   const stale = committedSig !== null && committedSig !== plan.signature;
+  const visible = phase !== "draft";
+  const committed = phase === "committed";
 
   const saveVariant = () =>
     setVariants((v) =>
@@ -179,7 +183,7 @@ function Index() {
               current={conditions}
               onLoad={(patch) => {
                 setConditions({ ...DEFAULT_CONDITIONS, ...patch } as Conditions);
-                setBuilt(true);
+                setPhase("evaluated");
               }}
             />
           </div>
@@ -194,28 +198,45 @@ function Index() {
               value={conditions}
               onChange={(next) => {
                 setConditions(next);
-                if (built) setBuilt(true);
+                if (phase === "committed") setPhase("evaluated");
               }}
             />
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => setBuilt(true)}
+                onClick={() => setPhase("evaluated")}
                 className="flex-1 bg-foreground px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-background transition-opacity hover:opacity-90"
               >
-                {built ? t("work.rebuild") : t("work.build")}
+                {visible ? "Re-evaluate" : "Evaluate"}
+              </button>
+              <button
+                type="button"
+                disabled={!visible}
+                onClick={() => {
+                  setPhase("committed");
+                  setCommittedSig(plan.signature);
+                }}
+                className="flex-1 border border-foreground px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-40"
+              >
+                Commit plan
               </button>
               <button
                 type="button"
                 onClick={() => {
                   setConditions(DEFAULT_CONDITIONS);
-                  setBuilt(false);
+                  setPhase("draft");
+                  setCommittedSig(null);
                 }}
                 className="border border-border px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
               >
                 {t("work.reset")}
               </button>
             </div>
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              {phase === "draft" && "Draft — declare conditions, then evaluate."}
+              {phase === "evaluated" && "Evaluated — review the route, then commit to freeze it."}
+              {phase === "committed" && (stale ? "Committed plan is stale. Re-evaluate to refresh." : "Committed — frozen until you rebuild.")}
+            </p>
           </div>
 
           <div>
@@ -224,7 +245,7 @@ function Index() {
                 <span className="rule-label">{t("work.section02")}</span>
                 <h2 className="mt-1 text-2xl tracking-tight">{t("work.route")}</h2>
               </div>
-              {built && (
+              {visible && (
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
@@ -255,7 +276,7 @@ function Index() {
               )}
             </div>
 
-            {built ? (
+            {visible ? (
               <>
                 <p role="status" aria-live="polite" className="sr-only">
                   {plan.stops.length ? t("work.stopsPresent") : t("work.rebuilt")}
@@ -267,7 +288,36 @@ function Index() {
                     {plan.feasibility}/100 · {plan.stops.length} {t("tbl.stops").toLowerCase()}
                   </span>
                 </div>
-                <PlanSurface plan={plan} />
+                <PlanSurface
+                  plan={plan}
+                  onAction={(action) => setActionPreview(action)}
+                />
+                {actionPreview && (
+                  <div className="mt-4 border border-foreground bg-card px-5 py-4">
+                    <span className="rule-label">Preview this correction</span>
+                    <p className="mt-2 text-sm">{actionPreview.preview}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="min-h-11 bg-foreground px-4 font-mono text-[11px] uppercase tracking-widest text-background"
+                        onClick={() => {
+                          setConditions(applyAction(conditions, actionPreview));
+                          setPhase("evaluated");
+                          setActionPreview(null);
+                        }}
+                      >
+                        Apply {actionPreview.label}
+                      </button>
+                      <button
+                        type="button"
+                        className="min-h-11 border border-border px-4 font-mono text-[11px] uppercase tracking-widest"
+                        onClick={() => setActionPreview(null)}
+                      >
+                        Keep current
+                      </button>
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <div className="paper grain overflow-hidden">
@@ -307,20 +357,20 @@ function Index() {
             conditions={conditions}
             library={library}
             stale={stale}
-            committed={built}
+            committed={committed}
             onCommit={(p) => {
-              setBuilt(true);
+              setPhase("committed");
               setCommittedSig(p.signature);
             }}
             onRestore={(c) => {
               setConditions(c);
-              setBuilt(true);
+              setPhase("evaluated");
             }}
           />
         </div>
 
         {/* Decision packet and live service */}
-        {built && (
+        {visible && (
           <div className="mt-16 space-y-16">
             <DecisionPacket plan={plan} library={library} />
             <ServiceRunner plan={plan} />
@@ -328,7 +378,7 @@ function Index() {
         )}
 
         {/* Variations */}
-        {built && variants.length > 0 && (
+        {visible && variants.length > 0 && (
           <section className="no-print mt-16">
             <span className="rule-label">{t("work.section03")}</span>
             <h2 className="mt-1 text-2xl tracking-tight">{t("work.variations")}</h2>
@@ -383,7 +433,7 @@ function Index() {
         )}
 
         {/* Packet */}
-        {built && (
+        {visible && (
           <section className="mt-16">
             <div className="no-print mb-5 flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -433,7 +483,23 @@ function Index() {
           </p>
           <div className="space-y-2 font-mono text-[11px] uppercase tracking-widest">
             <a href="https://saltnotes.blog" target="_blank" rel="noreferrer noopener" className="block hover:text-ink-foreground">
-              Salty &amp; Clever ↗
+              Salty & Clever ↗
+            </a>
+            <a
+              href="https://saltnotes.blog/reading-desk/"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="block hover:text-ink-foreground"
+            >
+              Reading desk ↗
+            </a>
+            <a
+              href="https://saltnotes.blog/occasion-operating-system/"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="block hover:text-ink-foreground"
+            >
+              Occasion OS on the site ↗
             </a>
             <a
               href="https://deepdish.saltnotes.blog"

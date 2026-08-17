@@ -49,14 +49,24 @@ function ArchitecturePage() {
       <footer className="no-print border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-xs text-muted-foreground">
           <span>Salty & Clever · Occasion Operating System</span>
-          <a
-            href="https://tangledthistle.blog"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="font-mono text-[10px] uppercase tracking-widest underline-offset-4 hover:text-foreground hover:underline"
-          >
-            Tangled Thistle ↗
-          </a>
+          <div className="flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-widest">
+            <a
+              href="https://saltnotes.blog/reading-desk/"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Reading desk ↗
+            </a>
+            <a
+              href="https://saltnotes.blog/occasion-operating-system/"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="underline-offset-4 hover:text-foreground hover:underline"
+            >
+              The site ↗
+            </a>
+          </div>
         </div>
       </footer>
     </div>
