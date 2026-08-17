@@ -24,6 +24,7 @@ const EXCLUSIONS: Record<DietFilter, Contains[]> = {
   "no-shellfish": ["shellfish"],
   "no-pork": ["pork"],
   "no-alcohol": ["alcohol"],
+  "no-egg": ["egg"],
 };
 
 export const DIET_LABELS: Record<DietFilter, string> = {
@@ -35,6 +36,7 @@ export const DIET_LABELS: Record<DietFilter, string> = {
   "no-shellfish": "Shellfish-avoiding",
   "no-pork": "Pork-free",
   "no-alcohol": "Alcohol-free",
+  "no-egg": "Egg-avoiding",
 };
 
 export function parseClock(t: string): number {
@@ -152,6 +154,23 @@ function pick(
 
 
 function buildMenu(c: Conditions, library: Dish[]): Dish[] {
+  const lockedIds = c.lockedMenu?.dishIds ?? [];
+  if (lockedIds.length > 0) {
+    const byId = new Map(library.map((d) => [d.id, d] as const));
+    const locked = lockedIds.map((id) => byId.get(id)).filter((d): d is Dish => Boolean(d));
+    const taken = new Set(locked.map((d) => d.id));
+    const extras: Dish[] = [...locked];
+    const zero = library.find((d) => d.id === "drink-zero");
+    if (zero && !taken.has(zero.id)) extras.push(zero);
+    if (!c.diets.includes("no-alcohol")) {
+      const wine = library.find((d) => d.id === "drink-wine");
+      if (wine && !taken.has(wine.id)) extras.push(wine);
+    }
+    const kit = library.find((d) => d.id === "non-food-service");
+    if (kit && !taken.has(kit.id)) extras.push(kit);
+    return extras;
+  }
+
   const pool = library.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
   const taken = new Set<string>();
   const out: Dish[] = [];
@@ -305,7 +324,15 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
 
 
   // ---- Hard stops (fail closed) ----------------------------------------
-  if (c.style === "seated" && c.guests > c.kitchen.seats) {
+  const seatingKnown = c.seatingKnown !== false;
+  if (c.style === "seated" && !seatingKnown) {
+    stops.push({
+      code: "CAP-00",
+      title: "Seating has not been declared",
+      detail: `${c.guests} guests are expected, but seats were not stated. The plan will not invent chairs.`,
+      correction: "Enter the real seat count, or switch service style to buffet or grazing.",
+    });
+  } else if (c.style === "seated" && seatingKnown && c.guests > c.kitchen.seats) {
     stops.push({
       code: "CAP-01",
       title: "Seated service exceeds table capacity",
@@ -438,8 +465,11 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
     advisories.push("Solo host above eight guests: everything hot should be finished before the first arrival, not during it.");
   if (c.style === "buffet" || c.style === "grazing")
     advisories.push("Self-service styles consume roughly 10% more than plated portions. Quantities below already include that allowance.");
-  if (c.diets.length > 0)
-    advisories.push("Dietary categories are planning filters only. Confirm every ingredient label yourself — nothing here is an allergy guarantee.");
+  if (c.lockedMenu?.dishIds.length) {
+    advisories.push(
+      `Architecture decision preserved: ${c.lockedMenu.thesis || "selected dishes locked"}. Plan scores feasibility and will not silently replace the menu.`,
+    );
+  }
   const overCold = gauges.find((g) => g.key === "cold");
   if (overCold && overCold.pct > 90)
     advisories.push("Cold storage is at or beyond capacity. Reduce make-ahead volume or secure a second cold box before shopping.");
@@ -732,8 +762,8 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
     service,
     makeAheadShare,
     handsOnMin: Math.round(handsUsed),
-    costPerHead,
-    costTotal,
+    costPerHead: Math.round(costPerHead),
+    costTotal: Math.round(costTotal),
     costCeiling,
     balance,
     balanceNotes,

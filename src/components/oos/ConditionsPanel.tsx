@@ -132,6 +132,7 @@ const DIETS: DietFilter[] = [
   "no-animal",
   "no-gluten",
   "no-dairy",
+  "no-egg",
   "no-nut",
   "no-shellfish",
   "no-pork",
@@ -193,7 +194,43 @@ export function ConditionsPanel({ value, onChange }: Props) {
         </Field>
 
         <Field label="Seats at the real table" explain={EXPLAIN.seats}>
-          <Stepper value={value.kitchen.seats} min={0} max={40} onSet={(seats) => setKitchen({ seats })} />
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                checked={value.seatingKnown !== false}
+                onChange={(e) =>
+                  set({
+                    seatingKnown: e.target.checked,
+                    kitchen: {
+                      ...value.kitchen,
+                      seats: e.target.checked ? value.kitchen.seats || value.guests : 0,
+                    },
+                  })
+                }
+                className="size-4"
+              />
+              Seats are declared — do not invent chairs
+            </label>
+            <Stepper
+              value={value.kitchen.seats}
+              min={0}
+              max={40}
+              onSet={(seats) => setKitchen({ seats })}
+            />
+            {value.seatingKnown === false && (
+              <p className="text-xs text-signal-tight">Seating unknown. The plan will stop rather than invent chairs.</p>
+            )}
+          </div>
+        </Field>
+
+        <Field label="Event date" hint="first-class, not only for calendar export">
+          <input
+            type="date"
+            value={value.eventDate ?? ""}
+            onChange={(e) => set({ eventDate: e.target.value || undefined })}
+            className="border border-border bg-card px-3 py-2 font-mono text-sm"
+          />
         </Field>
 
         <Field label="Service time & day-of window" explain={EXPLAIN.time}>

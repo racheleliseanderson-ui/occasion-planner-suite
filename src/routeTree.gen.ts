@@ -14,6 +14,7 @@ import { Route as ArchitectureRouteImport } from './routes/architecture'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as ShareRouteImport } from './routes/share'
+import { Route as RecipesDishIdRouteImport } from './routes/recipes.$dishId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const ShareRoute = ShareRouteImport.update({
   path: '/share',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecipesDishIdRoute = RecipesDishIdRouteImport.update({
+  id: '/recipes/$dishId',
+  path: '/recipes/$dishId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/library': typeof LibraryRoute
   '/menu': typeof MenuRoute
   '/share': typeof ShareRoute
+  '/recipes/$dishId': typeof RecipesDishIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/library': typeof LibraryRoute
   '/menu': typeof MenuRoute
   '/share': typeof ShareRoute
+  '/recipes/$dishId': typeof RecipesDishIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,23 @@ export interface FileRoutesById {
   '/library': typeof LibraryRoute
   '/menu': typeof MenuRoute
   '/share': typeof ShareRoute
+  '/recipes/$dishId': typeof RecipesDishIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/architecture' | '/library' | '/menu' | '/share'
+  fullPaths:
+    '/' | '/architecture' | '/library' | '/menu' | '/share' | '/recipes/$dishId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/architecture' | '/library' | '/menu' | '/share'
-  id: '__root__' | '/' | '/architecture' | '/library' | '/menu' | '/share'
+  to:
+    '/' | '/architecture' | '/library' | '/menu' | '/share' | '/recipes/$dishId'
+  id:
+    | '__root__'
+    | '/'
+    | '/architecture'
+    | '/library'
+    | '/menu'
+    | '/share'
+    | '/recipes/$dishId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +95,7 @@ export interface RootRouteChildren {
   LibraryRoute: typeof LibraryRoute
   MenuRoute: typeof MenuRoute
   ShareRoute: typeof ShareRoute
+  RecipesDishIdRoute: typeof RecipesDishIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recipes/$dishId': {
+      id: '/recipes/$dishId'
+      path: '/recipes/$dishId'
+      fullPath: '/recipes/$dishId'
+      preLoaderRoute: typeof RecipesDishIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +151,7 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryRoute: LibraryRoute,
   MenuRoute: MenuRoute,
   ShareRoute: ShareRoute,
+  RecipesDishIdRoute: RecipesDishIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

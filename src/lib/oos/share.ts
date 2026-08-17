@@ -1,4 +1,5 @@
 import type { Conditions, Dish } from "./types";
+import { ENGINE_VERSION, FIXTURE_VERSION, SCHEMA_VERSION } from "./versions";
 
 /**
  * Shareable read-only plans. The link carries the plan itself: nothing is
@@ -7,7 +8,7 @@ import type { Conditions, Dish } from "./types";
  * base64url-encoded into a single search param.
  */
 
-export const SHARE_VERSION = 2;
+export const SHARE_VERSION = 3;
 /** Beyond this, mail clients and chat apps start truncating. */
 export const SAFE_LINK_LENGTH = 1900;
 
@@ -17,10 +18,16 @@ export interface SharePayload {
   c: Conditions;
   /** the name of the kitchen profile the sender was using, for provenance only */
   k?: string;
-  /** only the dishes the plan actually depends on that differ from the fixtures */
+  /** dishes the plan actually depends on — sender snapshot, not the recipient library */
   d?: Dish[];
+  /** locked dish ids in order */
+  m?: string[];
   /** sender's language, so the link opens as they wrote it */
   l?: string;
+  engineVersion?: string;
+  fixtureVersion?: string;
+  schemaVersion?: string;
+  signature?: string;
 }
 
 function toBase64Url(bytes: Uint8Array): string {
@@ -59,7 +66,14 @@ async function gunzip(bytes: Uint8Array): Promise<string | null> {
 
 /** "z." marks a compressed body; "j." an uncompressed one. */
 export async function encodeShare(payload: SharePayload): Promise<string> {
-  const json = JSON.stringify(payload);
+  const body: SharePayload = {
+    ...payload,
+    v: SHARE_VERSION,
+    engineVersion: payload.engineVersion ?? ENGINE_VERSION,
+    fixtureVersion: payload.fixtureVersion ?? FIXTURE_VERSION,
+    schemaVersion: payload.schemaVersion ?? SCHEMA_VERSION,
+  };
+  const json = JSON.stringify(body);
   const packed = await gzip(json);
   if (packed) return `z.${toBase64Url(packed)}`;
   return `j.${toBase64Url(new TextEncoder().encode(json))}`;
@@ -81,6 +95,13 @@ export async function decodeShare(token: string): Promise<SharePayload | null> {
   } catch {
     return null;
   }
+}
+
+export function shareStale(payload: SharePayload): boolean {
+  return Boolean(
+    (payload.engineVersion && payload.engineVersion !== ENGINE_VERSION) ||
+      (payload.fixtureVersion && payload.fixtureVersion !== FIXTURE_VERSION),
+  );
 }
 
 export function shareUrl(token: string, lang?: string): string {

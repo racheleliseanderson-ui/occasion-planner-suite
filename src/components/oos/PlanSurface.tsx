@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { Plan } from "@/lib/oos/types";
+import { getRecipe } from "@/lib/architecture/recipes";
 import { GaugeRow, StopsBlock, VerdictBlock } from "./Signals";
 import { HandoffBar } from "./HandoffBar";
 import { relief } from "@/lib/oos/explain";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 const TABS = ["Route", "Load", "Shopping", "Prep clock", "Service"] as const;
 type Tab = (typeof TABS)[number];
@@ -13,12 +15,41 @@ const WHEN_LABEL = { d2: "Two days out", d1: "Day before", dayof: "Day of" } as 
 export function PlanSurface({ plan }: { plan: Plan }) {
   const [tab, setTab] = useState<Tab>("Route");
   const [bought, setBought] = useState<string[]>([]);
+  const lockedIds = new Set(plan.conditions.lockedMenu?.dishIds ?? []);
+  const lockedRoles = plan.conditions.lockedMenu?.roles ?? {};
 
   return (
     <div className="space-y-6">
       <VerdictBlock plan={plan} />
       <HandoffBar plan={plan} />
       <StopsBlock plan={plan} />
+
+      {plan.conditions.lockedMenu && (
+        <div className="border border-foreground bg-card px-5 py-4">
+          <span className="rule-label">Architecture menu locked</span>
+          <p className="mt-1 font-display text-xl tracking-tight">
+            {plan.conditions.lockedMenu.thesis || "Selected dishes stay on the route."}
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {plan.conditions.lockedMenu.dishIds.map((id) => {
+              const onRoute = plan.menu.find((m) => m.dish.id === id);
+              const role =
+                Object.entries(lockedRoles).find(([, name]) =>
+                  onRoute?.dish.name.toLowerCase().includes(String(name).toLowerCase()),
+                )?.[0] ?? onRoute?.dish.course;
+              return (
+                <li
+                  key={id}
+                  className="border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-widest"
+                >
+                  {role ? `${role} · ` : ""}
+                  {onRoute?.dish.name || id}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       <div className="paper grid gap-px bg-border sm:grid-cols-3">
         <div className="bg-card px-5 py-4">
@@ -70,7 +101,6 @@ export function PlanSurface({ plan }: { plan: Plan }) {
         </ul>
       )}
 
-
       <div className="paper">
         <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border px-6 py-3">
           {TABS.map((t) => (
@@ -93,26 +123,48 @@ export function PlanSurface({ plan }: { plan: Plan }) {
         <div className="px-6 py-6">
           {tab === "Route" && (
             <ul className="divide-y divide-border">
-              {plan.menu.map((m) => (
-                <li key={m.dish.id} className="grid gap-2 py-4 sm:grid-cols-[1fr_auto]">
-                  <div>
-                    <div className="flex flex-wrap items-baseline gap-3">
-                      <span className="rule-label">{m.dish.course}</span>
-                      <h4 className="text-lg">{m.dish.name}</h4>
+              {plan.menu.map((m) => {
+                const locked = lockedIds.has(m.dish.id);
+                const hasRecipe = Boolean(getRecipe(m.dish.id));
+                return (
+                  <li key={m.dish.id} className="grid gap-2 py-4 sm:grid-cols-[1fr_auto]">
+                    <div>
+                      <div className="flex flex-wrap items-baseline gap-3">
+                        <span className="rule-label">{m.dish.course}</span>
+                        <h4 className="text-lg">{m.dish.name}</h4>
+                        {locked && (
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-brass">
+                            Architecture lock
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{m.dish.note}</p>
+                      {hasRecipe && (
+                        <Link
+                          to="/recipes/$dishId"
+                          params={{ dishId: m.dish.id }}
+                          className="mt-2 inline-block font-mono text-[11px] uppercase tracking-widest text-brass underline-offset-4 hover:underline"
+                        >
+                          Open recipe →
+                        </Link>
+                      )}
                     </div>
-                    <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{m.dish.note}</p>
-                  </div>
-                  <div className="text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground sm:text-right">
-                    <p className="text-foreground">{WHEN_LABEL[m.when]}</p>
-                    <p className="mt-1">
-                      {m.batches} batch{m.batches === 1 ? "" : "es"} · serves {m.serves}
-                    </p>
-                    <p className="mt-1">
-                      {m.dish.ovenMin > 0 ? `${m.dish.ovenMin}m oven` : m.dish.burnerMin > 0 ? `${m.dish.burnerMin}m burner` : "no heat"}
-                    </p>
-                  </div>
-                </li>
-              ))}
+                    <div className="text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground sm:text-right">
+                      <p className="text-foreground">{WHEN_LABEL[m.when]}</p>
+                      <p className="mt-1">
+                        {m.batches} batch{m.batches === 1 ? "" : "es"} · serves {m.serves}
+                      </p>
+                      <p className="mt-1">
+                        {m.dish.ovenMin > 0
+                          ? `${m.dish.ovenMin}m oven`
+                          : m.dish.burnerMin > 0
+                            ? `${m.dish.burnerMin}m burner`
+                            : "no heat"}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
 
@@ -198,29 +250,22 @@ export function PlanSurface({ plan }: { plan: Plan }) {
                     )}
                   </div>
                   <p className="mt-1 text-sm">
-                    <span className="font-medium">{t.dish}</span> — {t.task}
+                    <span className="text-muted-foreground">{t.dish} · </span>
+                    {t.task}
                   </p>
-                  {t.minutes > 0 && (
-                    <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{t.minutes} min</p>
-                  )}
                 </li>
               ))}
             </ol>
           )}
 
           {tab === "Service" && (
-            <ol className="divide-y divide-border">
+            <ol className="space-y-4">
               {plan.service.map((s, i) => (
-                <li key={i} className="grid gap-1 py-3 sm:grid-cols-[6rem_1fr]">
-                  <span className="font-mono text-sm tabular-nums">
-                    {s.clock}
-                    <span className="ml-2 text-[11px] text-muted-foreground">
-                      {s.offsetMin >= 0 ? `+${s.offsetMin}` : s.offsetMin}
-                    </span>
-                  </span>
+                <li key={`${s.clock}-${s.task}-${i}`} className="grid gap-1 sm:grid-cols-[6rem_1fr]">
+                  <span className="font-mono text-sm tabular-nums">{s.clock}</span>
                   <div>
                     <p className="text-sm">{s.task}</p>
-                    <p className="text-xs text-muted-foreground">{s.dish}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{s.dish}</p>
                   </div>
                 </li>
               ))}

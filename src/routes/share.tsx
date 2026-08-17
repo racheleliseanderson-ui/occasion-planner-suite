@@ -5,9 +5,10 @@ import { HostPacket } from "@/components/oos/HostPacket";
 import { ThemeToggle } from "@/components/oos/ThemeToggle";
 import { buildPlan, DEFAULT_CONDITIONS } from "@/lib/oos/engine";
 import { normalise, resolveLibrary } from "@/lib/oos/library";
-import { decodeShare, type SharePayload } from "@/lib/oos/share";
+import { decodeShare, shareStale, type SharePayload } from "@/lib/oos/share";
 import { saveScenario, useConfig } from "@/lib/oos/store";
 import type { Conditions, Dish } from "@/lib/oos/types";
+import { ENGINE_VERSION, FIXTURE_VERSION } from "@/lib/oos/versions";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/share")({
@@ -39,6 +40,7 @@ function SharePage() {
   const config = useConfig();
   const [state, setState] = useState<State>({ status: "loading" });
   const [adopted, setAdopted] = useState(false);
+  const [adapt, setAdapt] = useState(false);
 
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get("p");
@@ -59,17 +61,44 @@ function SharePage() {
   const plan = useMemo(() => {
     if (state.status !== "ok") return null;
     const conditions = { ...DEFAULT_CONDITIONS, ...state.payload.c } as Conditions;
-    // The recipient's own workshop is never written to; shared dishes are merged read-only.
-    const base = resolveLibrary(config);
     const extra = (state.payload.d ?? []).map((d) => normalise(d as Dish));
-    const byId = new Map(base.map((d) => [d.id, d] as const));
-    for (const d of extra) byId.set(d.id, d);
     try {
+      if (!adapt) {
+        // Reproduce the sender's snapshot first. Do not silently merge the
+        // recipient workshop over the shared dishes.
+        const byId = new Map(extra.map((d) => [d.id, d] as const));
+        const senderIds = state.payload.m ?? extra.map((d) => d.id);
+        const locked = senderIds.length
+          ? { ...conditions, lockedMenu: { ...(conditions.lockedMenu ?? {
+              dishIds: senderIds,
+              roles: {},
+              thesis: conditions.label,
+              beverageDirection: "",
+              zeroProofDirection: "",
+              simplifications: [],
+              unknowns: [],
+              substitutions: [],
+              signature: state.payload.signature || "shared",
+              source: {
+                tool: "architecture" as const,
+                contractVersion: "share",
+                engineVersion: state.payload.engineVersion || ENGINE_VERSION,
+                fixtureVersion: state.payload.fixtureVersion || FIXTURE_VERSION,
+                createdAt: new Date().toISOString(),
+              },
+            }), dishIds: senderIds } }
+          : conditions;
+        const library = extra.length ? extra : resolveLibrary(config);
+        return buildPlan(locked, extra.length ? [...byId.values()] : library);
+      }
+      const base = resolveLibrary(config);
+      const byId = new Map(base.map((d) => [d.id, d] as const));
+      for (const d of extra) byId.set(d.id, d);
       return buildPlan(conditions, [...byId.values()]);
     } catch {
       return null;
     }
-  }, [state, config]);
+  }, [state, config, adapt]);
 
   return (
     <div className="min-h-dvh">
@@ -114,6 +143,13 @@ function SharePage() {
         {state.status === "ok" && plan && (
           <>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("share.body")}</p>
+            {state.status === "ok" && shareStale(state.payload) && (
+              <p role="status" className="mt-3 border-l-2 border-signal-tight pl-3 text-sm">
+                This link was built with engine {state.payload.engineVersion ?? "unknown"} / data{" "}
+                {state.payload.fixtureVersion ?? "unknown"}. This application is {ENGINE_VERSION} / {FIXTURE_VERSION}.
+                The sender snapshot is shown first. Adapting to your library may change the result.
+              </p>
+            )}
             <div className="no-print mt-5 flex flex-wrap items-center gap-3">
               <button
                 type="button"
@@ -129,6 +165,14 @@ function SharePage() {
                 className="min-h-11 bg-foreground px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-background"
               >
                 {t("share.adopt")}
+              </button>
+              <button
+                type="button"
+                aria-pressed={adapt}
+                onClick={() => setAdapt((v) => !v)}
+                className="min-h-11 border border-border px-4 py-2 font-mono text-[11px] uppercase tracking-widest"
+              >
+                {adapt ? "Showing your library" : "Adapt to my library"}
               </button>
               {adopted && (
                 <span role="status" className="text-sm text-muted-foreground">

@@ -31,6 +31,9 @@ export interface MenuBuilderInput {
   equipmentConstraints: string[];
   cuisine: string;
   lockedAnchorId: string | null;
+  /** When true, seatingCount is a declared fact. When false/absent, Plan must ask. */
+  seatingKnown?: boolean;
+  seatingCount?: number | null;
 }
 
 export interface DishPrimary {
@@ -140,6 +143,7 @@ export interface HistoryEntry {
 
 export const STORAGE_KEY = "oos-architecture-input-v1";
 export const HISTORY_KEY = "oos-architecture-history-v1";
+export const PLAN_STASH_KEY = "oos-architecture-plan-v1";
 export const APP_VERSION = "0.6.0";
 export const ENGINE_VERSION = "0.4.3";
 
@@ -151,6 +155,10 @@ export const OCCASION_OPTIONS = [
   "Holiday meal",
   "Open-house gathering",
   "Weeknight hosting",
+  "Sunday lunch",
+  "Vegetarian supper",
+  "Cocktail hour",
+  "High-country gathering",
 ] as const;
 
 export const DEFAULT_INPUT: MenuBuilderInput = {
@@ -170,6 +178,8 @@ export const DEFAULT_INPUT: MenuBuilderInput = {
   equipmentConstraints: [],
   cuisine: "any",
   lockedAnchorId: null,
+  seatingKnown: false,
+  seatingCount: null,
 };
 
 
@@ -203,6 +213,8 @@ export const SCENARIOS: ScenarioPreset[] = [
       equipmentConstraints: ["limited_burners"],
       cuisine: "any",
       lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 6,
     },
   },
   {
@@ -226,6 +238,8 @@ export const SCENARIOS: ScenarioPreset[] = [
       equipmentConstraints: [],
       cuisine: "any",
       lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 12,
     },
   },
   {
@@ -249,6 +263,8 @@ export const SCENARIOS: ScenarioPreset[] = [
       equipmentConstraints: ["limited_oven"],
       cuisine: "any",
       lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 20,
     },
   },
   {
@@ -272,6 +288,8 @@ export const SCENARIOS: ScenarioPreset[] = [
       equipmentConstraints: ["limited_oven", "limited_burners", "limited_refrigeration"],
       cuisine: "any",
       lockedAnchorId: null,
+      seatingKnown: false,
+      seatingCount: null,
     },
   },
   {
@@ -295,6 +313,158 @@ export const SCENARIOS: ScenarioPreset[] = [
       equipmentConstraints: ["limited_burners"],
       cuisine: "any",
       lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 24,
+    },
+  },
+  {
+    id: "sunday-lunch-8",
+    name: "Sunday lunch · 8",
+    blurb: "Relaxed family-style, generous prep, one oven is enough.",
+    input: {
+      occasion: "Sunday lunch",
+      guestCount: 8,
+      guestBand: "under_12",
+      serviceStyle: "family_style",
+      eventDayTime: "moderate",
+      prepCapacity: "generous",
+      kitchenCapacity: "standard",
+      attentionBand: "high",
+      menuArc: "rich_comforting",
+      beverageRoute: "both",
+      budgetPressure: false,
+      dietaryCategories: [],
+      declaredAllergens: [],
+      equipmentConstraints: ["limited_oven"],
+      cuisine: "any",
+      lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 8,
+    },
+  },
+  {
+    id: "vegetarian-dinner-10",
+    name: "Vegetarian dinner · 10",
+    blurb: "Plant-led table, family-style, dairy still in play unless you say otherwise.",
+    input: {
+      occasion: "Vegetarian supper",
+      guestCount: 10,
+      guestBand: "under_12",
+      serviceStyle: "family_style",
+      eventDayTime: "moderate",
+      prepCapacity: "standard",
+      kitchenCapacity: "standard",
+      attentionBand: "moderate",
+      menuArc: "seasonal",
+      beverageRoute: "both",
+      budgetPressure: false,
+      dietaryCategories: ["vegetarian"],
+      declaredAllergens: [],
+      equipmentConstraints: [],
+      cuisine: "any",
+      lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 10,
+    },
+  },
+  {
+    id: "egg-free-brunch-8",
+    name: "Egg-free brunch · 8",
+    blurb: "Declares egg as an actual exclusion — not a vegetarian stand-in.",
+    input: {
+      occasion: "Sunday lunch",
+      guestCount: 8,
+      guestBand: "under_12",
+      serviceStyle: "family_style",
+      eventDayTime: "moderate",
+      prepCapacity: "standard",
+      kitchenCapacity: "standard",
+      attentionBand: "moderate",
+      menuArc: "bright_light",
+      beverageRoute: "both",
+      budgetPressure: false,
+      dietaryCategories: [],
+      declaredAllergens: ["egg"],
+      equipmentConstraints: [],
+      cuisine: "any",
+      lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 8,
+    },
+  },
+  {
+    id: "cocktail-zero-16",
+    name: "Cocktail hour · 16",
+    blurb: "Standing reception, zero-proof required, seating unknown on purpose.",
+    input: {
+      occasion: "Cocktail hour",
+      guestCount: 16,
+      guestBand: "12_24",
+      serviceStyle: "grazing",
+      eventDayTime: "moderate",
+      prepCapacity: "limited",
+      kitchenCapacity: "limited",
+      attentionBand: "low",
+      menuArc: "bright_light",
+      beverageRoute: "zero_proof",
+      budgetPressure: false,
+      dietaryCategories: [],
+      declaredAllergens: [],
+      equipmentConstraints: ["limited_oven"],
+      cuisine: "any",
+      lockedAnchorId: null,
+      seatingKnown: false,
+      seatingCount: null,
+    },
+  },
+  {
+    id: "high-country-12",
+    name: "High-country table · 12",
+    blurb: "One oven, limited burners, celebratory dinner at altitude.",
+    input: {
+      occasion: "High-country gathering",
+      guestCount: 12,
+      guestBand: "12_24",
+      serviceStyle: "family_style",
+      eventDayTime: "high",
+      prepCapacity: "standard",
+      kitchenCapacity: "limited",
+      attentionBand: "moderate",
+      menuArc: "celebratory",
+      beverageRoute: "both",
+      budgetPressure: false,
+      dietaryCategories: [],
+      declaredAllergens: [],
+      equipmentConstraints: ["limited_oven", "limited_burners"],
+      cuisine: "any",
+      lockedAnchorId: null,
+      seatingKnown: true,
+      seatingCount: 12,
+    },
+  },
+  {
+    id: "no-oven-reception-24",
+    name: "No-oven reception · 24",
+    blurb: "Explicitly no oven — not a limited one. Grazing, make-ahead only.",
+    input: {
+      occasion: "Open-house gathering",
+      guestCount: 24,
+      guestBand: "12_24",
+      serviceStyle: "grazing",
+      eventDayTime: "moderate",
+      prepCapacity: "generous",
+      kitchenCapacity: "limited",
+      attentionBand: "low",
+      menuArc: "seasonal",
+      beverageRoute: "both",
+      budgetPressure: true,
+      dietaryCategories: [],
+      declaredAllergens: [],
+      equipmentConstraints: ["no_oven"],
+      cuisine: "any",
+      lockedAnchorId: null,
+      seatingKnown: false,
+      seatingCount: null,
     },
   },
 ];

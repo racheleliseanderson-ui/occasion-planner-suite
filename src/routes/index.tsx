@@ -15,9 +15,9 @@ import { planPdf, styleForTheme } from "@/lib/oos/pdf";
 import { log, logError } from "@/lib/oos/log";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
 import { takeApply } from "@/lib/architecture/apply";
-import { filterByCuisine, resolveLibrary } from "@/lib/oos/library";
+import { filterByCuisine, normalise, resolveLibrary } from "@/lib/oos/library";
 import { saveScenario, useConfig } from "@/lib/oos/store";
-import type { Conditions, Plan } from "@/lib/oos/types";
+import type { Conditions, Dish, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
 import heroImage from "@/assets/oos-hero.jpg";
 import prepImage from "@/assets/oos-prep.jpg";
@@ -69,6 +69,7 @@ function Index() {
   /** signature of the conditions the last completed run committed */
   const [committedSig, setCommittedSig] = useState<string | null>(null);
   const [architectureNote, setArchitectureNote] = useState<string | null>(null);
+  const [overlayDishes, setOverlayDishes] = useState<Dish[]>([]);
   const [pdfBusy, setPdfBusy] = useState(false);
   const { theme } = useTheme();
 
@@ -77,20 +78,29 @@ function Index() {
     const applied = takeApply();
     if (!applied) return;
     setConditions(applied.conditions);
-    setBuilt(false);
+    setOverlayDishes(applied.overlayDishes ?? []);
+    setBuilt(true);
     setCommittedSig(null);
+    const locked = applied.conditions.lockedMenu;
+    const seatNote =
+      applied.conditions.seatingKnown === false
+        ? " Seats were not declared — confirm them before treating this as seated service."
+        : "";
     setArchitectureNote(
-      applied.thesis
-        ? `Architecture applied: ${applied.label}. ${applied.thesis}`
-        : `Architecture applied: ${applied.label}. Rebuild the route to sequence the night.`,
+      locked
+        ? `Received from Architecture at ${new Date(applied.savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. ${applied.label}. ${applied.thesis} The selected dishes stay locked.${seatNote}`
+        : `Architecture applied: ${applied.label}. ${applied.thesis || "Rebuild the route to sequence the night."}${seatNote}`,
     );
   }, []);
 
 
-  const library = useMemo(
-    () => filterByCuisine(all, conditions.cuisines ?? []),
-    [all, conditions.cuisines],
-  );
+  const library = useMemo(() => {
+    const base = filterByCuisine(all, conditions.cuisines ?? []);
+    if (!overlayDishes.length) return base;
+    const byId = new Map(base.map((d) => [d.id, d] as const));
+    for (const d of overlayDishes) byId.set(d.id, normalise(d));
+    return [...byId.values()];
+  }, [all, conditions.cuisines, overlayDishes]);
 
   const plan = useMemo(() => buildPlan(conditions, library), [conditions, library]);
   const stale = committedSig !== null && committedSig !== plan.signature;

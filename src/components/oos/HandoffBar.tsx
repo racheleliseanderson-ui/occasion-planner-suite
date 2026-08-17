@@ -14,7 +14,7 @@ import {
 } from "@/lib/oos/pdf";
 import { setPrintLayout, useConfig } from "@/lib/oos/store";
 import { encodeShare, shareUrl, SAFE_LINK_LENGTH } from "@/lib/oos/share";
-import { FIXTURE_IDS } from "@/lib/oos/library";
+import { ENGINE_VERSION, FIXTURE_VERSION, SCHEMA_VERSION } from "@/lib/oos/versions";
 import { useTheme } from "@/hooks/use-theme";
 import { useT } from "@/lib/i18n";
 import { logError } from "@/lib/oos/log";
@@ -55,18 +55,20 @@ export function HandoffBar({ plan }: { plan: Plan }) {
   };
 
 
-  /** Only the dishes the route depends on that differ from the shipped fixtures travel in the link. */
-  const changedDishes = plan.menu
-    .map((m) => m.dish)
-    .filter((d) => !FIXTURE_IDS.has(d.id));
-
+  /** Snapshot dishes travel so a shared link reproduces the sender, not the recipient workshop. */
   const makeLink = async (compact: boolean) => {
+    const snapshot = plan.menu.map((m) => m.dish);
     const token = await encodeShare({
-      v: 2,
+      v: 3,
       c: plan.conditions,
       k: plan.conditions.label,
       l: locale,
-      ...(compact || changedDishes.length === 0 ? {} : { d: changedDishes }),
+      m: snapshot.map((d) => d.id),
+      signature: plan.signature,
+      engineVersion: ENGINE_VERSION,
+      fixtureVersion: FIXTURE_VERSION,
+      schemaVersion: SCHEMA_VERSION,
+      ...(compact ? {} : { d: snapshot }),
     });
     const url = shareUrl(token, locale);
     let copied = false;
@@ -221,7 +223,14 @@ export function HandoffBar({ plan }: { plan: Plan }) {
             type="button"
             className={btn}
             onClick={async () => {
-              const token = await encodeShare({ v: 2, c: plan.conditions, l: locale });
+              const token = await encodeShare({
+                v: 3,
+                c: plan.conditions,
+                l: locale,
+                signature: plan.signature,
+                engineVersion: ENGINE_VERSION,
+                fixtureVersion: FIXTURE_VERSION,
+              });
               download(`${name}-share.txt`, "text/plain", shareUrl(token, locale));
             }}
           >

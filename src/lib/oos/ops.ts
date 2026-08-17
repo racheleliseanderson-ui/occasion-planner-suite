@@ -84,7 +84,8 @@ export function effectiveKitchen(kitchen: Kitchen, ops: Ops): Kitchen {
     burners = Math.min(burners, 2);
     ovens = Math.min(ovens, 1);
   }
-  const seats = table.tables > 0 ? Math.max(kitchen.seats, table.tables * table.seatsPerTable) : kitchen.seats;
+  // Never invent chairs. Table layout describes how declared seats are arranged.
+  const seats = kitchen.seats;
   const counter: Kitchen["counter"] =
     constraint.prepSurfaces <= 1 ? "small" : constraint.prepSurfaces >= 4 ? "large" : kitchen.counter;
   return { ...kitchen, ovens, burners, grill, seats, counter };

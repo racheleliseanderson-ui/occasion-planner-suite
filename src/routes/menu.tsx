@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { HostChrome } from "@/components/oos/HostChrome";
-import { takeMenu } from "@/lib/oos/handoff";
+import { lastMenuReceipt, takeMenu } from "@/lib/oos/handoff";
 import { menuCardPdf, styleForTheme } from "@/lib/oos/pdf";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
@@ -50,6 +50,7 @@ function MenuBuilder() {
   const [footer, setFooter] = useState("Ingredients on request. Please tell us about any avoidance.");
   const [size, setSize] = useState<"a5" | "a4">("a5");
   const [loaded, setLoaded] = useState(false);
+  const [receipt, setReceipt] = useState<string | null>(null);
 
   useEffect(() => {
     const handoff = takeMenu();
@@ -61,6 +62,20 @@ function MenuBuilder() {
           .sort((a, b) => COURSE_ORDER.indexOf(a.course) - COURSE_ORDER.indexOf(b.course))
           .map((i) => ({ ...i, show: i.course !== "drink", showCourse: true })),
       );
+      const when = new Date(handoff.receivedAt);
+      const time = Number.isNaN(when.getTime())
+        ? ""
+        : when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      setReceipt(`Received from Plan “${handoff.planLabel || handoff.label}” at ${time}. Signature ${handoff.signature}.`);
+    } else {
+      const prior = lastMenuReceipt();
+      if (prior) {
+        const when = new Date(prior.receivedAt);
+        const time = Number.isNaN(when.getTime())
+          ? ""
+          : when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        setReceipt(`Last received from Plan “${prior.planLabel}” at ${time}. That handoff was already consumed.`);
+      }
     }
     setLoaded(true);
   }, []);
@@ -102,6 +117,11 @@ function MenuBuilder() {
       </section>
 
       <main className="mx-auto max-w-6xl space-y-12 px-5 py-14">
+        {receipt && (
+          <p role="status" className="border-l-2 border-accent bg-card px-5 py-3 text-sm leading-relaxed">
+            {receipt}
+          </p>
+        )}
         {loaded && lines.length === 0 && (
           <p className="border-l-2 border-accent bg-card px-5 py-4 text-sm leading-relaxed">
             Nothing has been handed over yet. Build a route on the planner, then use{" "}

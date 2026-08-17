@@ -29,7 +29,8 @@ export type DietFilter =
   | "no-nut"
   | "no-shellfish"
   | "no-pork"
-  | "no-alcohol";
+  | "no-alcohol"
+  | "no-egg";
 
 export type Course = "board" | "starter" | "anchor" | "side" | "bread" | "sweet" | "drink";
 
@@ -124,6 +125,29 @@ export interface Kitchen {
   fridge: "tight" | "normal" | "roomy";
   counter: "small" | "medium" | "large";
   seats: number;
+  /** Limited means reduced capacity, not absence. */
+  ovenLimited?: boolean;
+  burnerLimited?: boolean;
+}
+
+export interface LockedMenu {
+  dishIds: string[];
+  roles: Record<string, string>;
+  lockedAnchorId?: string | null;
+  thesis: string;
+  beverageDirection: string;
+  zeroProofDirection: string;
+  simplifications: string[];
+  unknowns: string[];
+  substitutions: { from: string; to: string }[];
+  signature: string;
+  source: {
+    tool: "architecture";
+    contractVersion: string;
+    engineVersion: string;
+    fixtureVersion: string;
+    createdAt: string;
+  };
 }
 
 export interface Conditions {
@@ -133,6 +157,8 @@ export interface Conditions {
   guests: number;
   helpers: number;
   serviceTime: string; // "18:30"
+  /** First-class event date (YYYY-MM-DD). Optional so older saved files still load. */
+  eventDate?: string;
   prepWindowH: number; // hours available on the day
   ambition: 1 | 2 | 3;
   diets: DietFilter[];
@@ -152,6 +178,13 @@ export interface Conditions {
   leftovers: "none" | "some" | "deliberate";
   /** extended operating conditions; optional so older saved files still load */
   ops?: Ops;
+  /**
+   * When false, seats have not been declared. Plan must ask — never invent chairs.
+   * Absent/undefined is treated as known for older saved files.
+   */
+  seatingKnown?: boolean;
+  /** Architecture decision that Plan must preserve, not silently replace. */
+  lockedMenu?: LockedMenu;
 }
 
 /** Seating and course choreography for a table-led occasion. */

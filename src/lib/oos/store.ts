@@ -27,7 +27,7 @@ const cuisine = z.enum([
 
 const ingredientSchema = z.object({
   item: z.string().trim().min(1).max(80),
-  perGuest: z.number().min(0).max(10),
+  perGuest: z.number().min(0).max(250),
   unit: z.string().trim().min(1).max(12),
   aisle,
 });
@@ -149,13 +149,94 @@ let current: OosConfig = EMPTY_CONFIG;
 let loaded = false;
 const listeners = new Set<() => void>();
 
+export type QuarantineRecord = { path: string; reason: string; raw?: unknown };
+
+function quarantineArray<T>(
+  raw: unknown,
+  schema: z.ZodType<T>,
+  path: string,
+  notes: QuarantineRecord[],
+): T[] {
+  if (!Array.isArray(raw)) return [];
+  const out: T[] = [];
+  raw.forEach((row, i) => {
+    const parsed = schema.safeParse(row);
+    if (parsed.success) out.push(parsed.data);
+    else {
+      const first = parsed.error.issues[0];
+      notes.push({
+        path: `${path}[${i}]`,
+        reason: first ? first.message : "invalid record",
+        raw: row,
+      });
+    }
+  });
+  return out;
+}
+
 function read(): OosConfig {
   if (typeof window === "undefined") return EMPTY_CONFIG;
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return EMPTY_CONFIG;
-    const parsed = configSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : EMPTY_CONFIG;
+    const json = JSON.parse(raw) as Record<string, unknown>;
+    if (!json || typeof json !== "object") return EMPTY_CONFIG;
+
+    const notes: QuarantineRecord[] = [];
+    const customDishes = quarantineArray(json.customDishes, dishSchema, "customDishes", notes);
+    const savedScenarios = quarantineArray(json.savedScenarios, scenarioSchema, "savedScenarios", notes);
+    const kitchenProfiles = quarantineArray(json.kitchenProfiles, profileSchema, "kitchenProfiles", notes);
+    const runHistory = quarantineArray(json.runHistory, runRecordSchema, "runHistory", notes);
+
+    const overrides: Record<string, z.infer<typeof dishSchema> extends infer D ? Partial<D> : never> = {};
+    if (json.dishOverrides && typeof json.dishOverrides === "object") {
+      for (const [id, row] of Object.entries(json.dishOverrides as Record<string, unknown>)) {
+        const parsed = dishSchema.partial().safeParse(row);
+        if (parsed.success) overrides[id] = parsed.data;
+        else notes.push({ path: `dishOverrides.${id}`, reason: "invalid override" });
+      }
+    }
+
+    const hiddenDishIds = Array.isArray(json.hiddenDishIds)
+      ? json.hiddenDishIds.filter((x): x is string => typeof x === "string")
+      : [];
+
+    const printParsed = configSchema.shape.printLayout.safeParse(json.printLayout);
+    const removed =
+      json.removed && typeof json.removed === "object"
+        ? Object.fromEntries(
+            Object.entries(json.removed as Record<string, unknown>).filter(
+              ([, v]) => typeof v === "number",
+            ) as [string, number][],
+          )
+        : {};
+
+    if (notes.length && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.setItem("oos-config-quarantine", JSON.stringify(notes.slice(0, 40)));
+      } catch {
+        /* ignore */
+      }
+    }
+
+    return {
+      version: 1,
+      updatedAt: typeof json.updatedAt === "number" ? json.updatedAt : undefined,
+      customDishes,
+      dishOverrides: overrides,
+      hiddenDishIds,
+      hiddenClocks:
+        json.hiddenClocks && typeof json.hiddenClocks === "object"
+          ? (json.hiddenClocks as Record<string, number>)
+          : {},
+      kitchenProfiles,
+      savedScenarios,
+      runHistory,
+      printLayout: printParsed.success
+        ? printParsed.data
+        : { page: "a4", margin: "standard", header: true, footer: true },
+      removed,
+    };
   } catch {
     return EMPTY_CONFIG;
   }

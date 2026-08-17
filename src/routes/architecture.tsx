@@ -46,6 +46,19 @@ function ArchitecturePage() {
       <main className="mx-auto max-w-6xl px-5 py-14">
         <ArchitectureSurface initialToken={p ?? null} />
       </main>
+      <footer className="no-print border-t border-border">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-xs text-muted-foreground">
+          <span>Salty & Clever · Occasion Operating System</span>
+          <a
+            href="https://tangledthistle.blog"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="font-mono text-[10px] uppercase tracking-widest underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Tangled Thistle ↗
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

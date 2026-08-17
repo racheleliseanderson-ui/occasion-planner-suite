@@ -1,54 +1,80 @@
-import type { Conditions, DietFilter, ServiceStyle } from "@/lib/oos/types";
+import type { Conditions, DietFilter, LockedMenu, ServiceStyle } from "@/lib/oos/types";
 import { DEFAULT_CONDITIONS } from "@/lib/oos/engine";
 import {
   buildMenuOccasionHandoff,
+  kitchenFromLimits,
   mapMenuOccasionHandoffToOccasionInput,
-  validateMenuOccasionHandoff,
-} from "./menu-occasion";
+  type HandoffPacket,
+} from "./contract";
+import { overlayFromDishIds } from "./bridge";
 import type { MenuBuilderInput, MenuBuilderResult } from "./types";
 
-const APPLY_KEY = "oos-architecture-apply-v1";
-const PROPOSAL_KEY = "oos-architecture-proposal-v1";
+const APPLY_KEY = "oos-architecture-apply-v2";
+const PROPOSAL_KEY = "oos-architecture-proposal-v2";
+
+export type HandoffReview = {
+  moving: string[];
+  notMoving: string[];
+  needsConfirmation: string[];
+};
 
 export type ArchitectureApplyPayload = {
   savedAt: string;
   label: string;
   thesis: string;
   conditions: Conditions;
-  roles?: Record<string, string> | undefined;
-  handoff?: unknown;
+  roles?: Record<string, string>;
+  handoff?: HandoffPacket | null;
+  overlayDishes?: ReturnType<typeof overlayFromDishIds>;
+  review: HandoffReview;
 };
 
-/** Map SC-MB service style → OOS service style */
 function mapStyle(s: string): ServiceStyle {
   if (s === "buffet") return "buffet";
   if (s === "grazing") return "grazing";
+  if (s === "cocktail") return "cocktail";
   return "seated";
 }
 
-function mapDiets(categories: string[], allergens: string[]): DietFilter[] {
-  const out = new Set<DietFilter>();
-  for (const c of categories) {
-    const k = c.toLowerCase();
-    if (k.includes("vegan") || k.includes("plant")) out.add("no-animal");
-    else if (k.includes("vegetarian")) out.add("no-meat");
-    else if (k.includes("gluten")) out.add("no-gluten");
-    else if (k.includes("dairy")) out.add("no-dairy");
+export function describeReview(input: MenuBuilderInput, packet: HandoffPacket, diets: DietFilter[]): HandoffReview {
+  const moving = [
+    `${packet.guestCount} guests`,
+    `${packet.serviceStyle} service`,
+    packet.lockedAnchorId ? `locked anchor ${packet.lockedAnchorId}` : "selected architecture dishes",
+    diets.length ? `dietary: ${diets.join(", ")}` : "no dietary filters",
+    packet.equipmentLimits.oven === "limited"
+      ? "limited oven (capacity reduced, not removed)"
+      : packet.equipmentLimits.oven === "none"
+        ? "no oven"
+        : "full oven access",
+    packet.equipmentLimits.burners === "limited" ? "limited burners (two remain)" : "declared burners",
+  ];
+  if (packet.menuThesis) moving.push(`thesis: ${packet.menuThesis}`);
+  if (packet.beverageDirection) moving.push("beverage direction");
+  if (packet.zeroProofDirection) moving.push("zero-proof direction");
+  if (packet.simplifications.length) moving.push(`${packet.simplifications.length} simplifications`);
+
+  const notMoving = [
+    "exact fridge inventory",
+    "service date (set on Plan if you have one)",
+    "dishwasher (confirm on Plan)",
+    "outdoor weather",
+  ];
+
+  const needsConfirmation: string[] = [];
+  if (!packet.seatingDeclared) needsConfirmation.push("seats — Architecture did not invent chairs");
+  needsConfirmation.push("dishwasher availability");
+  if (input.equipmentConstraints?.includes("limited_refrigeration")) {
+    needsConfirmation.push("cold storage capacity");
   }
-  for (const a of allergens) {
-    const k = a.toLowerCase();
-    if (k.includes("gluten")) out.add("no-gluten");
-    if (k.includes("milk") || k.includes("dairy")) out.add("no-dairy");
-    if (k.includes("nut")) out.add("no-nut");
-    if (k.includes("shellfish")) out.add("no-shellfish");
-    if (k.includes("egg")) out.add("no-meat"); // soft mapping; egg not full animal ban
-  }
-  return [...out];
+
+  return { moving, notMoving, needsConfirmation };
 }
 
 /**
  * Build a Conditions patch from architecture input + validated result.
  * Fail closed if handoff cannot be built (hard stops, invalid).
+ * Never invents seats. Limited equipment stays limited, not absent.
  */
 export function buildApplyPayload(
   input: MenuBuilderInput,
@@ -62,45 +88,60 @@ export function buildApplyPayload(
   if (mapped.status === "invalid" || mapped.status === "blocked") {
     const errors: string[] =
       mapped.status === "blocked"
-        ? [String((mapped as { message?: string }).message || "Handoff blocked.")]
-        : ([...(((mapped as { errors?: string[] }).errors) || ["Could not map handoff."])].filter(Boolean) as string[]);
+        ? [String(mapped.message || "Handoff blocked.")]
+        : [...(mapped.errors || ["Could not map handoff."])];
     return { ok: false, errors };
   }
 
   const mi = mapped.input;
-  if (!mi) {
-    return { ok: false, errors: ["Mapped occasion input missing."] };
-  }
+  const kitchenBase = { ...DEFAULT_CONDITIONS.kitchen };
+  const limited = kitchenFromLimits(mi.equipmentLimits, kitchenBase);
 
-  const kitchen = { ...DEFAULT_CONDITIONS.kitchen };
-  const eq = new Set((input.equipmentConstraints || []).filter(Boolean) as string[]);
-  if (eq.has("limited_oven")) kitchen.ovens = Math.min(kitchen.ovens, 1);
-  if (eq.has("limited_burners")) kitchen.burners = Math.min(kitchen.burners, 2);
-  if (eq.has("limited_refrigeration")) kitchen.fridge = "tight";
-
-  const avail = new Set((mi.availableEquipment || []).filter(Boolean) as string[]);
-  if (!avail.has("oven")) kitchen.ovens = 0;
-  if (!avail.has("stovetop")) kitchen.burners = 0;
+  const seatingKnown = mi.seatingDeclared && mi.seatingCount !== null;
+  const seats = seatingKnown ? Number(mi.seatingCount) : 0;
 
   const attention = String(input.attentionBand);
   const helpers = attention === "high" ? 2 : attention === "low" ? 0 : 1;
-  const prepWindowH =
-    input.prepCapacity === "limited" ? 3 : input.prepCapacity === "generous" ? 8 : 5;
+  const prepWindowH = input.prepCapacity === "limited" ? 3 : input.prepCapacity === "generous" ? 8 : 5;
+
+  const lockedMenu: LockedMenu = {
+    dishIds: mi.selectedDishIds,
+    roles: { ...(result.roles || {}) },
+    lockedAnchorId: mi.lockedAnchorId,
+    thesis: String(result.thesis || ""),
+    beverageDirection: String(result.beverageDirection || built.handoff.beverageDirection),
+    zeroProofDirection: built.handoff.zeroProofDirection,
+    simplifications: [...(result.simplifyFirst || [])],
+    unknowns: [...built.handoff.unknowns],
+    substitutions: [],
+    signature: built.handoff.signature,
+    source: {
+      tool: "architecture",
+      contractVersion: built.handoff.contractVersion,
+      engineVersion: built.handoff.engineVersion,
+      fixtureVersion: built.handoff.fixtureVersion,
+      createdAt: built.handoff.createdAt,
+    },
+  };
 
   const conditions: Conditions = {
     ...DEFAULT_CONDITIONS,
     label: input.occasion || "Architecture proposal",
     guests: Math.max(1, Number(input.guestCount) || DEFAULT_CONDITIONS.guests),
     style: mapStyle(String(mi.serviceStyle || "seated")),
-    diets: mapDiets(
-      (input.dietaryCategories || []).filter(Boolean) as string[],
-      (input.declaredAllergens || []).filter(Boolean) as string[],
-    ),
+    diets: mi.diets,
     helpers,
     prepWindowH,
+    seatingKnown,
+    lockedMenu,
     kitchen: {
-      ...kitchen,
-      seats: Math.max(kitchen.seats, Number(input.guestCount) || kitchen.seats),
+      ...kitchenBase,
+      ovens: limited.ovens,
+      burners: limited.burners,
+      fridge: limited.fridge,
+      ovenLimited: limited.ovenLimited,
+      burnerLimited: limited.burnerLimited,
+      seats,
     },
     ambition: input.menuArc === "celebratory" ? 3 : input.menuArc === "relaxed" ? 1 : 2,
     budgetTier: input.budgetPressure ? 1 : 2,
@@ -111,6 +152,8 @@ export function buildApplyPayload(
     label: conditions.label,
     thesis: String(result.thesis || ""),
     conditions,
+    overlayDishes: overlayFromDishIds(mi.selectedDishIds),
+    review: describeReview(input, built.handoff, mi.diets),
     handoff: built.handoff,
   };
   if (result.roles && typeof result.roles === "object") {
@@ -130,9 +173,10 @@ export function stashApply(payload: ArchitectureApplyPayload) {
 
 export function takeApply(): ArchitectureApplyPayload | null {
   try {
-    const raw = sessionStorage.getItem(APPLY_KEY);
+    const raw = sessionStorage.getItem(APPLY_KEY) ?? sessionStorage.getItem("oos-architecture-apply-v1");
     if (!raw) return null;
     sessionStorage.removeItem(APPLY_KEY);
+    sessionStorage.removeItem("oos-architecture-apply-v1");
     const parsed = JSON.parse(raw) as ArchitectureApplyPayload;
     if (!parsed?.conditions) return null;
     return parsed;
@@ -160,14 +204,17 @@ export function loadProposals(): ArchitectureApplyPayload[] {
   }
 }
 
-/** Encode a compact share token for a proposal (public-safe fields only). */
 export function encodeProposalToken(payload: ArchitectureApplyPayload): string {
   const slim = {
-    v: 1,
+    v: 2,
     label: payload.label,
     thesis: payload.thesis,
     conditions: payload.conditions,
     roles: payload.roles,
+    overlay: payload.overlayDishes,
+    signature: payload.handoff?.signature,
+    engineVersion: payload.handoff?.engineVersion,
+    fixtureVersion: payload.handoff?.fixtureVersion,
   };
   const json = JSON.stringify(slim);
   const b64 = btoa(unescape(encodeURIComponent(json)))
@@ -192,7 +239,13 @@ export function decodeProposalToken(token: string): ArchitectureApplyPayload | n
       thesis: parsed.thesis || "",
       conditions: parsed.conditions,
       roles: parsed.roles,
+      overlayDishes: parsed.overlay,
       handoff: null,
+      review: {
+        moving: ["shared proposal"],
+        notMoving: [],
+        needsConfirmation: parsed.conditions?.seatingKnown === false ? ["seats"] : [],
+      },
     };
   } catch {
     return null;
@@ -204,4 +257,4 @@ export function proposalShareUrl(token: string): string {
   return `${base}/architecture?p=${token}`;
 }
 
-export { validateMenuOccasionHandoff };
+export { validateMenuOccasionHandoff } from "./contract";

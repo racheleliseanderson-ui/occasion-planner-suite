@@ -4,13 +4,11 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const TANGLED_THISTLE_URL = "https://tangledthistle.blog";
-
 type Layer = "plan" | "architecture" | "card" | "library";
 
 function layerFromPath(pathname: string): Layer | null {
   if (pathname === "/" || pathname === "") return "plan";
-  if (pathname.startsWith("/architecture")) return "architecture";
+  if (pathname.startsWith("/architecture") || pathname.startsWith("/recipes")) return "architecture";
   if (pathname.startsWith("/menu")) return "card";
   if (pathname.startsWith("/library")) return "library";
   return null;
@@ -84,14 +82,6 @@ export function HostChrome({
           >
             {t("nav.library")}
           </Link>
-          <a
-            href={TANGLED_THISTLE_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-          >
-            {t("nav.thistle")}
-          </a>
           <a
             href="https://deepdish.saltnotes.blog"
             target="_blank"
