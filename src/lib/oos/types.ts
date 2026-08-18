@@ -283,6 +283,13 @@ export interface Stop {
   correction: string;
 }
 
+/** Host-facing correction offered from a stop on the plan. */
+export interface StopAction {
+  id: string;
+  label: string;
+  preview: string;
+}
+
 export interface PlannedDish {
   dish: Dish;
   batches: number;
@@ -332,4 +339,3 @@ export interface Plan {
   balanceNotes: string[];
   signature: string;
 }
-
