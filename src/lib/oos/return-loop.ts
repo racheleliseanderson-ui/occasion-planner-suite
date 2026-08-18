@@ -1,5 +1,5 @@
 /**
- * House return-loop stubs — card draft + constraint handoff via sessionStorage.
+ * House return-loop — card draft + constraint handoff via sessionStorage.
  * Fail-closed; no PII.
  */
 const CARD_DRAFT_KEY = "oos-card-draft-v1";
@@ -12,6 +12,7 @@ export type CardDraft = {
   savedAt?: string;
 };
 
+/** Fields ArchitectureSurface may apply when returning from Plan. All optional. */
 export type ConstraintReturn = {
   label?: string;
   guests?: number;
@@ -20,6 +21,9 @@ export type ConstraintReturn = {
   outdoor?: boolean;
   note?: string;
   savedAt?: string;
+  prepWindowH?: number;
+  ovens?: number;
+  burners?: number;
 };
 
 export function stashCardDraft(draft: CardDraft): void {
@@ -48,7 +52,9 @@ export function takeConstraint(): ConstraintReturn | null {
     const raw = window.sessionStorage.getItem(CONSTRAINT_KEY);
     if (!raw) return null;
     window.sessionStorage.removeItem(CONSTRAINT_KEY);
-    return JSON.parse(raw) as ConstraintReturn;
+    const parsed = JSON.parse(raw) as ConstraintReturn;
+    if (!parsed || typeof parsed !== "object") return null;
+    return parsed;
   } catch {
     return null;
   }
