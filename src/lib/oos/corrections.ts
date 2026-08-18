@@ -1,11 +1,6 @@
-import type { Conditions } from "./types";
+import type { Conditions, StopAction } from "./types";
 
-/** Host-facing correction offered from a stop on the plan. */
-export interface StopAction {
-  id: string;
-  label: string;
-  preview: string;
-}
+export type { StopAction };
 
 /**
  * Apply a stop correction to conditions.
