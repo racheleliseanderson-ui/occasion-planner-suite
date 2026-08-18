@@ -14,14 +14,17 @@ import { useTheme } from "@/hooks/use-theme";
 import { planPdf, styleForTheme } from "@/lib/oos/pdf";
 import { log, logError } from "@/lib/oos/log";
 import { DEFAULT_CONDITIONS, buildPlan } from "@/lib/oos/engine";
-import { applyAction } from "@/lib/oos/corrections";
 import { takeApply } from "@/lib/architecture/apply";
+import { takeVenueApply } from "@/lib/oos/venue-handoff";
 import { filterByCuisine, normalise, resolveLibrary } from "@/lib/oos/library";
 import { saveScenario, useConfig } from "@/lib/oos/store";
-import type { Conditions, Dish, Plan, StopAction } from "@/lib/oos/types";
+import type { Conditions, Dish, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
-import heroImage from "@/assets/oos-hero.jpg";
 import prepImage from "@/assets/oos-prep.jpg";
+
+/** Modern tablescape — CDN so production is not blocked on binary push */
+const HERO_IMAGE =
+  "https://tangledthistle.blog/wp-content/uploads/2026/08/AdobeStock_1958866097.jpeg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -67,15 +70,14 @@ function Index() {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [phase, setPhase] = useState<"draft" | "evaluated" | "committed">("draft");
   const [scenarioName, setScenarioName] = useState("");
-  /** signature of the conditions the last completed run committed */
   const [committedSig, setCommittedSig] = useState<string | null>(null);
-  const [actionPreview, setActionPreview] = useState<StopAction | null>(null);
   const [architectureNote, setArchitectureNote] = useState<string | null>(null);
+  const [venueNote, setVenueNote] = useState<string | null>(null);
   const [overlayDishes, setOverlayDishes] = useState<Dish[]>([]);
   const [pdfBusy, setPdfBusy] = useState(false);
   const { theme } = useTheme();
 
-  // Consume Architecture → Plan handoff (explicit, one-shot session payload).
+  // Architecture → Plan handoff (one-shot session payload).
   useEffect(() => {
     const applied = takeApply();
     if (!applied) return;
@@ -95,6 +97,25 @@ function Index() {
     );
   }, []);
 
+  // Venue Intelligence → Plan handoff (session or #vo= hash).
+  useEffect(() => {
+    const applied = takeVenueApply();
+    if (!applied) return;
+    setConditions(applied.conditions);
+    setPhase("evaluated");
+    setCommittedSig(null);
+    const seatNote =
+      applied.conditions.seatingKnown === false
+        ? " Seats were not declared at the venue — confirm them before treating this as seated service."
+        : "";
+    const residual =
+      applied.residuals.length > 0
+        ? ` Open residuals: ${applied.residuals.slice(0, 4).join("; ")}${applied.residuals.length > 4 ? "…" : ""}.`
+        : "";
+    setVenueNote(
+      `Received from Venue Intelligence · ${applied.venue.name}${applied.venue.region ? ` (${applied.venue.region})` : ""}. ${applied.thesis}${seatNote}${residual}`,
+    );
+  }, []);
 
   const library = useMemo(() => {
     const base = filterByCuisine(all, conditions.cuisines ?? []);
@@ -114,10 +135,8 @@ function Index() {
       [...v, { id: `${Date.now()}`, label: conditions.label || plan.signature, plan }].slice(-3),
     );
 
-
   return (
     <div className="min-h-dvh">
-      {/* Masthead — layer switch Plan | Architecture | Card */}
       <HostChrome showPrint />
       {architectureNote && (
         <div role="status" className="no-print border-b border-border bg-secondary">
@@ -127,15 +146,27 @@ function Index() {
           </div>
         </div>
       )}
+      {venueNote && (
+        <div role="status" className="no-print border-b border-border bg-secondary">
+          <div className="mx-auto max-w-6xl px-5 py-3 text-sm leading-relaxed">
+            <span className="rule-label">Venue Intelligence → Plan</span>
+            <p className="mt-1">{venueNote}</p>
+          </div>
+        </div>
+      )}
 
-      {/* Hero */}
+      {/* Hero — tablescape via house media; darker overlay for type legibility */}
       <section className="no-print relative isolate bg-ink text-ink-foreground">
         <img
-          src={heroImage}
-          alt="A dark walnut table being set at dusk, braise in an enamel pot under warm raking light"
+          src={HERO_IMAGE}
+          alt="Modern tablescape on dark walnut: matte plates, linen, blood oranges and figs, enamel braise under raking light — no candles"
           width={1920}
           height={1200}
-          className="absolute inset-0 h-full w-full object-cover opacity-65"
+          className="absolute inset-0 h-full w-full object-cover opacity-50"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/50 to-ink/60"
         />
         <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-24 sm:py-36 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
@@ -161,7 +192,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Scenarios */}
       <section className="no-print border-b border-border bg-secondary">
         <div className="mx-auto max-w-6xl px-5 py-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -190,7 +220,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Workspace */}
       <main className="mx-auto max-w-6xl px-5 py-12">
         <div className="no-print grid gap-8 lg:grid-cols-[minmax(0,26rem)_1fr] lg:items-start">
           <div className="lg:sticky lg:top-20">
@@ -235,7 +264,8 @@ function Index() {
             <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               {phase === "draft" && "Draft — declare conditions, then evaluate."}
               {phase === "evaluated" && "Evaluated — review the route, then commit to freeze it."}
-              {phase === "committed" && (stale ? "Committed plan is stale. Re-evaluate to refresh." : "Committed — frozen until you rebuild.")}
+              {phase === "committed" &&
+                (stale ? "Committed plan is stale. Re-evaluate to refresh." : "Committed — frozen until you rebuild.")}
             </p>
           </div>
 
@@ -281,43 +311,13 @@ function Index() {
                 <p role="status" aria-live="polite" className="sr-only">
                   {plan.stops.length ? t("work.stopsPresent") : t("work.rebuilt")}
                 </p>
-                {/* Small screens keep the verdict in view while the conditions scroll. */}
                 <div className="no-print sticky top-14 z-10 mb-4 flex items-center justify-between gap-3 border border-border bg-background/95 px-4 py-2 backdrop-blur lg:hidden">
                   <span className="rule-label">{t("tbl.feasibility")}</span>
                   <span className={cn("font-mono text-sm tabular-nums", signalClass(plan.verdict))}>
                     {plan.feasibility}/100 · {plan.stops.length} {t("tbl.stops").toLowerCase()}
                   </span>
                 </div>
-                <PlanSurface
-                  plan={plan}
-                  onAction={(action) => setActionPreview(action)}
-                />
-                {actionPreview && (
-                  <div className="mt-4 border border-foreground bg-card px-5 py-4">
-                    <span className="rule-label">Preview this correction</span>
-                    <p className="mt-2 text-sm">{actionPreview.preview}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className="min-h-11 bg-foreground px-4 font-mono text-[11px] uppercase tracking-widest text-background"
-                        onClick={() => {
-                          setConditions(applyAction(conditions, actionPreview));
-                          setPhase("evaluated");
-                          setActionPreview(null);
-                        }}
-                      >
-                        Apply {actionPreview.label}
-                      </button>
-                      <button
-                        type="button"
-                        className="min-h-11 border border-border px-4 font-mono text-[11px] uppercase tracking-widest"
-                        onClick={() => setActionPreview(null)}
-                      >
-                        Keep current
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <PlanSurface plan={plan} />
               </>
             ) : (
               <div className="paper grain overflow-hidden">
@@ -337,11 +337,11 @@ function Index() {
                       ["01", t("work.step1"), t("work.step1.body")],
                       ["02", t("work.step2"), t("work.step2.body")],
                       ["03", t("work.step3"), t("work.step3.body")],
-                    ].map(([n, t, d]) => (
+                    ].map(([n, title, body]) => (
                       <li key={n} className="border-t border-foreground pt-3">
                         <span className="rule-label">{n}</span>
-                        <p className="mt-1 text-sm font-medium">{t}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">{d}</p>
+                        <p className="mt-1 text-sm font-medium">{title}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{body}</p>
                       </li>
                     ))}
                   </ol>
@@ -351,7 +351,6 @@ function Index() {
           </div>
         </div>
 
-        {/* Run control */}
         <div className="mt-16">
           <RunConsole
             conditions={conditions}
@@ -369,7 +368,6 @@ function Index() {
           />
         </div>
 
-        {/* Decision packet and live service */}
         {visible && (
           <div className="mt-16 space-y-16">
             <DecisionPacket plan={plan} library={library} />
@@ -377,14 +375,11 @@ function Index() {
           </div>
         )}
 
-        {/* Variations */}
         {visible && variants.length > 0 && (
           <section className="no-print mt-16">
             <span className="rule-label">{t("work.section03")}</span>
             <h2 className="mt-1 text-2xl tracking-tight">{t("work.variations")}</h2>
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              {t("work.variations.body")}
-            </p>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("work.variations.body")}</p>
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[42rem] border-collapse text-sm">
                 <thead>
@@ -405,9 +400,7 @@ function Index() {
                       <tr key={v.id} className="border-b border-border">
                         <td className="py-3">
                           <span className="block">{v.label}</span>
-                          <span className="font-mono text-[10px] text-muted-foreground">
-                            {v.plan.signature}
-                          </span>
+                          <span className="font-mono text-[10px] text-muted-foreground">{v.plan.signature}</span>
                         </td>
                         <td className="py-3 text-right font-mono tabular-nums">{v.plan.conditions.guests}</td>
                         <td className={cn("py-3 text-right font-mono tabular-nums", signalClass(v.plan.verdict))}>
@@ -432,7 +425,6 @@ function Index() {
           </section>
         )}
 
-        {/* Packet */}
         {visible && (
           <section className="mt-16">
             <div className="no-print mb-5 flex flex-wrap items-end justify-between gap-4">
