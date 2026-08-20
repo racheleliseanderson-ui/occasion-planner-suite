@@ -17,6 +17,13 @@ export function dimensionLabel(key: string): string {
     serviceFit: "Service Fit",
     equipmentFit: "Equipment Fit",
     hostFreedom: "Host Freedom",
+    batchStability: "Batch Stability",
+    coldIceLoad: "Cold / Ice Load",
+    serviceAttention: "Service Attention",
+    equipmentContention: "Equipment Contention",
+    equalVisibility: "Equal Visibility",
+    makeAheadWindow: "Make-ahead Window",
+    serviceStyleFit: "Service Style Fit",
   };
   return map[key] || titleCase(key);
 }
@@ -28,6 +35,11 @@ export function roleLabel(role: string): string {
     contrast: "Contrast",
     relief: "Relief",
     finish: "Finish",
+    arrival: "Arrival",
+    volume: "Volume",
+    cut: "Cut",
+    equal: "Equal",
+    station: "Station",
   };
   return map[role] || titleCase(role);
 }

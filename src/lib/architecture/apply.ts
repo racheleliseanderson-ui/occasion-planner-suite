@@ -52,6 +52,9 @@ export function describeReview(input: MenuBuilderInput, packet: HandoffPacket, d
   if (packet.menuThesis) moving.push(`thesis: ${packet.menuThesis}`);
   if (packet.beverageDirection) moving.push("beverage direction");
   if (packet.zeroProofDirection) moving.push("zero-proof direction");
+  if (packet.beverageRoute?.selectedDrinkIds?.length) {
+    moving.push(`beverage route (${packet.beverageRoute.selectedDrinkIds.length} drinks, equal=${packet.beverageRoute.lockedEqualId || "none"})`);
+  }
   if (packet.simplifications.length) moving.push(`${packet.simplifications.length} simplifications`);
 
   const notMoving = [
