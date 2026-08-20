@@ -21,10 +21,10 @@ import { saveScenario, useConfig } from "@/lib/oos/store";
 import type { Conditions, Dish, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
 import prepImage from "@/assets/oos-prep.jpg";
+import heroTablescape from "@/assets/hero-tablescape.jpg";
 
-/** Modern tablescape — CDN so production is not blocked on binary push */
-const HERO_IMAGE =
-  "https://tangledthistle.blog/wp-content/uploads/2026/08/AdobeStock_1958866097.jpeg";
+/** Licensed tablescape from the house media library */
+const HERO_IMAGE = heroTablescape;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -151,10 +151,10 @@ function Index() {
       <section className="no-print relative isolate bg-ink text-ink-foreground">
         <img
           src={HERO_IMAGE}
-          alt="Modern tablescape on dark walnut: matte plates, linen, blood oranges and figs, enamel braise under raking light — no candles"
-          width={1920}
-          height={1200}
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
+          alt="Black plates, gold cutlery, white roses and candles on a formally set dinner table"
+          width={1800}
+          height={1028}
+          className="absolute inset-0 h-full w-full object-cover opacity-55"
         />
         <div
           aria-hidden

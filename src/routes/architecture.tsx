@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HostChrome } from "@/components/oos/HostChrome";
 import { ArchitectureSurface } from "@/components/oos/ArchitectureSurface";
 import { useT } from "@/lib/i18n";
+import heroCourses from "@/assets/hero-courses.jpg";
 
 export const Route = createFileRoute("/architecture")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -28,8 +29,16 @@ function ArchitecturePage() {
     <div className="min-h-dvh">
       <HostChrome />
 
-      <section className="border-b border-border bg-ink text-ink-foreground">
-        <div className="mx-auto max-w-6xl px-5 py-14">
+      <section className="relative isolate overflow-hidden border-b border-border bg-ink text-ink-foreground">
+        <img
+          src={heroCourses}
+          alt="Assortment of pasta courses on a dark table — a menu the kitchen can finish"
+          width={1800}
+          height={607}
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/88 via-ink/62 to-ink/40" />
+        <div className="relative mx-auto max-w-6xl px-5 py-16 sm:py-20">
           <span className="rule-label text-brass">{t("arch.hero.eyebrow")}</span>
           <h1 className="mt-3 max-w-3xl font-display text-4xl leading-[1] tracking-tight sm:text-6xl">
             {t("arch.hero.title.1")}

@@ -21,6 +21,7 @@ import {
 import { download } from "@/lib/oos/export";
 import type { Course, Dish, Kitchen } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
+import figMise from "@/assets/fig-mise.jpg";
 
 export const Route = createFileRoute("/library")({
   head: () => ({
@@ -86,8 +87,16 @@ function LibraryWorkshop() {
     <div className="min-h-dvh">
       <HostChrome />
 
-      <section className="border-b border-border bg-ink text-ink-foreground">
-        <div className="mx-auto max-w-6xl px-5 py-14">
+      <section className="relative isolate overflow-hidden border-b border-border bg-ink text-ink-foreground">
+        <img
+          src={figMise}
+          alt="Overhead mise en place — chopped vegetables arranged on a cutting board"
+          width={1400}
+          height={505}
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/88 via-ink/65 to-ink/40" />
+        <div className="relative mx-auto max-w-6xl px-5 py-14">
           <span className="rule-label text-brass">Make the instrument yours</span>
           <h1 className="mt-3 max-w-3xl font-display text-4xl leading-[1] tracking-tight sm:text-6xl">
             Your kitchen,
