@@ -65,7 +65,6 @@ export const DRINK_ROLE_GUIDANCE: Record<DrinkRole, string> = {
 
 /**
  * Choose a primary + alternatives for a role from the available drink ids.
- * Respects beverageRoute mode (zero_proof forces non-alcoholic choices).
  */
 export function pickForRole(
   role: DrinkRole,

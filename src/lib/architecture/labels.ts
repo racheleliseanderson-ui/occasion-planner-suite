@@ -17,7 +17,6 @@ export function dimensionLabel(key: string): string {
     serviceFit: "Service Fit",
     equipmentFit: "Equipment Fit",
     hostFreedom: "Host Freedom",
-    // Drink stress axes
     batchStability: "Batch Stability",
     coldIceLoad: "Cold / Ice Load",
     serviceAttention: "Service Attention",
@@ -36,7 +35,6 @@ export function roleLabel(role: string): string {
     contrast: "Contrast",
     relief: "Relief",
     finish: "Finish",
-    // Drink roles
     arrival: "Arrival",
     volume: "Volume",
     cut: "Cut",
