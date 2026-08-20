@@ -821,7 +821,6 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
                     <DishPlan
                       plan={result.dishPlan}
                       lockedAnchorId={result.lockedAnchorId}
-                      pairingMode={result.pairingModeNote}
                       pairingMode={result.pairingMode}
                       pairingModeNote={result.pairingModeNote}
                       onLockAnchor={onLockAnchor}
