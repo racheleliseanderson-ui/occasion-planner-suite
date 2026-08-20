@@ -411,6 +411,29 @@ export function ConditionsPanel({ value, onChange }: Props) {
           />
         </Field>
 
+        <Field label="Drinks" hint="counted pour, never guessed" explain={EXPLAIN.drinks}>
+          <Segmented<NonNullable<Conditions["beverageRoute"]>>
+            value={value.beverageRoute ?? "wine"}
+            onSelect={(beverageRoute) => {
+              let diets = value.diets;
+              if (beverageRoute === "zero-proof") {
+                if (!diets.includes("no-alcohol")) diets = [...diets, "no-alcohol"];
+              }
+              set({ beverageRoute, diets });
+            }}
+            options={[
+              { value: "wine", label: "Wine + zero-proof" },
+              { value: "cider", label: "Dry cider + zero-proof" },
+              { value: "mixed", label: "Mixed + zero-proof" },
+              { value: "zero-proof", label: "Zero-proof only" },
+            ]}
+          />
+          <p className="mt-3 border-l-2 border-accent pl-3 text-xs leading-relaxed text-muted-foreground">
+            Every table gets a counted pour. Zero-proof is equal status, same glassware. If drinks
+            conflict with an alcohol-free filter, the plan stops and says why.
+          </p>
+        </Field>
+
         <Field label="Room conditions" explain={EXPLAIN.room}>
           <div className="flex flex-wrap gap-1.5">
             <button

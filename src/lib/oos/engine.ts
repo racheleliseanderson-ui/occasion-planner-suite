@@ -95,6 +95,35 @@ function seasonFit(d: Dish, season: Conditions["season"]): number {
   return -18;
 }
 
+export function resolvedBeverage(c: Conditions): NonNullable<Conditions["beverageRoute"]> {
+  if (c.beverageRoute) return c.beverageRoute;
+  return c.diets.includes("no-alcohol") || c.ops?.general.alcohol === false ? "zero-proof" : "wine";
+}
+
+function drinkTargets(route: NonNullable<Conditions["beverageRoute"]>): string[] {
+  if (route === "zero-proof") return ["drink-zero", "pairing-bitter-orange"];
+  if (route === "cider") return ["pairing-dry-cider", "drink-zero"];
+  if (route === "mixed") return ["drink-wine", "pairing-gin-tonic", "drink-zero"];
+  return ["drink-wine", "drink-zero"];
+}
+
+function attachDrinks(base: Dish[], library: Dish[], c: Conditions): Dish[] {
+  const taken = new Set(base.map((d) => d.id));
+  const extras: Dish[] = [...base];
+  const route = resolvedBeverage(c);
+  for (const id of drinkTargets(route)) {
+    if (taken.has(id)) continue;
+    const dish = library.find((d) => d.id === id);
+    if (!dish) continue;
+    if (!dietOk(dish, c.diets) || !equipmentOk(dish, c)) continue;
+    extras.push(dish);
+    taken.add(id);
+  }
+  const kit = library.find((d) => d.id === "non-food-service");
+  if (kit && !taken.has(kit.id)) extras.push(kit);
+  return extras;
+}
+
 function pick(
   pool: Dish[],
   course: Dish["course"],
@@ -158,17 +187,7 @@ function buildMenu(c: Conditions, library: Dish[]): Dish[] {
   if (lockedIds.length > 0) {
     const byId = new Map(library.map((d) => [d.id, d] as const));
     const locked = lockedIds.map((id) => byId.get(id)).filter((d): d is Dish => Boolean(d));
-    const taken = new Set(locked.map((d) => d.id));
-    const extras: Dish[] = [...locked];
-    const zero = library.find((d) => d.id === "drink-zero");
-    if (zero && !taken.has(zero.id)) extras.push(zero);
-    if (!c.diets.includes("no-alcohol")) {
-      const wine = library.find((d) => d.id === "drink-wine");
-      if (wine && !taken.has(wine.id)) extras.push(wine);
-    }
-    const kit = library.find((d) => d.id === "non-food-service");
-    if (kit && !taken.has(kit.id)) extras.push(kit);
-    return extras;
+    return attachDrinks(locked, library, c);
   }
 
   const pool = library.filter((d) => dietOk(d, c.diets) && equipmentOk(d, c));
@@ -203,17 +222,7 @@ function buildMenu(c: Conditions, library: Dish[]): Dish[] {
     if (c.ambition >= 2) out.push(...pick(pool, "sweet", 1, c, taken, out));
   }
 
-  // Drinks: zero-proof is equal status and always present.
-  const zero = pool.find((d) => d.id === "drink-zero");
-  if (zero) out.push(zero);
-  if (!c.diets.includes("no-alcohol")) {
-    const wine = pool.find((d) => d.id === "drink-wine");
-    if (wine) out.push(wine);
-  }
-  const kit = library.find((d) => d.id === "non-food-service");
-  if (kit) out.push(kit);
-
-  return out;
+  return attachDrinks(out, library, c);
 }
 
 function courseOrder(d: Dish): number {
@@ -380,6 +389,33 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
       correction: "Relax one filter, or declare more equipment. Nothing will be substituted silently.",
     });
   }
+  const beverage = resolvedBeverage(c);
+  const alcoholicRoute = beverage === "wine" || beverage === "cider" || beverage === "mixed";
+  if (alcoholicRoute && c.diets.includes("no-alcohol")) {
+    stops.push({
+      code: "DRINK-02",
+      title: "Drink service conflicts with the alcohol-free filter",
+      detail: `Beverage route is ${beverage}, but alcohol is excluded. The plan will not silently drop the pour or invent a substitution.`,
+      correction: "Switch drinks to zero-proof, or remove the alcohol-free filter. Equal-status zero-proof is always available.",
+    });
+  }
+  const drinkLines = menu.filter((m) => m.dish.course === "drink" && m.dish.id !== "non-food-service");
+  if (drinkLines.length === 0) {
+    stops.push({
+      code: "DRINK-01",
+      title: "No drink service survived the current filters",
+      detail: "Every table gets a counted pour — wine, cider, mixed, or zero-proof. None of the declared drink fixtures fit equipment or diet.",
+      correction: "Relax a dietary filter, declare cold storage, or choose zero-proof. The plan will not invent a bottle.",
+    });
+  }
+  if (c.kitchen.burners === 0 && menu.some((m) => m.dish.burnerMin > 0)) {
+    stops.push({
+      code: "EQP-03",
+      title: "Stovetop route selected without a burner",
+      detail: "A dish in the route needs a burner that has not been declared.",
+      correction: "Declare at least one burner, or rebuild — the engine will select oven-only and cold routes.",
+    });
+  }
 
   // ---- Declared-condition stops ----------------------------------------
   if (c.style === "cocktail" || c.style === "grazing") {
@@ -467,7 +503,7 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
     advisories.push("Self-service styles consume roughly 10% more than plated portions. Quantities below already include that allowance.");
   if (c.lockedMenu?.dishIds.length) {
     advisories.push(
-      `Architecture decision preserved: ${c.lockedMenu.thesis || "selected dishes locked"}. Plan scores feasibility and will not silently replace the menu.`,
+      `Compose decision preserved: ${c.lockedMenu.thesis || "selected dishes locked"}. Discover scores feasibility and will not silently replace the menu.`,
     );
   }
   const overCold = gauges.find((g) => g.key === "cold");
@@ -767,7 +803,7 @@ export function buildPlan(input: Conditions, library: Dish[] = LIBRARY): Plan {
     costCeiling,
     balance,
     balanceNotes,
-    signature: `${c.guests}·${c.style}·${c.season}·b${c.budgetTier}·${c.kitchen.ovens}o${c.kitchen.burners}b·${c.diets.slice().sort().join("+") || "no filters"}·${c.prepWindowH}h`,
+    signature: `${c.guests}·${c.style}·${c.season}·b${c.budgetTier}·${c.kitchen.ovens}o${c.kitchen.burners}b·${c.diets.slice().sort().join("+") || "no filters"}·${resolvedBeverage(c)}·${c.prepWindowH}h`,
   };
 }
 
@@ -786,6 +822,7 @@ export const DEFAULT_CONDITIONS: Conditions = {
   kids: false,
   outdoor: false,
   leftovers: "some",
+  beverageRoute: "wine",
   ops: DEFAULT_OPS,
 
   kitchen: {

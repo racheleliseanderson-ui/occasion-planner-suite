@@ -27,6 +27,8 @@ export const EXPLAIN = {
     "An indicative per-head ceiling, not live prices. The engine trims expensive dishes harder at lower tiers and flags the route when the estimate goes over.",
   leftovers:
     "Sets batch volume honestly. None cuts to 0.95x with no margin for a late guest, some plans 1.08x, deliberate carries a 25% surplus and adds cooling and labelling advice.",
+  drinks:
+    "Declared pour for the table. Wine, cider and mixed always include an equal-status zero-proof. Zero-proof is the only pour on an alcohol-free table. A wine route against an alcohol-free filter is a hard stop — nothing is dropped silently.",
   room: "Children shift scoring towards reliably-eaten dishes. Outdoor space allows grill routes and adds a two-hour cold-holding warning for anything that should not sit in warm air.",
   diets:
     "Planning filters. They remove conflicting fixture dishes from selection. They do not verify labels, cross-contact or supplier changes, and they are never an allergy guarantee.",
@@ -50,7 +52,7 @@ export const GLOSSARY: { term: string; body: string }[] = [
   },
   {
     term: "Hard stop",
-    body: "A constraint the engine refuses to plan around: more guests than seats, oven dishes without an oven, a cookout without a grill, or labour beyond survivable. Each carries a correction path rather than a silent substitution.",
+    body: "A constraint the engine refuses to plan around: more guests than seats, oven dishes without an oven, a cookout without a grill, a wine pour against an alcohol-free filter, or labour beyond survivable. Each carries a correction path rather than a silent substitution.",
   },
   {
     term: "Load gauge",

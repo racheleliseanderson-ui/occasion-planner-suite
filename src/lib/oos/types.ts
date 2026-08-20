@@ -182,6 +182,11 @@ export interface Conditions {
   outdoor: boolean;
   /** deliberate leftovers goal */
   leftovers: "none" | "some" | "deliberate";
+  /**
+   * Declared drink service. Optional so older saved files still load.
+   * Conflicts with an alcohol-free filter fail closed — the engine will not silently drop wine.
+   */
+  beverageRoute?: "wine" | "cider" | "mixed" | "zero-proof";
   /** extended operating conditions; optional so older saved files still load */
   ops?: Ops;
   /**

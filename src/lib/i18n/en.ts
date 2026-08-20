@@ -26,7 +26,7 @@ export const en = {
   "hero.title.3": "actually",
   "hero.title.4": "host.",
   "hero.body":
-    "Guest count, seating, real equipment, and dietary categories go in. A controlled route comes out — shopping, prep clock, service sequence, and an honest reading of where the evening is tight. Nothing is invented. When a plan cannot fit, it stops and tells you why.",
+    "Guest count, seating, real equipment, menus, drinks, and dietary categories go in. A controlled route comes out — shopping list, prep clock, wine and drink pairings, recipe cards, and an honest reading of where the evening is tight. Nothing is invented. When a plan cannot fit, it stops and tells you why.",
   "hero.boundary": "Boundary",
   "hero.boundary.body":
     "Educational planning only. Fixture menus, not tested recipes. Dietary categories are planning filters and carry no allergen safety guarantee. Capacity, equipment, and time constraints fail closed rather than guess.",
@@ -73,7 +73,7 @@ export const en = {
   "work.saveScenario": "Save scenario",
   "work.empty.title": "Empty on purpose",
   "work.empty.body":
-    "Nothing is generated until conditions are declared. Set guests, seats, equipment and hands on the left, then build. If the route cannot fit what you have, the system blocks with a correction path rather than guessing.",
+    "Nothing is generated until conditions are declared. Set guests, seats, equipment, drinks and diets on the left, then evaluate. If the route cannot fit what you have, the system blocks with a correction path rather than guessing.",
   "work.step1": "Discover",
   "work.step1.body": "Guests, seats, ovens, burners, cold storage, hands, time.",
   "work.step2": "Compose",

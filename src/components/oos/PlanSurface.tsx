@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { Plan } from "@/lib/oos/types";
-import { getRecipe } from "@/lib/architecture/recipes";
+import { hasPlanningRecipe } from "@/lib/oos/planningRecipe";
 import { GaugeRow, StopsBlock, VerdictBlock } from "./Signals";
 import { HandoffBar } from "./HandoffBar";
 import { relief } from "@/lib/oos/explain";
@@ -125,7 +125,7 @@ export function PlanSurface({ plan }: { plan: Plan }) {
             <ul className="divide-y divide-border">
               {plan.menu.map((m) => {
                 const locked = lockedIds.has(m.dish.id);
-                const hasRecipe = Boolean(getRecipe(m.dish.id));
+                const hasRecipe = hasPlanningRecipe(m.dish.id);
                 return (
                   <li key={m.dish.id} className="grid gap-2 py-4 sm:grid-cols-[1fr_auto]">
                     <div>
@@ -167,7 +167,7 @@ export function PlanSurface({ plan }: { plan: Plan }) {
                           params={{ dishId: m.dish.id }}
                           className="mt-2 inline-block font-mono text-[11px] uppercase tracking-widest text-brass underline-offset-4 hover:underline"
                         >
-                          Open recipe →
+                          Open planning recipe →
                         </Link>
                       )}
                     </div>

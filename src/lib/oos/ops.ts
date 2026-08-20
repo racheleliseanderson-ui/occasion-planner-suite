@@ -111,6 +111,7 @@ export function normaliseConditions(c: Conditions): Conditions {
     ...c,
     ops,
     diets,
+    beverageRoute: c.beverageRoute ?? (diets.includes("no-alcohol") ? "zero-proof" : "wine"),
     outdoor: c.outdoor || ops.outdoor.grillType !== "none" || ops.outdoor.smoker,
     kitchen: effectiveKitchen(c.kitchen, ops),
   };

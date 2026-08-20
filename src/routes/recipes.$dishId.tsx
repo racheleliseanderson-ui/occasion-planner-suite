@@ -1,28 +1,32 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { HostChrome } from "@/components/oos/HostChrome";
-import { getRecipe } from "@/lib/architecture/recipes";
-import { catalogName } from "@/lib/architecture/bridge";
+import { resolvePlanningRecipe } from "@/lib/oos/planningRecipe";
+import { FIXTURES } from "@/lib/oos/library";
 import { editorialUrlForDish, HOUSE_ORIGIN } from "@/lib/house/atlas";
 
 export const Route = createFileRoute("/recipes/$dishId")({
-  head: ({ params }) => ({
-    meta: [
-      {
-        title: `${getRecipe(params.dishId)?.dishId ?? params.dishId} — recipe · Occasion OS`,
-      },
-      {
-        name: "description",
-        content: "Planning recipe for an Architecture dish. Educational — not a certified kitchen test.",
-      },
-    ],
-  }),
+  head: ({ params }) => {
+    const recipe = resolvePlanningRecipe(params.dishId);
+    return {
+      meta: [
+        {
+          title: `${recipe?.dishId ?? params.dishId} — planning recipe · Occasion OS`,
+        },
+        {
+          name: "description",
+          content: "Planning recipe for an Occasion OS dish. Educational — not a certified kitchen test.",
+        },
+      ],
+    };
+  },
   component: RecipePage,
 });
 
 function RecipePage() {
   const { dishId } = Route.useParams();
-  const recipe = getRecipe(dishId);
-  const name = catalogName(dishId) ?? dishId;
+  const dish = FIXTURES.find((d) => d.id === dishId);
+  const recipe = resolvePlanningRecipe(dishId, dish);
+  const name = dish?.name ?? dishId;
   const editorial = editorialUrlForDish(dishId, name);
 
   return (
@@ -40,7 +44,7 @@ function RecipePage() {
       <main className="mx-auto max-w-3xl space-y-10 px-5 py-14">
         {!recipe && (
           <p className="border-l-2 border-signal-over pl-4 text-sm">
-            No planning recipe is filed for this dish yet. Return to Architecture and choose another role.
+            No planning recipe is filed for this id. Return to Discover and evaluate a route first.
           </p>
         )}
         {recipe && (
@@ -51,6 +55,19 @@ function RecipePage() {
               <span>{recipe.totalMinutes} min total</span>
               <span>{recipe.difficulty}</span>
             </div>
+            {dish?.winePairing && (
+              <section>
+                <span className="rule-label">Wine / drink pairing</span>
+                {dish.pairingWhy && <p className="mt-2 text-sm text-brass">{dish.pairingWhy}</p>}
+                <p className="mt-2 text-sm leading-relaxed">{dish.winePairing}</p>
+              </section>
+            )}
+            {dish?.leftoverNote && (
+              <section>
+                <span className="rule-label">Leftover route</span>
+                <p className="mt-2 text-sm leading-relaxed">{dish.leftoverNote}</p>
+              </section>
+            )}
             <section>
               <span className="rule-label">Ingredients</span>
               <ul className="mt-3 divide-y divide-border border border-border bg-card">
@@ -94,11 +111,17 @@ function RecipePage() {
         )}
         <div className="flex flex-wrap gap-2">
           <Link
-            to="/architecture"
-            search={{ p: undefined }}
+            to="/"
             className="inline-flex min-h-11 items-center border border-foreground px-4 py-2 font-mono text-[11px] uppercase tracking-widest hover:bg-foreground hover:text-background"
           >
-            Return to Architecture
+            Return to Discover
+          </Link>
+          <Link
+            to="/architecture"
+            search={{ p: undefined }}
+            className="inline-flex min-h-11 items-center border border-border px-4 py-2 font-mono text-[11px] uppercase tracking-widest hover:border-foreground"
+          >
+            Return to Compose
           </Link>
           {editorial ? (
             <a

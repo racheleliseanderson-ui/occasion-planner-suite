@@ -8,7 +8,7 @@ import { HostChrome } from "@/components/oos/HostChrome";
 import { ScenarioGallery } from "@/components/oos/ScenarioGallery";
 import { RunConsole } from "@/components/oos/RunConsole";
 import { DecisionPacket } from "@/components/oos/DecisionPacket";
-import { ServiceRunner } from "@/components/oos/ServiceRunner";
+import { HostContract } from "@/components/oos/HostContract";
 import { useT } from "@/lib/i18n";
 import { useTheme } from "@/hooks/use-theme";
 import { planPdf, styleForTheme } from "@/lib/oos/pdf";
@@ -341,6 +341,10 @@ function Index() {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="mt-16">
+          <HostContract plan={plan} evaluated={visible} />
         </div>
 
         <div className="mt-16">
