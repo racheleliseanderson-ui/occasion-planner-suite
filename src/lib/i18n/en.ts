@@ -105,7 +105,7 @@ export const en = {
   "ho.md": "Markdown packet",
   "ho.shopping": "Shopping CSV",
   "ho.clock": "Prep clock CSV",
-  "ho.json": "JSON",
+  "ho.json": "Plan file",
   "ho.pdf": "Packet PDF",
   "ho.menuBuilder": "Send to Serve",
   "ho.house": "Open on the site",
