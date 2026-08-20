@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Occasion Operating System — design system.
- * Luxury editorial base (parchment, ink, brass) with an operational signal set.
- * All colours are semantic tokens. Never hardcode colour utilities in components.
+ * Occasion Operating System — Salty & Clever house system.
+ * Navy ground (default), pearl reading sheet, brass signal.
+ * CVD overlay swaps oxblood stops for cyan. All colours are semantic tokens.
  */
 
 @theme inline {
@@ -19,9 +19,9 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -53,112 +53,98 @@
   --color-signal-over: var(--signal-over);
 }
 
+/* Pearl — printed operations sheet. Applied when .dark is absent. */
 :root {
   --radius: 0.25rem;
-  --background: oklch(0.963 0.013 84);
-  --foreground: oklch(0.235 0.018 60);
-  --card: oklch(0.985 0.008 88);
-  --card-foreground: oklch(0.235 0.018 60);
-  --popover: oklch(0.985 0.008 88);
-  --popover-foreground: oklch(0.235 0.018 60);
-  --primary: oklch(0.275 0.028 46);
-  --primary-foreground: oklch(0.972 0.012 85);
-  --secondary: oklch(0.925 0.017 84);
-  --secondary-foreground: oklch(0.275 0.028 46);
-  --muted: oklch(0.932 0.014 84);
-  --muted-foreground: oklch(0.485 0.021 62);
-  --accent: oklch(0.685 0.115 72);
-  --accent-foreground: oklch(0.2 0.02 60);
-  --destructive: oklch(0.52 0.17 32);
-  --destructive-foreground: oklch(0.97 0.012 85);
-  --border: oklch(0.872 0.017 82);
-  --input: oklch(0.9 0.015 82);
-  --ring: oklch(0.685 0.115 72);
+  --background: oklch(0.986 0.004 265);
+  --foreground: oklch(0.245 0.042 258);
+  --card: oklch(0.941 0.009 265);
+  --card-foreground: oklch(0.245 0.042 258);
+  --popover: oklch(0.992 0.003 265);
+  --popover-foreground: oklch(0.245 0.042 258);
+  --primary: oklch(0.545 0.11 80);
+  --primary-foreground: oklch(0.988 0.004 265);
+  --secondary: oklch(0.908 0.012 265);
+  --secondary-foreground: oklch(0.245 0.042 258);
+  --muted: oklch(0.941 0.009 265);
+  --muted-foreground: oklch(0.435 0.03 262);
+  --accent: oklch(0.545 0.11 80);
+  --accent-foreground: oklch(0.988 0.004 265);
+  --destructive: oklch(0.53 0.16 22);
+  --destructive-foreground: oklch(0.988 0.004 265);
+  --border: oklch(0.855 0.014 265);
+  --input: oklch(0.855 0.014 265);
+  --ring: oklch(0.545 0.11 80);
 
-  --ink: oklch(0.183 0.014 56);
-  --ink-foreground: oklch(0.945 0.012 85);
-  --ink-muted: oklch(0.7 0.02 78);
-  --brass: oklch(0.72 0.115 74);
+  --ink: oklch(0.225 0.048 258);
+  --ink-foreground: oklch(0.965 0.008 260);
+  --ink-muted: oklch(0.72 0.02 258);
+  --brass: oklch(0.545 0.11 80);
   --signal-clear: oklch(0.58 0.035 250);
   --signal-controlled: oklch(0.52 0.075 155);
   --signal-tight: oklch(0.66 0.13 66);
-  --signal-over: oklch(0.52 0.17 32);
+  --signal-over: oklch(0.53 0.16 22);
 }
 
-/* Dark is a second art direction, not an inversion: deep ink field, warm paper type,
-   brass raised in weight, signals re-tuned for legibility on ink. */
-.dark {
-  --background: oklch(0.175 0.012 58);
-  --foreground: oklch(0.938 0.014 84);
-  --card: oklch(0.222 0.014 58);
-  --card-foreground: oklch(0.938 0.014 84);
-  --popover: oklch(0.222 0.014 58);
-  --popover-foreground: oklch(0.938 0.014 84);
-  --primary: oklch(0.93 0.016 84);
-  --primary-foreground: oklch(0.19 0.014 58);
-  --secondary: oklch(0.248 0.016 60);
-  --secondary-foreground: oklch(0.93 0.016 84);
-  --muted: oklch(0.262 0.014 60);
-  --muted-foreground: oklch(0.735 0.018 80);
-  --accent: oklch(0.775 0.125 76);
-  --accent-foreground: oklch(0.18 0.016 58);
-  --destructive: oklch(0.62 0.17 30);
-  --destructive-foreground: oklch(0.97 0.012 85);
-  --border: oklch(0.322 0.016 62);
-  --input: oklch(0.322 0.016 62);
-  --ring: oklch(0.775 0.125 76);
+.light {
+  color-scheme: light;
+}
 
-  --ink: oklch(0.132 0.012 56);
-  --ink-foreground: oklch(0.952 0.012 85);
-  --ink-muted: oklch(0.755 0.02 78);
-  --brass: oklch(0.805 0.125 76);
+/* Navy — default via THEME_BOOT adding .dark. Deep navy, brass signal. */
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.213 0.05 258);
+  --foreground: oklch(0.935 0.011 260);
+  --card: oklch(0.256 0.053 258);
+  --card-foreground: oklch(0.935 0.011 260);
+  --popover: oklch(0.302 0.056 258);
+  --popover-foreground: oklch(0.935 0.011 260);
+  --primary: oklch(0.83 0.13 88);
+  --primary-foreground: oklch(0.17 0.045 258);
+  --secondary: oklch(0.302 0.056 258);
+  --secondary-foreground: oklch(0.935 0.011 260);
+  --muted: oklch(0.256 0.053 258);
+  --muted-foreground: oklch(0.775 0.022 262);
+  --accent: oklch(0.83 0.13 88);
+  --accent-foreground: oklch(0.17 0.045 258);
+  --destructive: oklch(0.53 0.16 22);
+  --destructive-foreground: oklch(0.96 0.01 260);
+  --border: oklch(0.38 0.05 258);
+  --input: oklch(0.38 0.05 258);
+  --ring: oklch(0.83 0.13 88);
+
+  --ink: oklch(0.168 0.044 258);
+  --ink-foreground: oklch(0.965 0.008 260);
+  --ink-muted: oklch(0.775 0.022 262);
+  --brass: oklch(0.83 0.13 88);
   --signal-clear: oklch(0.72 0.055 250);
   --signal-controlled: oklch(0.72 0.095 155);
   --signal-tight: oklch(0.79 0.135 72);
-  --signal-over: oklch(0.685 0.17 30);
+  --signal-over: oklch(0.53 0.16 22);
 }
 
 .dark img {
   filter: saturate(0.92) brightness(0.86) contrast(1.04);
 }
 
-/* Third art direction: maximum contrast, colour-blind-safe signals.
-   Red/green is abandoned entirely — the four states run blue → teal → amber →
-   near-black, which stay distinct under deuteranopia, protanopia and tritanopia,
-   and are also separable by lightness alone for monochrome print. */
+/*
+ * CVD overlay — keeps the current theme grounds, swaps oxblood / signal-over
+ * reds for cyan so brass vs cyan stay separable under deutan/protan/tritan.
+ * .contrast is aliased for leftover class names; it is not a white ground.
+ */
+.cvd,
 .contrast {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.14 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.14 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.14 0 0);
-  --primary: oklch(0.14 0 0);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.955 0 0);
-  --secondary-foreground: oklch(0.14 0 0);
-  --muted: oklch(0.945 0 0);
-  --muted-foreground: oklch(0.34 0 0);
-  --accent: oklch(0.47 0.16 258);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.3 0.09 30);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.44 0 0);
-  --input: oklch(0.36 0 0);
-  --ring: oklch(0.47 0.16 258);
-
-  --ink: oklch(0.14 0 0);
-  --ink-foreground: oklch(1 0 0);
-  --ink-muted: oklch(0.82 0 0);
-  --brass: oklch(0.47 0.16 258);
-  --signal-clear: oklch(0.5 0.14 258);
-  --signal-controlled: oklch(0.45 0.09 200);
-  --signal-tight: oklch(0.56 0.14 72);
-  --signal-over: oklch(0.22 0.06 30);
+  --destructive: oklch(0.72 0.14 215);
+  --signal-over: oklch(0.72 0.14 215);
 }
 
-/* Fourth art direction — Avenue. Lacquer black, warm stone, gold leaf.
-   Maximalist: heavier rules, deeper fields, display type at poster scale. */
+.cvd:not(.dark),
+.contrast:not(.dark) {
+  --destructive: oklch(0.42 0.13 225);
+  --signal-over: oklch(0.42 0.13 225);
+}
+
+/* Fourth art direction — Avenue. Unused in the toggle; kept for leftover class. */
 .avenue {
   --radius: 0rem;
   --background: oklch(0.148 0.011 62);
@@ -195,7 +181,6 @@
   filter: saturate(0.94) brightness(0.82) contrast(1.08);
 }
 
-/* Avenue speaks louder: rules thicken, labels widen, numerals take the stage. */
 .avenue .rule-label {
   color: var(--color-brass);
   letter-spacing: 0.26em;
@@ -213,8 +198,8 @@
   letter-spacing: -0.03em;
 }
 
-/* Hairlines carry more weight when contrast is the point. */
-
+.cvd .rule-label,
+.cvd [aria-pressed="true"],
 .contrast .rule-label,
 .contrast [aria-pressed="true"] {
   font-weight: 600;
@@ -255,6 +240,14 @@
 }
 
 @utility rule-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+@utility label-mono {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.18em;

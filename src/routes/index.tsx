@@ -44,14 +44,6 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap",
-      },
-    ],
   }),
   component: Index,
 });
@@ -75,7 +67,7 @@ function Index() {
   const [venueNote, setVenueNote] = useState<string | null>(null);
   const [overlayDishes, setOverlayDishes] = useState<Dish[]>([]);
   const [pdfBusy, setPdfBusy] = useState(false);
-  const { theme } = useTheme();
+  const { theme, cvd } = useTheme();
 
   // Architecture → Plan handoff (one-shot session payload).
   useEffect(() => {
@@ -440,7 +432,7 @@ function Index() {
                   onClick={async () => {
                     setPdfBusy(true);
                     try {
-                      await planPdf(plan, styleForTheme(theme), config.printLayout);
+                      await planPdf(plan, styleForTheme(cvd ? "cvd" : theme), config.printLayout);
                       log("info", "pdf.packet", `Host packet PDF written for ${plan.signature}`);
                     } catch (error) {
                       logError("pdf.packet", error, { signature: plan.signature });

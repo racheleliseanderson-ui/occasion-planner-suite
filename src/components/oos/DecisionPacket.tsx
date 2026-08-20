@@ -17,7 +17,7 @@ const btn =
  */
 export function DecisionPacket({ plan, library }: { plan: Plan; library: Dish[] }) {
   const { t } = useT();
-  const { theme } = useTheme();
+  const { theme, cvd } = useTheme();
   const config = useConfig();
   const [busy, setBusy] = useState(false);
   const d = useMemo(() => buildDecision(plan, library), [plan, library]);
@@ -40,7 +40,7 @@ export function DecisionPacket({ plan, library }: { plan: Plan; library: Dish[] 
             onClick={async () => {
               setBusy(true);
               try {
-                await decisionPdf(d, styleForTheme(theme), config.printLayout);
+                await decisionPdf(d, styleForTheme(cvd ? "cvd" : theme), config.printLayout);
               } finally {
                 setBusy(false);
               }

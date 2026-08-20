@@ -35,8 +35,7 @@ const SPECS: Record<PdfStyle, StyleSpec> = {
 
 /** The screen theme preselects the matching document style. */
 export function styleForTheme(theme: string): PdfStyle {
-  if (theme === "contrast") return "contrast";
-  if (theme === "avenue") return "standard";
+  if (theme === "contrast" || theme === "cvd") return "contrast";
   return "standard";
 }
 

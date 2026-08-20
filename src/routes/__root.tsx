@@ -103,6 +103,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: inkFixCss,
       },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Work+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap",
+      },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
@@ -112,14 +118,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const THEME_BOOT = `(function(){try{var s=localStorage.getItem('oos-theme');var t=(s==='light'||s==='dark'||s==='contrast')?s:(s==='avenue'?'dark':(window.matchMedia('(prefers-contrast: more)').matches?'contrast':'dark'));var r=document.documentElement;r.classList.remove('avenue');if(t==='dark'){r.classList.add('dark');}if(t==='contrast'){r.classList.add('contrast');}r.style.colorScheme=t==='dark'?'dark':'light';}catch(e){}})();`;
+const THEME_BOOT = `(function(){try{var r=document.documentElement;var s=localStorage.getItem("sc-mode")||localStorage.getItem("oos-theme");var t=(s==="light"||s==="pearl"||s==="parchment")?"pearl":"navy";if(s==="contrast"){t="navy";r.classList.add("cvd")}if(t==="navy"){r.classList.add("dark");r.classList.remove("light")}else{r.classList.remove("dark");r.classList.add("light")}if(localStorage.getItem("oos-cvd")==="on"||localStorage.getItem("sc-cvd")==="on")r.classList.add("cvd");r.style.colorScheme=t==="navy"?"dark":"light";}catch(e){}})();`;
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        <HeadContent />
       </head>
       <body>
         {children}

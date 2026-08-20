@@ -27,7 +27,7 @@ const btn =
 /** Everything the host needs to carry the plan out of the browser. */
 export function HandoffBar({ plan }: { plan: Plan }) {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, cvd } = useTheme();
   const { t, locale } = useT();
   const config = useConfig();
   const paper = config.printLayout;
@@ -36,7 +36,7 @@ export function HandoffBar({ plan }: { plan: Plan }) {
   const [style, setStyle] = useState<PdfStyle | null>(null);
   const [share, setShare] = useState<{ url: string; long: boolean; copied: boolean } | null>(null);
   const name = slug(plan.conditions.label);
-  const pdfStyle = style ?? styleForTheme(theme);
+  const pdfStyle = style ?? styleForTheme(cvd ? "cvd" : theme);
 
   const PAGE_LABELS: Record<PageSize, string> = { a4: "A4", letter: "Letter", legal: "Legal" };
   const MARGIN_LABELS: Record<MarginSize, string> = {
