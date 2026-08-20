@@ -98,6 +98,12 @@ export interface Dish {
   outdoorSafe?: boolean;
   /** culinary tradition the dish is read against; "house" = unattributed */
   cuisine?: Cuisine;
+  /** Host-facing wine or drink pairing — acid, texture, season. Planning note only. */
+  winePairing?: string;
+  /** Honest leftover route when leftovers are some or deliberate. */
+  leftoverNote?: string;
+  /** Short why: acid cuts fat, texture contrast, season fit. */
+  pairingWhy?: string;
 }
 
 /** Culinary traditions carried in the library. Attribution, not authenticity claim. */

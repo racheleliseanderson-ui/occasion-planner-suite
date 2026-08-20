@@ -128,6 +128,36 @@ export function HostPacket({ plan }: { plan: Plan }) {
         </ul>
       </section>
 
+      {plan.menu.some((m) => m.dish.winePairing || m.dish.leftoverNote) && (
+        <section className="packet-page mt-8">
+          <span className="rule-label">{t("packet.06")}</span>
+          <ul className="mt-3 divide-y divide-border border-t border-border">
+            {plan.menu
+              .filter((m) => m.dish.winePairing || m.dish.leftoverNote)
+              .map((m) => (
+                <li key={m.dish.id} className="py-3">
+                  <p className="text-sm font-medium">{m.dish.name}</p>
+                  {m.dish.pairingWhy && (
+                    <p className="mt-1 text-xs uppercase tracking-widest text-brass">{m.dish.pairingWhy}</p>
+                  )}
+                  {m.dish.winePairing && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">{t("packet.wine")}. </span>
+                      {m.dish.winePairing}
+                    </p>
+                  )}
+                  {m.dish.leftoverNote && c.leftovers !== "none" && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">{t("packet.leftover")}. </span>
+                      {m.dish.leftoverNote}
+                    </p>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
+
       <footer className="mt-10 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
         {t("packet.footer")} <span className="font-mono">{plan.signature}</span>
       </footer>

@@ -747,7 +747,7 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
               >
                 {(
                   [
-                    ["architecture", "Architecture"],
+                    ["architecture", "Compose"],
                     ["stress", "Stress"],
                     ["service", "Service plan"],
                     ["packet", "Packet"],

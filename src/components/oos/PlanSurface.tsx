@@ -134,11 +134,33 @@ export function PlanSurface({ plan }: { plan: Plan }) {
                         <h4 className="text-lg">{m.dish.name}</h4>
                         {locked && (
                           <span className="font-mono text-[10px] uppercase tracking-widest text-brass">
-                            Architecture lock
+                            Compose lock
                           </span>
                         )}
                       </div>
                       <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{m.dish.note}</p>
+                      {(m.dish.winePairing || m.dish.leftoverNote) && (
+                        <dl className="mt-3 max-w-2xl space-y-2 border-l border-brass/50 pl-3">
+                          {m.dish.pairingWhy && (
+                            <div>
+                              <dt className="rule-label text-brass">Why this pairing</dt>
+                              <dd className="mt-0.5 text-sm">{m.dish.pairingWhy}</dd>
+                            </div>
+                          )}
+                          {m.dish.winePairing && (
+                            <div>
+                              <dt className="rule-label">Wine / drink</dt>
+                              <dd className="mt-0.5 text-sm text-muted-foreground">{m.dish.winePairing}</dd>
+                            </div>
+                          )}
+                          {m.dish.leftoverNote && plan.conditions.leftovers !== "none" && (
+                            <div>
+                              <dt className="rule-label">Leftover route</dt>
+                              <dd className="mt-0.5 text-sm text-muted-foreground">{m.dish.leftoverNote}</dd>
+                            </div>
+                          )}
+                        </dl>
+                      )}
                       {hasRecipe && (
                         <Link
                           to="/recipes/$dishId"

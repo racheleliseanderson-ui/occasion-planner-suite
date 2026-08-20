@@ -81,7 +81,7 @@ function MenuBuilder() {
         setFooter(draft.footer);
         setLines(draft.lines);
         setPlanSignature(draft.planSignature);
-        setReceipt("Card wording restored. Return to Plan whenever you need to revise the route.");
+        setReceipt("Serve wording restored. Return to Discover whenever you need to revise the route.");
       } else {
       const prior = lastMenuReceipt();
       if (prior) {
@@ -141,7 +141,7 @@ function MenuBuilder() {
         {loaded && lines.length === 0 && (
           <p className="border-l-2 border-accent bg-card px-5 py-4 text-sm leading-relaxed">
             Nothing has been handed over yet. Build a route on the planner, then use{" "}
-            <span className="font-mono text-xs uppercase tracking-widest">Send to card</span>{" "}
+            <span className="font-mono text-xs uppercase tracking-widest">Send to Serve</span>{" "}
             on the plan — or write the card from scratch below.
           </p>
         )}
@@ -325,7 +325,7 @@ function MenuBuilder() {
                 navigate({ to: "/" });
               }}
             >
-              Return to Plan — keep card wording
+              Return to Discover — keep serve wording
             </button>
             <button
               type="button"

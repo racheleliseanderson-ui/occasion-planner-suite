@@ -5,6 +5,8 @@ import { CROWD_DISHES } from "./dishes-crowd";
 import { CONSTRAINT_DISHES } from "./dishes-constraint";
 import { WORLD_A_DISHES } from "./dishes-world-a";
 import { WORLD_B_DISHES } from "./dishes-world-b";
+import { PAIRING_DISHES } from "./dishes-pairing";
+import { applyEnrichment } from "./enrichment";
 import type { Cuisine, Dish } from "./types";
 
 import type { OosConfig } from "./store";
@@ -22,14 +24,14 @@ const DEFAULT_COST: Record<Dish["course"], number> = {
 };
 
 export function normalise(d: Dish): Dish {
-  return {
+  return applyEnrichment({
     ...d,
     cuisine: d.cuisine ?? "house",
     season: d.season ?? ["year-round"],
     costPerGuest: d.costPerGuest ?? DEFAULT_COST[d.course],
     method: d.method ?? (d.ovenMin > 0 ? "roast" : d.burnerMin > 0 ? "boil" : "raw"),
     tempBand: d.tempBand ?? (d.ovenMin > 0 || d.burnerMin > 0 ? "hot" : "cold"),
-  };
+  });
 }
 
 /** The untouched first-party fixture set, de-duplicated by id (first wins). */
@@ -41,6 +43,7 @@ export const FIXTURES: Dish[] = [
   ...CONSTRAINT_DISHES,
   ...WORLD_A_DISHES,
   ...WORLD_B_DISHES,
+  ...PAIRING_DISHES,
 ]
   .filter((d, i, arr) => arr.findIndex((x) => x.id === d.id) === i)
   .map(normalise);

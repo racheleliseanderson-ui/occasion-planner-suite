@@ -278,9 +278,19 @@ export async function planPdf(
   for (const m of plan.menu) {
     const head = `${m.dish.name}  ·  ${m.dish.course}`;
     const note = m.dish.note;
-    k.need(k.measure(head, 11) + (note ? k.measure(note, 9.5, 4) : 0));
+    const wine = m.dish.winePairing;
+    const left = plan.conditions.leftovers !== "none" ? m.dish.leftoverNote : undefined;
+    k.need(
+      k.measure(head, 11) +
+        (note ? k.measure(note, 9.5, 4) : 0) +
+        (wine ? k.measure(`Wine: ${wine}`, 9, 4) : 0) +
+        (left ? k.measure(`Leftovers: ${left}`, 9, 4) : 0),
+    );
     k.row(head, `${m.batches}×  serves ${m.serves}`, 11);
     if (note) k.body(note, 9.5, 4, true);
+    if (m.dish.pairingWhy) k.body(m.dish.pairingWhy, 8.5, 4, true);
+    if (wine) k.body(`Wine / drink: ${wine}`, 9, 4, true);
+    if (left) k.body(`Leftover route: ${left}`, 9, 4, true);
   }
 
   k.rule();

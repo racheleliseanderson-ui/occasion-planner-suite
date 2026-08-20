@@ -10,11 +10,11 @@ export const Route = createFileRoute("/architecture")({
   }),
   head: () => ({
     meta: [
-      { title: "Architecture — menu the kitchen can finish · Occasion OS" },
+      { title: "Compose — menu the kitchen can finish · Occasion OS" },
       {
         name: "description",
         content:
-          "Five-role menu architecture and stress test inside Occasion Operating System. Apply a validated packet to Plan when hard stops are clear.",
+          "Five-role menu composition and stress test inside Occasion Operating System. Apply a validated packet to Discover when hard stops are clear.",
       },
     ],
   }),

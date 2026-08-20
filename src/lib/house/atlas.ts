@@ -85,7 +85,7 @@ export const HOUSE_APPS = [
   },
   {
     id: "architecture-app",
-    title: "Architecture",
+    title: "Compose",
     url: "https://occasion.saltnotes.blog/architecture",
     note: "Five roles, stress meters, a bounded packet.",
   },

@@ -23,8 +23,8 @@ const SUITE = [
 ] as const;
 
 /**
- * Shared Occasions chrome. Plan / Architecture / Card is a layer switch —
- * same visual system, no restyle of the Plan surface.
+ * Shared Occasions chrome. Discover / Compose / Serve is a layer switch —
+ * same visual system, no restyle of the Discover surface.
  */
 export function HostChrome({
   trailing,

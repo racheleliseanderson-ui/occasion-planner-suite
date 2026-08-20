@@ -69,7 +69,7 @@ function Index() {
   const [pdfBusy, setPdfBusy] = useState(false);
   const { theme, cvd } = useTheme();
 
-  // Architecture → Plan handoff (one-shot session payload).
+  // Compose → Discover handoff (one-shot session payload).
   useEffect(() => {
     const applied = takeApply();
     if (!applied) return;
@@ -84,8 +84,8 @@ function Index() {
         : "";
     setArchitectureNote(
       locked
-        ? `Received from Architecture at ${new Date(applied.savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. ${applied.label}. ${applied.thesis} The selected dishes stay locked.${seatNote}`
-        : `Architecture applied: ${applied.label}. ${applied.thesis || "Rebuild the route to sequence the night."}${seatNote}`,
+        ? `Received from Compose at ${new Date(applied.savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. ${applied.label}. ${applied.thesis} The selected dishes stay locked.${seatNote}`
+        : `Compose applied: ${applied.label}. ${applied.thesis || "Rebuild the route to sequence the night."}${seatNote}`,
     );
   }, []);
 
@@ -133,7 +133,7 @@ function Index() {
       {architectureNote && (
         <div role="status" className="no-print border-b border-border bg-secondary">
           <div className="mx-auto max-w-6xl px-5 py-3 text-sm leading-relaxed">
-            <span className="rule-label">Architecture → Plan</span>
+            <span className="rule-label">Compose → Discover</span>
             <p className="mt-1">{architectureNote}</p>
           </div>
         </div>
