@@ -9,6 +9,7 @@ import {
   OCCASION_OPTIONS,
   SCENARIOS,
   type DishPlanBlock,
+  type DrinkPlanBlock,
   type HistoryEntry,
   type MenuBuilderInput,
   type MenuBuilderResult,
@@ -88,6 +89,38 @@ function mapDishPlan(raw: unknown): DishPlanBlock[] {
   }));
 }
 
+function mapDrinkPlan(raw: unknown): DrinkPlanBlock[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((block: DrinkPlanBlock) => ({
+    role: block.role,
+    primary: block.primary
+      ? {
+          id: block.primary.id,
+          name: block.primary.name,
+          blurb: block.primary.blurb,
+          why: block.primary.why,
+          makeAhead: Boolean(block.primary.makeAhead),
+          heat: block.primary.heat,
+          richness: block.primary.richness,
+          texture: block.primary.texture,
+          flavorFamilies: block.primary.flavorFamilies || [],
+          score: block.primary.score,
+          fitReasons: block.primary.fitReasons || [],
+        }
+      : null,
+    alternatives: (block.alternatives || []).map((a) => ({
+      id: a.id,
+      name: a.name,
+      blurb: a.blurb,
+      makeAhead: Boolean(a.makeAhead),
+      heat: a.heat,
+      score: a.score,
+      fitReasons: a.fitReasons || [],
+      flavorFamilies: a.flavorFamilies || [],
+    })),
+  }));
+}
+
 export function ArchitectureSurface({ initialToken = null }: { initialToken?: string | null }) {
   const { t } = useT();
   const navigate = useNavigate();
@@ -103,6 +136,8 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
   const [resultStage, setResultStage] = useState<"architecture" | "stress" | "service" | "packet">(
     "architecture",
   );
+  /** Food vs Drinks track inside Architecture results. */
+  const [archTrack, setArchTrack] = useState<"food" | "drinks">("food");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
@@ -188,6 +223,7 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
       };
       const out = evaluateMenuBuilder(payload) as MenuBuilderResult;
       if (out.dishPlan) out.dishPlan = mapDishPlan(out.dishPlan);
+      if (out.drinkPlan) out.drinkPlan = mapDrinkPlan(out.drinkPlan);
       const expansion = out.status === "invalid" ? undefined : buildMenuBuilderExpansion(payload, out);
       const withExp: MenuBuilderResult = { ...out, expansion };
       setResult(withExp);
@@ -334,7 +370,7 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
       )}\n`,
       "application/json",
     );
-    setStatus("Planning record downloaded. Nothing was uploaded.");
+    setStatus("Planning record downloaded as JSON. Nothing was uploaded.");
   };
 
   const onReset = () => {
@@ -802,36 +838,160 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
 
               {resultStage === "architecture" && (
                 <>
-                  {result.roles && (
-                    <section className="border border-border bg-card p-5">
-                      <span className="rule-label">{t("arch.result.roles")}</span>
-                      <ol className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                        {Object.entries(result.roles).map(([role, value], i) => (
-                          <li key={role} className="border border-border px-3 py-3">
-                            <p className="font-mono text-[10px] uppercase tracking-widest text-brass">
-                              {i + 1}. {roleLabel(role)}
-                            </p>
-                            <p className="mt-1.5 text-sm">{value}</p>
-                          </li>
-                        ))}
-                      </ol>
-                    </section>
+                  <div
+                    className="flex gap-1 border border-border p-1"
+                    role="tablist"
+                    aria-label="Architecture track"
+                  >
+                    {(
+                      [
+                        ["food", "Food"],
+                        ["drinks", "Drinks"],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="tab"
+                        aria-selected={archTrack === id}
+                        className={cn(
+                          "min-h-11 flex-1 px-3 py-2 font-mono text-[10px] uppercase tracking-widest",
+                          archTrack === id
+                            ? "bg-foreground text-background"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                        onClick={() => setArchTrack(id)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {archTrack === "food" && (
+                    <>
+                      {result.roles && (
+                        <section className="border border-border bg-card p-5">
+                          <span className="rule-label">{t("arch.result.roles")}</span>
+                          <ol className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                            {Object.entries(result.roles).map(([role, value], i) => (
+                              <li key={role} className="border border-border px-3 py-3">
+                                <p className="font-mono text-[10px] uppercase tracking-widest text-brass">
+                                  {i + 1}. {roleLabel(role)}
+                                </p>
+                                <p className="mt-1.5 text-sm">{value}</p>
+                              </li>
+                            ))}
+                          </ol>
+                        </section>
+                      )}
+                      {result.dishPlan ? (
+                        <DishPlan
+                          plan={result.dishPlan}
+                          lockedAnchorId={result.lockedAnchorId}
+                          pairingMode={result.pairingMode}
+                          pairingModeNote={result.pairingModeNote}
+                          onLockAnchor={onLockAnchor}
+                        />
+                      ) : null}
+                    </>
                   )}
-                  {result.dishPlan ? (
-                    <DishPlan
-                      plan={result.dishPlan}
-                      lockedAnchorId={result.lockedAnchorId}
-                      pairingMode={result.pairingMode}
-                      pairingModeNote={result.pairingModeNote}
-                      onLockAnchor={onLockAnchor}
-                    />
-                  ) : null}
+
+                  {archTrack === "drinks" && (
+                    <>
+                      <section className="border border-border bg-card p-5">
+                        <span className="rule-label">Drink roles</span>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Arrival · Volume · Cut · Equal · Station — operational structure, not a cocktail generator.
+                          Equal-status zero-proof is required unless the route is alcoholic-only.
+                        </p>
+                        {result.drinkPlan && result.drinkPlan.length > 0 ? (
+                          <ol className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                            {result.drinkPlan.map((block, i) => (
+                              <li key={block.role} className="border border-border px-3 py-3">
+                                <p className="font-mono text-[10px] uppercase tracking-widest text-brass">
+                                  {i + 1}. {roleLabel(block.role)}
+                                </p>
+                                <p className="mt-1.5 text-sm">
+                                  {block.primary?.name || "—"}
+                                </p>
+                                {block.primary?.blurb && (
+                                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                                    {block.primary.blurb}
+                                  </p>
+                                )}
+                                {block.role === "equal" && result.lockedEqualId && (
+                                  <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-brass">
+                                    Locked equal · {result.lockedEqualId}
+                                  </p>
+                                )}
+                              </li>
+                            ))}
+                          </ol>
+                        ) : (
+                          <p className="mt-4 text-sm text-muted-foreground">
+                            Run Architecture to produce a drink plan from the declared beverage route.
+                          </p>
+                        )}
+                      </section>
+                      {result.beverageDirection && (
+                        <section className="border border-border bg-card p-5">
+                          <span className="rule-label">Beverage direction</span>
+                          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                            {result.beverageDirection}
+                          </p>
+                          {result.beverageRouteResult?.zeroProofDirection && (
+                            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                              {result.beverageRouteResult.zeroProofDirection}
+                            </p>
+                          )}
+                        </section>
+                      )}
+                    </>
+                  )}
                 </>
               )}
 
               {resultStage === "stress" && (
                 <>
-                  {result.menuStressTest ? <StressMeters stress={result.menuStressTest} /> : null}
+                  <div
+                    className="flex gap-1 border border-border p-1"
+                    role="tablist"
+                    aria-label="Stress track"
+                  >
+                    {(
+                      [
+                        ["food", "Food stress"],
+                        ["drinks", "Drink stress"],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="tab"
+                        aria-selected={archTrack === id}
+                        className={cn(
+                          "min-h-11 flex-1 px-3 py-2 font-mono text-[10px] uppercase tracking-widest",
+                          archTrack === id
+                            ? "bg-foreground text-background"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                        onClick={() => setArchTrack(id)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  {archTrack === "food" && result.menuStressTest ? (
+                    <StressMeters stress={result.menuStressTest} />
+                  ) : null}
+                  {archTrack === "drinks" && result.beverageStressTest ? (
+                    <StressMeters stress={result.beverageStressTest} />
+                  ) : null}
+                  {archTrack === "drinks" && !result.beverageStressTest && (
+                    <p className="text-sm text-muted-foreground">
+                      Run Architecture to produce beverage stress scores.
+                    </p>
+                  )}
                   <section className="grid gap-4 lg:grid-cols-2">
                     <div className="border border-border bg-card p-5">
                       <h3 className="font-display text-lg">Why this plan looks this way</h3>
@@ -1052,7 +1212,7 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
                   {t("arch.action.link")}
                 </button>
                 <button type="button" className={btn} onClick={onDownload}>
-                  Download record
+                  Download JSON
                 </button>
                 <button type="button" className={btn} onClick={() => window.print()}>
                   Print

@@ -110,8 +110,19 @@ function drinkTargets(route: NonNullable<Conditions["beverageRoute"]>): string[]
 function attachDrinks(base: Dish[], library: Dish[], c: Conditions): Dish[] {
   const taken = new Set(base.map((d) => d.id));
   const extras: Dish[] = [...base];
-  const route = resolvedBeverage(c);
-  for (const id of drinkTargets(route)) {
+
+  // Prefer Architecture-locked drink ids when present; otherwise use route defaults.
+  const lockedDrinkIds = c.lockedMenu?.selectedDrinkIds?.filter(Boolean) ?? [];
+  const equalId = c.lockedMenu?.lockedEqualId;
+  const preferredIds =
+    lockedDrinkIds.length > 0
+      ? [
+          ...lockedDrinkIds,
+          ...(equalId && !lockedDrinkIds.includes(equalId) ? [equalId] : []),
+        ]
+      : drinkTargets(resolvedBeverage(c));
+
+  for (const id of preferredIds) {
     if (taken.has(id)) continue;
     const dish = library.find((d) => d.id === id);
     if (!dish) continue;
@@ -119,6 +130,16 @@ function attachDrinks(base: Dish[], library: Dish[], c: Conditions): Dish[] {
     extras.push(dish);
     taken.add(id);
   }
+
+  // Equal-status zero-proof must be present when Architecture locked one.
+  if (equalId && !taken.has(equalId)) {
+    const equalDish = library.find((d) => d.id === equalId);
+    if (equalDish && dietOk(equalDish, c.diets) && equipmentOk(equalDish, c)) {
+      extras.push(equalDish);
+      taken.add(equalId);
+    }
+  }
+
   const kit = library.find((d) => d.id === "non-food-service");
   if (kit && !taken.has(kit.id)) extras.push(kit);
   return extras;
