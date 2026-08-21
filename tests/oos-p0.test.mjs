@@ -92,3 +92,128 @@ describe("P0 handoff invariants", () => {
     assert.ok(tomatoPaste > 10);
   });
 });
+
+
+/**
+ * Beverage-track hard stops. Mirrors buildBeverageStress + expansion rules:
+ * equal visibility, ice load, station attention.
+ */
+function buildBeverageStress(input) {
+  const dimensions = {
+    batchStability: 78,
+    coldIceLoad: input.iceHeavy ? 55 : 82,
+    serviceAttention: input.attentionBand === "low" ? 70 : 85,
+    equipmentContention: input.hotStation ? 58 : 88,
+    equalVisibility: input.hasEqual || input.mode === "alcoholic" ? 90 : 35,
+    makeAheadWindow: 80,
+    serviceStyleFit: 75,
+  };
+  if (input.mode === "zero_proof" && !input.hasEqual) {
+    dimensions.equalVisibility = 20;
+  }
+  return dimensions;
+}
+
+function beverageHardStops(input, dimensions) {
+  const stops = [];
+  if ((dimensions.equalVisibility ?? 100) < 50 && input.mode !== "alcoholic") {
+    stops.push("EQUAL_VISIBILITY_REQUIRED");
+  }
+  if ((dimensions.coldIceLoad ?? 100) < 60) {
+    stops.push("ICE_LOAD_UNSUPPORTED");
+  }
+  if (
+    (dimensions.equipmentContention ?? 100) < 60 ||
+    ((dimensions.serviceAttention ?? 100) < 65 && (dimensions.equipmentContention ?? 100) < 70)
+  ) {
+    stops.push("STATION_ATTENTION_UNSUPPORTED");
+  }
+  return stops;
+}
+
+describe("P0 beverage hard stops", () => {
+  it("fails Equal Visibility when zero-proof route has no locked Equal", () => {
+    const dims = buildBeverageStress({
+      mode: "both",
+      hasEqual: false,
+      iceHeavy: false,
+      hotStation: false,
+      attentionBand: "moderate",
+    });
+    assert.ok(dims.equalVisibility < 50);
+    const stops = beverageHardStops({ mode: "both" }, dims);
+    assert.ok(stops.includes("EQUAL_VISIBILITY_REQUIRED"));
+  });
+
+  it("passes Equal Visibility when Equal is locked or route is alcoholic-only", () => {
+    const withEqual = buildBeverageStress({
+      mode: "both",
+      hasEqual: true,
+      iceHeavy: false,
+      hotStation: false,
+      attentionBand: "moderate",
+    });
+    assert.ok(withEqual.equalVisibility >= 50);
+    assert.equal(beverageHardStops({ mode: "both" }, withEqual).includes("EQUAL_VISIBILITY_REQUIRED"), false);
+
+    const alcoholic = buildBeverageStress({
+      mode: "alcoholic",
+      hasEqual: false,
+      iceHeavy: false,
+      hotStation: false,
+      attentionBand: "moderate",
+    });
+    assert.ok(alcoholic.equalVisibility >= 50);
+    assert.equal(beverageHardStops({ mode: "alcoholic" }, alcoholic).includes("EQUAL_VISIBILITY_REQUIRED"), false);
+  });
+
+  it("fails ice load when the route is ice-heavy", () => {
+    const dims = buildBeverageStress({
+      mode: "both",
+      hasEqual: true,
+      iceHeavy: true,
+      hotStation: false,
+      attentionBand: "moderate",
+    });
+    assert.ok(dims.coldIceLoad < 60);
+    const stops = beverageHardStops({ mode: "both" }, dims);
+    assert.ok(stops.includes("ICE_LOAD_UNSUPPORTED"));
+  });
+
+  it("passes ice load when the route is not ice-heavy", () => {
+    const dims = buildBeverageStress({
+      mode: "both",
+      hasEqual: true,
+      iceHeavy: false,
+      hotStation: false,
+      attentionBand: "moderate",
+    });
+    assert.ok(dims.coldIceLoad >= 60);
+    assert.equal(beverageHardStops({ mode: "both" }, dims).includes("ICE_LOAD_UNSUPPORTED"), false);
+  });
+
+  it("fails station attention when a hot station contends for equipment", () => {
+    const dims = buildBeverageStress({
+      mode: "both",
+      hasEqual: true,
+      iceHeavy: false,
+      hotStation: true,
+      attentionBand: "low",
+    });
+    assert.ok(dims.equipmentContention < 60);
+    const stops = beverageHardStops({ mode: "both" }, dims);
+    assert.ok(stops.includes("STATION_ATTENTION_UNSUPPORTED"));
+  });
+
+  it("passes station attention without hot station pressure", () => {
+    const dims = buildBeverageStress({
+      mode: "both",
+      hasEqual: true,
+      iceHeavy: false,
+      hotStation: false,
+      attentionBand: "moderate",
+    });
+    assert.ok(dims.equipmentContention >= 60);
+    assert.equal(beverageHardStops({ mode: "both" }, dims).includes("STATION_ATTENTION_UNSUPPORTED"), false);
+  });
+});
