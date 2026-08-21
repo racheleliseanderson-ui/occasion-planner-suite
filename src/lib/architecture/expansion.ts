@@ -29,6 +29,31 @@ export function buildMenuBuilderExpansion(input, output) {
     });
   }
 
+  // Beverage-track hard stops (equal visibility, ice load, station attention)
+  const bevDims = output.beverageStressTest?.dimensions || output.beverageRouteResult?.stress?.dimensions || {};
+  const bevMode = String(input.beverageRoute || output.beverageRouteResult?.mode || '');
+  if ((bevDims.equalVisibility ?? 100) < 50 && bevMode !== 'alcoholic') {
+    hardStops.push({
+      code: 'EQUAL_VISIBILITY_REQUIRED',
+      message: 'Equal-status zero-proof is missing or invisible on the beverage route.',
+      nextAction: 'Lock an Equal role drink with the same glassware and station presence, or declare alcoholic-only.'
+    });
+  }
+  if ((bevDims.coldIceLoad ?? 100) < 60) {
+    hardStops.push({
+      code: 'ICE_LOAD_UNSUPPORTED',
+      message: 'Declared ice / cold load exceeds a comfortable service plan for this route.',
+      nextAction: 'Reduce frozen or high-ice drinks, buy a dedicated ice budget, or move one cold hold off the main fridge/ice path.'
+    });
+  }
+  if ((bevDims.equipmentContention ?? 100) < 60 || ((bevDims.serviceAttention ?? 100) < 65 && (bevDims.equipmentContention ?? 100) < 70)) {
+    hardStops.push({
+      code: 'STATION_ATTENTION_UNSUPPORTED',
+      message: 'Station heat, blender, or build-your-own attention collides with host capacity.',
+      nextAction: 'Simplify the station (urn or dispenser only), pre-batch, or add a dedicated station helper.'
+    });
+  }
+
   const explanation = [
     `The menu thesis uses the ${String(input.menuArc || '').replaceAll('_', ' ')} arc and ${String(input.serviceStyle || '').replaceAll('_', ' ')} service style.`,
     `Operational pressure reflects guest band, host attention, preparation capacity, kitchen capacity, and event-day time.`,
