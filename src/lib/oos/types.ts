@@ -143,6 +143,10 @@ export interface LockedMenu {
   thesis: string;
   beverageDirection: string;
   zeroProofDirection: string;
+  /** Drink ids locked by Architecture drink track. Prefer these over default drinkTargets. */
+  selectedDrinkIds?: string[];
+  /** Equal-status zero-proof drink id. Required unless alcoholic-only. */
+  lockedEqualId?: string | null;
   simplifications: string[];
   unknowns: string[];
   substitutions: { from: string; to: string }[];

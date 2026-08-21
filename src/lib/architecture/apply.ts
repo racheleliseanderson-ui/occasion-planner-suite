@@ -114,6 +114,17 @@ export function buildApplyPayload(
     thesis: String(result.thesis || ""),
     beverageDirection: String(result.beverageDirection || built.handoff.beverageDirection),
     zeroProofDirection: built.handoff.zeroProofDirection,
+    selectedDrinkIds: [
+      ...(built.handoff.beverageRoute?.selectedDrinkIds ||
+        result.beverageRouteResult?.selectedDrinkIds ||
+        result.selectedDrinkIds ||
+        []),
+    ],
+    lockedEqualId:
+      built.handoff.beverageRoute?.lockedEqualId ??
+      result.beverageRouteResult?.lockedEqualId ??
+      result.lockedEqualId ??
+      null,
     simplifications: [...(result.simplifyFirst || [])],
     unknowns: [...built.handoff.unknowns],
     substitutions: [],
