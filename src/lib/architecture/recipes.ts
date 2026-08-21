@@ -1,6 +1,7 @@
 /** Planning recipes for every catalog dish. Educational — not kitchen-tested certification. */
 
 import { DRINK_RECIPES } from "./drink-recipes";
+import { FOOD_RECIPES } from "./food-recipes";
 
 export type RecipeIngredient = {
   item: string;
@@ -23,37 +24,8 @@ export type Recipe = {
   scalingNote: string;
 };
 
-function r(
-  dishId: string,
-  yieldText: string,
-  activeMinutes: number,
-  totalMinutes: number,
-  difficulty: Recipe["difficulty"],
-  headnote: string,
-  ingredients: RecipeIngredient[],
-  steps: string[],
-  makeAhead: string,
-  equipment: string[],
-  dietary: string[],
-  scalingNote: string,
-): Recipe {
-  return {
-    dishId,
-    yield: yieldText,
-    activeMinutes,
-    totalMinutes,
-    difficulty,
-    headnote,
-    ingredients,
-    steps,
-    makeAhead,
-    equipment,
-    dietary,
-    scalingNote,
-  };
-}
-
 export const RECIPES: Record<string, Recipe> = {
+  ...FOOD_RECIPES,
   ...DRINK_RECIPES,
 };
 
