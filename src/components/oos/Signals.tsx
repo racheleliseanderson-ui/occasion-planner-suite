@@ -1,6 +1,14 @@
 import type { LoadGauge, LoadLabel, Plan } from "@/lib/oos/types";
 import { cn } from "@/lib/utils";
 
+/** Every status mark carries a shape and a word — never hue alone. */
+const SHAPE: Record<LoadLabel, string> = {
+  "under-used": "▲",
+  controlled: "▲",
+  tight: "◆",
+  overloaded: "●",
+};
+
 const LABEL_TEXT: Record<LoadLabel, string> = {
   "under-used": "Headroom",
   controlled: "Controlled",
@@ -25,7 +33,7 @@ export function GaugeRow({ g }: { g: LoadGauge }) {
       <div className="flex items-baseline justify-between gap-4">
         <span className="text-sm font-medium">{g.name}</span>
         <span className={cn("font-mono text-xs uppercase tracking-widest", signalClass(g.label))}>
-          {LABEL_TEXT[g.label]} · {g.pct > 400 ? "—" : `${g.pct}%`}
+          <span aria-hidden>{SHAPE[g.label]}</span> {LABEL_TEXT[g.label]} · {g.pct > 400 ? "—" : `${g.pct}%`}
         </span>
       </div>
       <div className="mt-2 h-[3px] w-full bg-muted">
@@ -52,7 +60,7 @@ export function VerdictBlock({ plan }: { plan: Plan }) {
           <span className="rule-label text-ink-muted">Feasibility index</span>
           <p className="font-display text-7xl leading-none tabular-nums">{plan.feasibility}</p>
           <p className={cn("mt-2 font-mono text-xs uppercase tracking-[0.2em]", signalClass(plan.verdict))}>
-            {LABEL_TEXT[plan.verdict]}
+            <span aria-hidden>{SHAPE[plan.verdict]}</span> {LABEL_TEXT[plan.verdict]}
           </p>
         </div>
         <div className="space-y-3 text-sm leading-relaxed text-ink-muted">

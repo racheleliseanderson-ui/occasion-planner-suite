@@ -148,11 +148,10 @@ export function ConditionsPanel({ value, onChange }: Props) {
   return (
     <div className="paper grain">
       <div className="border-b border-border px-6 py-5">
-        <span className="rule-label">Section 01</span>
-        <h2 className="mt-1 text-2xl tracking-tight">Operating conditions</h2>
+        <span className="rule-label">Your night</span>
+        <h2 className="mt-1 text-2xl tracking-tight">Set the conditions</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Declare what is true. The engine will not assume equipment, seats, or time you have not
-          stated.
+          Tell it what is true. It never assumes equipment, seats or time you have not entered.
         </p>
       </div>
 

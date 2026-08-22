@@ -76,11 +76,11 @@ function MenuBuilder() {
     } else {
       const draft = peekCardDraft();
       if (draft?.lines?.length) {
-        setTitle(draft.title);
-        setSubtitle(draft.subtitle);
-        setFooter(draft.footer);
+        setTitle(draft.title ?? "");
+        setSubtitle(draft.subtitle ?? "");
+        setFooter(draft.footer ?? "");
         setLines(draft.lines);
-        setPlanSignature(draft.planSignature);
+        setPlanSignature(draft.planSignature ?? "");
         setReceipt("Serve wording restored. Return to Discover whenever you need to revise the route.");
       } else {
       const prior = lastMenuReceipt();

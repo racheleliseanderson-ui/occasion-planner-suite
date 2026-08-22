@@ -47,6 +47,7 @@
   --color-ink-foreground: var(--ink-foreground);
   --color-ink-muted: var(--ink-muted);
   --color-brass: var(--brass);
+  --color-gold: var(--gold);
   --color-signal-clear: var(--signal-clear);
   --color-signal-controlled: var(--signal-controlled);
   --color-signal-tight: var(--signal-tight);
@@ -56,71 +57,73 @@
 /* Pearl — printed operations sheet. Applied when .dark is absent. */
 :root {
   --radius: 0.25rem;
-  --background: oklch(0.986 0.004 265);
-  --foreground: oklch(0.245 0.042 258);
-  --card: oklch(0.941 0.009 265);
-  --card-foreground: oklch(0.245 0.042 258);
-  --popover: oklch(0.992 0.003 265);
-  --popover-foreground: oklch(0.245 0.042 258);
-  --primary: oklch(0.545 0.11 80);
-  --primary-foreground: oklch(0.988 0.004 265);
-  --secondary: oklch(0.908 0.012 265);
-  --secondary-foreground: oklch(0.245 0.042 258);
-  --muted: oklch(0.941 0.009 265);
-  --muted-foreground: oklch(0.435 0.03 262);
-  --accent: oklch(0.545 0.11 80);
-  --accent-foreground: oklch(0.988 0.004 265);
-  --destructive: oklch(0.53 0.16 22);
-  --destructive-foreground: oklch(0.988 0.004 265);
-  --border: oklch(0.855 0.014 265);
-  --input: oklch(0.855 0.014 265);
-  --ring: oklch(0.545 0.11 80);
+  --background: #F4F1EA;
+  --foreground: #101828;
+  --card: #FBFAF7;
+  --card-foreground: #101828;
+  --popover: #FBFAF7;
+  --popover-foreground: #101828;
+  --primary: #6E1F26;
+  --primary-foreground: #FBFAF7;
+  --secondary: #EAE5DA;
+  --secondary-foreground: #101828;
+  --muted: #EDE9E0;
+  --muted-foreground: oklch(0.44 0.02 265);
+  --accent: #6E1F26;
+  --accent-foreground: #FBFAF7;
+  --destructive: oklch(0.48 0.16 22);
+  --destructive-foreground: #FBFAF7;
+  --border: oklch(0.855 0.008 85);
+  --input: oklch(0.855 0.008 85);
+  --ring: #6E1F26;
 
-  --ink: oklch(0.225 0.048 258);
-  --ink-foreground: oklch(0.965 0.008 260);
-  --ink-muted: oklch(0.72 0.02 258);
-  --brass: oklch(0.545 0.11 80);
-  --signal-clear: oklch(0.58 0.035 250);
-  --signal-controlled: oklch(0.52 0.075 155);
-  --signal-tight: oklch(0.66 0.13 66);
-  --signal-over: oklch(0.53 0.16 22);
+  --ink: #0B1220;
+  --ink-foreground: #F4F1EA;
+  --ink-muted: oklch(0.78 0.012 85);
+  --brass: #6E1F26;
+  --gold: #C8A34A;
+  --signal-clear: oklch(0.50 0.03 258);
+  --signal-controlled: oklch(0.46 0.075 155);
+  --signal-tight: oklch(0.52 0.115 66);
+  --signal-over: oklch(0.48 0.16 22);
 }
 
 .light {
   color-scheme: light;
 }
 
-/* Navy — default via THEME_BOOT adding .dark. Deep navy, brass signal. */
+/* Navy — default via THEME_BOOT adding .dark. Deep navy ground, bordeaux accent. */
 .dark {
   color-scheme: dark;
-  --background: oklch(0.213 0.05 258);
-  --foreground: oklch(0.935 0.011 260);
-  --card: oklch(0.256 0.053 258);
-  --card-foreground: oklch(0.935 0.011 260);
-  --popover: oklch(0.302 0.056 258);
-  --popover-foreground: oklch(0.935 0.011 260);
-  --primary: oklch(0.83 0.13 88);
-  --primary-foreground: oklch(0.17 0.045 258);
-  --secondary: oklch(0.302 0.056 258);
-  --secondary-foreground: oklch(0.935 0.011 260);
-  --muted: oklch(0.256 0.053 258);
-  --muted-foreground: oklch(0.775 0.022 262);
-  --accent: oklch(0.83 0.13 88);
-  --accent-foreground: oklch(0.17 0.045 258);
-  --destructive: oklch(0.53 0.16 22);
-  --destructive-foreground: oklch(0.96 0.01 260);
-  --border: oklch(0.38 0.05 258);
-  --input: oklch(0.38 0.05 258);
-  --ring: oklch(0.83 0.13 88);
+  --background: #101828;
+  --foreground: #F4F1EA;
+  --card: #182132;
+  --card-foreground: #F4F1EA;
+  --popover: #1E2940;
+  --popover-foreground: #F4F1EA;
+  --primary: #C9707A;
+  --primary-foreground: #0B1220;
+  --secondary: #1E2940;
+  --secondary-foreground: #F4F1EA;
+  --muted: #182132;
+  --muted-foreground: oklch(0.80 0.014 265);
+  --accent: #C9707A;
+  --accent-foreground: #0B1220;
+  --destructive: oklch(0.68 0.16 22);
+  --destructive-foreground: #0B1220;
+  --border: oklch(0.38 0.028 265);
+  --input: oklch(0.38 0.028 265);
+  --ring: #C9707A;
 
-  --ink: oklch(0.168 0.044 258);
-  --ink-foreground: oklch(0.965 0.008 260);
-  --ink-muted: oklch(0.775 0.022 262);
-  --brass: oklch(0.83 0.13 88);
-  --signal-clear: oklch(0.72 0.055 250);
-  --signal-controlled: oklch(0.72 0.095 155);
-  --signal-tight: oklch(0.79 0.135 72);
-  --signal-over: oklch(0.53 0.16 22);
+  --ink: #0B1220;
+  --ink-foreground: #F4F1EA;
+  --ink-muted: oklch(0.80 0.014 265);
+  --brass: #C9707A;
+  --gold: #C8A34A;
+  --signal-clear: oklch(0.78 0.03 258);
+  --signal-controlled: oklch(0.78 0.10 155);
+  --signal-tight: oklch(0.82 0.13 72);
+  --signal-over: oklch(0.70 0.16 22);
 }
 
 .dark img {

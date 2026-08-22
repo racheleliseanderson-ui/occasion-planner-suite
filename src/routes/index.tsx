@@ -9,6 +9,8 @@ import { ScenarioGallery } from "@/components/oos/ScenarioGallery";
 import { RunConsole } from "@/components/oos/RunConsole";
 import { DecisionPacket } from "@/components/oos/DecisionPacket";
 import { HostContract } from "@/components/oos/HostContract";
+import { LabsFooter } from "@/components/oos/LabsFooter";
+import { ServiceRunner } from "@/components/oos/ServiceRunner";
 import { useT } from "@/lib/i18n";
 import { useTheme } from "@/hooks/use-theme";
 import { planPdf, styleForTheme } from "@/lib/oos/pdf";
@@ -147,44 +149,45 @@ function Index() {
         </div>
       )}
 
-      {/* Hero — tablescape via house media; darker overlay for type legibility */}
-      <section className="no-print relative isolate bg-ink text-ink-foreground">
+      {/* Hero — full-bleed tablescape. One headline, one subline, one CTA, one link. */}
+      <section className="no-print relative isolate flex min-h-[70vh] items-end bg-ink text-ink-foreground md:min-h-[62vh]">
         <img
           src={HERO_IMAGE}
-          alt="Black plates, gold cutlery, white roses and candles on a formally set dinner table"
+          alt="A formally set dinner table: black plates, gold cutlery, white roses and lit candles"
           width={1800}
           height={1028}
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-60"
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/50 to-ink/60"
+          className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/20"
         />
-        <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-24 sm:py-36 lg:grid-cols-[1.15fr_0.85fr]">
-          <div>
-            <span className="rule-label text-brass">{t("hero.eyebrow")}</span>
-            <h1 className="mt-4 font-display text-5xl leading-[0.95] tracking-tight sm:text-7xl">
-              {t("hero.title.1")}
-              <br />
-              {t("hero.title.2")}
-              <em className="not-italic text-brass"> {t("hero.title.3")}</em>
-              <br />
-              {t("hero.title.4")}
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-ink-muted">
-              {t("hero.body")}
-            </p>
-          </div>
-          <div className="self-end border border-ink-muted/30 bg-ink/70 p-6 backdrop-blur-sm">
-            <span className="rule-label text-brass">{t("hero.boundary")}</span>
-            <p className="mt-3 text-sm leading-relaxed text-ink-muted">
-              {t("hero.boundary.body")}
-            </p>
+        <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-28 sm:pb-24">
+          <h1 className="max-w-3xl font-display text-5xl leading-[0.95] tracking-tight sm:text-7xl">
+            Plan the night you can actually host
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-muted">
+            Guests, seats, ovens and hours go in. A route you can run comes out.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-5">
+            <a
+              href="#work"
+              className="bg-accent px-6 py-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-accent-foreground transition-opacity hover:opacity-90"
+            >
+              Start planning
+            </a>
+            <a
+              href="#starts"
+              className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-foreground underline underline-offset-8 hover:text-accent"
+            >
+              Open a starting point
+            </a>
           </div>
         </div>
       </section>
 
-      <section className="no-print border-b border-border bg-secondary">
+      <section id="starts" className="no-print border-b border-border bg-secondary">
         <div className="mx-auto max-w-6xl px-5 py-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -212,7 +215,7 @@ function Index() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-6xl px-5 py-12">
+      <main id="work" className="mx-auto max-w-6xl px-5 py-12">
         <div className="no-print grid gap-8 lg:grid-cols-[minmax(0,26rem)_1fr] lg:items-start">
           <div className="lg:sticky lg:top-20">
             <ConditionsPanel
@@ -254,10 +257,10 @@ function Index() {
               </button>
             </div>
             <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              {phase === "draft" && "Draft — declare conditions, then evaluate."}
-              {phase === "evaluated" && "Evaluated — review the route, then commit to freeze it."}
+              {phase === "draft" && "Set the conditions, then evaluate."}
+              {phase === "evaluated" && "Review the route, then commit to freeze it."}
               {phase === "committed" &&
-                (stale ? "Committed plan is stale. Re-evaluate to refresh." : "Committed — frozen until you rebuild.")}
+                (stale ? "This plan is out of date. Re-evaluate to refresh." : "Committed and frozen until you rebuild.")}
             </p>
           </div>
 
@@ -326,13 +329,12 @@ function Index() {
                   <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{t("work.empty.body")}</p>
                   <ol className="mt-6 grid gap-4 sm:grid-cols-3">
                     {[
-                      ["01", t("work.step1"), t("work.step1.body")],
-                      ["02", t("work.step2"), t("work.step2.body")],
-                      ["03", t("work.step3"), t("work.step3.body")],
+                      [t("work.step1"), t("work.step1"), t("work.step1.body")],
+                      [t("work.step2"), t("work.step2"), t("work.step2.body")],
+                      [t("work.step3"), t("work.step3"), t("work.step3.body")],
                     ].map(([n, title, body]) => (
-                      <li key={n} className="border-t border-foreground pt-3">
-                        <span className="rule-label">{n}</span>
-                        <p className="mt-1 text-sm font-medium">{title}</p>
+                      <li key={title} className="border-t border-accent pt-3">
+                        <p className="text-sm font-medium">{title}</p>
                         <p className="mt-1 text-xs text-muted-foreground">{body}</p>
                       </li>
                     ))}
@@ -342,6 +344,10 @@ function Index() {
             )}
           </div>
         </div>
+
+        <p className="mt-10 max-w-3xl border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
+          {t("hero.boundary.body")}
+        </p>
 
         <div className="mt-16">
           <HostContract plan={plan} evaluated={visible} />
@@ -462,44 +468,7 @@ function Index() {
         )}
       </main>
 
-      <footer className="no-print border-t border-border bg-ink text-ink-muted">
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-6 px-5 py-10 text-sm">
-          <p className="max-w-xl leading-relaxed">
-            Occasion Operating System is an educational host-planning instrument. It is not
-            professional kitchen, medical, or legal advice. First-party fixtures only; no invented
-            claims, no silent assumptions.
-          </p>
-          <div className="space-y-2 font-mono text-[11px] uppercase tracking-widest">
-            <a href="https://saltnotes.blog" target="_blank" rel="noreferrer noopener" className="block hover:text-ink-foreground">
-              Salty & Clever ↗
-            </a>
-            <a
-              href="https://saltnotes.blog/reading-desk/"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="block hover:text-ink-foreground"
-            >
-              Reading desk ↗
-            </a>
-            <a
-              href="https://saltnotes.blog/occasion-operating-system/"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="block hover:text-ink-foreground"
-            >
-              Occasion OS on the site ↗
-            </a>
-            <a
-              href="https://deepdish.saltnotes.blog"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="block hover:text-ink-foreground"
-            >
-              {t("nav.restaurant")}
-            </a>
-          </div>
-        </div>
-      </footer>
+      <LabsFooter />
     </div>
   );
 }

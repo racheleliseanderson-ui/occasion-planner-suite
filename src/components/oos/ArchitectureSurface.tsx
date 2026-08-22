@@ -153,16 +153,25 @@ export function ArchitectureSurface({ initialToken = null }: { initialToken?: st
       if (back) {
         setInput((prev) => ({
           ...prev,
-          guestCount: back.guests,
-          guestBand: guestBandFromCount(back.guests),
-          prepCapacity: back.prepWindowH <= 3 ? "limited" : back.prepWindowH >= 7 ? "generous" : "standard",
+          guestCount: back.guests ?? prev.guestCount,
+          guestBand: guestBandFromCount(back.guests ?? prev.guestCount),
+          prepCapacity:
+            back.prepWindowH === undefined
+              ? prev.prepCapacity
+              : back.prepWindowH <= 3
+                ? "limited"
+                : back.prepWindowH >= 7
+                  ? "generous"
+                  : "standard",
           equipmentConstraints: [
             ...(back.ovens === 0 ? ["no_oven"] : back.ovens === 1 ? ["limited_oven"] : []),
-            ...(back.burners <= 2 ? ["limited_burners"] : []),
+            ...(back.burners !== undefined && back.burners <= 2 ? ["limited_burners"] : []),
           ],
         }));
-        setStatus(back.note);
-        setApplyMsg(back.note);
+        if (back.note) {
+          setStatus(back.note);
+          setApplyMsg(back.note);
+        }
       }
     } catch {
       setStatus("Local storage unavailable. Continuing without saved inputs.");

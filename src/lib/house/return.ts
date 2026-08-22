@@ -151,7 +151,7 @@ export function returnFromPlan(plan: Plan, reopen?: string): HouseReturnPayload 
     v: HOUSE_RETURN_VERSION,
     from: "plan",
     label: plan.conditions.label || "Untitled occasion",
-    thesis: plan.conditions.lockedMenu?.thesis || plan.ledger.menu[0] || "",
+    thesis: plan.conditions.lockedMenu?.thesis || plan.menu[0]?.dish.name || "",
     guests: plan.conditions.guests,
     seatingKnown: plan.conditions.seatingKnown !== false,
     seatingCount: plan.conditions.seatingKnown === false ? null : plan.conditions.kitchen.seats,
