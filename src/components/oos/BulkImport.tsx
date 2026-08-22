@@ -10,11 +10,18 @@ import { download } from "@/lib/oos/export";
 export function BulkImport({ fixtureIds }: { fixtureIds: Set<string> }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [result, setResult] = useState<BulkResult | null>(null);
+  const [fatal, setFatal] = useState<string | null>(null);
 
   async function onFile(file: File | null) {
     if (!file) return;
     const text = await file.text();
     const out = readBulk(text, fixtureIds);
+    if ("fatal" in out) {
+      setResult(null);
+      setFatal(out.fatal);
+      return;
+    }
+    setFatal(null);
     setResult(out);
   }
 
@@ -50,30 +57,34 @@ export function BulkImport({ fixtureIds }: { fixtureIds: Set<string> }) {
         />
       </div>
 
+      {fatal ? (
+        <p className="border border-border p-4 text-sm text-signal-over">{fatal}</p>
+      ) : null}
+
       {result ? (
         <div className="space-y-3 border border-border p-4">
           <p className="text-sm">
-            {result.accepted.length} ready · {result.refused.length} refused
+            {result.valid.length} ready · {result.errors.length} refused
           </p>
-          {result.refused.length > 0 ? (
+          {result.errors.length > 0 ? (
             <ul className="max-h-40 overflow-auto text-xs text-muted-foreground">
-              {result.refused.map((r) => (
-                <li key={r.row}>
-                  Row {r.row}: {r.reason}
+              {result.errors.map((r) => (
+                <li key={r.line}>
+                  Row {r.line}: {r.error}
                 </li>
               ))}
             </ul>
           ) : null}
-          {result.accepted.length > 0 ? (
+          {result.valid.length > 0 ? (
             <button
               type="button"
               onClick={() => {
-                bulkApplyDishes(result.accepted);
+                bulkApplyDishes(result.valid, fixtureIds);
                 setResult(null);
               }}
               className="min-h-11 border border-foreground bg-foreground px-4 py-2 text-sm text-background"
             >
-              Accept {result.accepted.length} dishes
+              Accept {result.valid.length} dishes
             </button>
           ) : null}
         </div>
