@@ -5,6 +5,7 @@ const THIS_PUBLICATION: { label: string; href: string }[] = [
   { label: "Salty Desk", href: "https://salty.saltnotes.blog" },
   { label: "Restaurant Intelligence", href: "https://deepdish.saltnotes.blog" },
   { label: "Occasion OS", href: "https://occasion.saltnotes.blog" },
+  { label: "Menu Builder", href: "https://occasion.saltnotes.blog/architecture" },
   { label: "Kitchen & Bar", href: "https://kitchen.saltnotes.blog" },
 ];
 
@@ -15,6 +16,7 @@ const FLEET: { label: string; href: string }[] = [
   { label: "Vanity or Vice", href: "https://vanityvice.blog" },
   { label: "Makeup Intelligence", href: "https://makeup.vanityvice.blog" },
   { label: "Spa Intelligence", href: "https://spa.vanityvice.blog" },
+  { label: "Skincare Desk", href: "https://skincare.vanityvice.blog" },
   { label: "Room for Drama", href: "https://dramaroom.blog" },
   { label: "Hook the Horizon", href: "https://hookthehorizon.blog" },
   { label: "Elsewhere, Apparently", href: "https://the-money-apparently.vercel.app" },
