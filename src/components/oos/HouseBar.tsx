@@ -10,11 +10,9 @@ type Item =
 /** One row, six items maximum. */
 const NAV: Item[] = [
   { id: "plan", label: "Plan", to: "/" },
-  { id: "menu", label: "Menu", to: "/architecture" },
-  { id: "serve", label: "Serve", to: "/menu" },
+  { id: "menu", label: "Menu Builder", to: "/architecture" },
+  { id: "serve", label: "Service Card", to: "/menu" },
   { id: "library", label: "Library", to: "/library" },
-  { id: "kitchen", label: "Kitchen ↗", href: "https://kitchen.saltnotes.blog" },
-  { id: "ri", label: "Restaurant ↗", href: "https://deepdish.saltnotes.blog" },
 ];
 
 function isCurrent(pathname: string, to: string) {

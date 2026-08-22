@@ -5,6 +5,7 @@ const THIS_PUBLICATION: { label: string; href: string }[] = [
   { label: "Salty Desk", href: "https://salty.saltnotes.blog" },
   { label: "Restaurant Intelligence", href: "https://deepdish.saltnotes.blog" },
   { label: "Occasion OS", href: "https://occasion.saltnotes.blog" },
+  { label: "Menu Builder", href: "https://occasion.saltnotes.blog/architecture" },
   { label: "Kitchen & Bar", href: "https://kitchen.saltnotes.blog" },
 ];
 
@@ -15,6 +16,7 @@ const FLEET: { label: string; href: string }[] = [
   { label: "Vanity or Vice", href: "https://vanityvice.blog" },
   { label: "Makeup Intelligence", href: "https://makeup.vanityvice.blog" },
   { label: "Spa Intelligence", href: "https://spa.vanityvice.blog" },
+  { label: "Skincare Desk", href: "https://skincare.vanityvice.blog" },
   { label: "Room for Drama", href: "https://dramaroom.blog" },
   { label: "Hook the Horizon", href: "https://hookthehorizon.blog" },
   { label: "Elsewhere, Apparently", href: "https://the-money-apparently.vercel.app" },
@@ -45,7 +47,7 @@ export function LabsFooter() {
 
         <div className="mt-8 grid gap-10 text-sm sm:grid-cols-3">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold">The House</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-foreground/70">The House</p>
             <p className="mt-3 max-w-xs leading-relaxed">
               Independent publications and the decision instruments built for them.
             </p>
@@ -55,7 +57,7 @@ export function LabsFooter() {
           </div>
 
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-foreground/70">
               This publication
             </p>
             <div className="mt-3">
@@ -68,7 +70,7 @@ export function LabsFooter() {
           </div>
 
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-foreground/70">
               Across the fleet
             </p>
             <div className="mt-3">
