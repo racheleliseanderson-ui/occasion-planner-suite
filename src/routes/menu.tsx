@@ -80,7 +80,7 @@ function MenuBuilder() {
         setSubtitle(draft.subtitle ?? "");
         setFooter(draft.footer ?? "");
         setLines(draft.lines);
-        setPlanSignature(draft.planSignature ?? null);
+        setPlanSignature(draft.planSignature ?? "");
         setReceipt("Serve wording restored. Return to Discover whenever you need to revise the route.");
       } else {
       const prior = lastMenuReceipt();
