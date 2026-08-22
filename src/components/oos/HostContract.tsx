@@ -107,7 +107,7 @@ export function HostContract({ plan, evaluated }: { plan: Plan; evaluated: boole
                 row.state === "pending" && "text-muted-foreground",
               )}
             >
-              {row.state === "blocked" ? "Stopped" : row.state === "ready" ? "Declared" : "Waiting"}
+              {row.state === "blocked" ? "● Stopped" : row.state === "ready" ? "▲ Set" : "◆ Needs input"}
             </span>
             <p className="w-full text-sm text-muted-foreground">{row.detail}</p>
           </li>

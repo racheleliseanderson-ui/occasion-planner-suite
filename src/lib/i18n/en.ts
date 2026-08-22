@@ -63,7 +63,7 @@ export const en = {
   "scen.guests": "guests",
 
   // ---- workspace
-  "work.section02": "Section 02",
+  "work.section02": "The route",
   "work.route": "Controlled route",
   "work.build": "Build controlled route",
   "work.rebuild": "Rebuild route",
@@ -80,12 +80,12 @@ export const en = {
   "work.step2.body": "A route scored against your real constraints.",
   "work.step3": "Serve",
   "work.step3.body": "Adjust one input, compare variations, then print the packet.",
-  "work.section03": "Section 03",
+  "work.section03": "Comparison",
   "work.variations": "Variation comparison",
   "work.variations.body":
     "Saved assumptions held side by side. Compare the cost of one more guest, one fewer burner, or one lost helper before you commit.",
   "work.clearVariations": "Clear saved variations",
-  "work.section04": "Section 04",
+  "work.section04": "Handoff",
   "work.packet": "Host decision packet",
   "work.packet.body": "One document to carry into the kitchen. Prints clean on paper.",
   "work.rebuilt": "Route rebuilt.",
@@ -173,7 +173,7 @@ export const en = {
   "packet.dayof": "Day of",
 
   // ---- run control, service run, decision packet, cuisines
-  "run.eyebrow": "03 · Run control",
+  "run.eyebrow": "Run control",
   "run.title": "Build run",
   "run.body": "Computing a route is a run with four stages. Each stage does the real work and reports what it produced. Step through it, or let it go.",
   "run.start": "Run",
@@ -185,10 +185,10 @@ export const en = {
   "run.stage.load": "Resource load",
   "run.stage.schedule": "Schedule",
   "run.stage.cost": "Cost and balance",
-  "run.status.idle": "Waiting",
+  "run.status.idle": "Ready",
   "run.status.running": "Running",
   "run.status.done": "Complete",
-  "run.pending": "Not run yet",
+  "run.pending": "Ready to run",
   "run.committed": "Run complete — the route below is committed.",
   "run.stale": "Conditions changed since the last run. The route below is from the previous run.",
   "run.history": "Run history",
