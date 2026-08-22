@@ -5,8 +5,22 @@
 const CARD_DRAFT_KEY = "oos-card-draft-v1";
 const CONSTRAINT_KEY = "oos-constraint-return-v1";
 
+export type CardDraftLine = {
+  id: string;
+  name: string;
+  note: string;
+  course: string;
+  show: boolean;
+  showCourse: boolean;
+};
+
 export type CardDraft = {
   label?: string;
+  title?: string;
+  subtitle?: string;
+  footer?: string;
+  lines?: CardDraftLine[];
+  planSignature?: string | null;
   dishes?: string[];
   notes?: string;
   savedAt?: string;
